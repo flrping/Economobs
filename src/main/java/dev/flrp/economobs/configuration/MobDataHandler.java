@@ -2,7 +2,7 @@ package dev.flrp.economobs.configuration;
 
 import dev.flrp.economobs.Economobs;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Mob;
+import org.bukkit.entity.LivingEntity;
 
 import java.util.*;
 
@@ -31,7 +31,7 @@ public class MobDataHandler {
     public static List<EntityType> getMobTypes() {
         List<EntityType> mobTypes = new ArrayList<>();
         for (EntityType type: EnumSet.allOf(EntityType.class)) {
-            if (type != EntityType.UNKNOWN && Mob.class.isAssignableFrom(type.getEntityClass())) {
+            if (type != EntityType.UNKNOWN && type != EntityType.ARMOR_STAND && LivingEntity.class.isAssignableFrom(type.getEntityClass())) {
                 mobTypes.add(type);
             }
         }
