@@ -1,0 +1,14 @@
+# Configuration of Economobs. For help, visit https://docs.axelli.net/
+
+# Multipliers.
+# If any conditions are true, they will be considered towards the output amount.
+# Make sure to balance this properly if you use both. You can leave any category empty if you wish not to use it.
+multipliers:
+  weapons:
+    - DIAMOND_SWORD 1.2
+  worlds:
+    - world1 1.8
+
+# A list of worlds where money wont be given.
+world-blacklist:
+  - world2
