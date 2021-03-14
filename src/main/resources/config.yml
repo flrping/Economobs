@@ -1,5 +1,9 @@
 # Configuration of Economobs. For help, visit https://docs.axelli.net/
 
+# What stacker should the plugin look for?
+# Current list: NONE, WILDSTACKER
+stacker: NONE
+
 # Multipliers.
 # If any conditions are true, they will be considered towards the output amount.
 # Make sure to balance this properly if you use both. You can leave any category empty if you wish not to use it.

@@ -1,13 +1,16 @@
 package dev.flrp.economobs.listeners;
 
+import com.bgsoftware.wildstacker.api.events.EntityUnstackEvent;
 import com.earth2me.essentials.User;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.api.events.EcoGiveEvent;
+import dev.flrp.economobs.configuration.StackerType;
 import net.ess3.api.MaxMoneyException;
 import net.ess3.api.events.UserBalanceUpdateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -19,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.HashMap;
+import java.util.UUID;
 
 public class DeathListener implements Listener {
 
@@ -30,6 +34,7 @@ public class DeathListener implements Listener {
 
     @EventHandler
     public void onMobDeath(EntityDeathEvent event) {
+        if(plugin.getStackerType() != StackerType.NONE) return;
         LivingEntity entity = event.getEntity();
         if(entity.getKiller() == null) return;
         if(entity instanceof Player) return;
@@ -42,6 +47,31 @@ public class DeathListener implements Listener {
         try {
             double x = applyMultipliers(amounts.get(entity.getType()), entity.getWorld(), itemInHand(player).getType());
             EcoGiveEvent ecoGiveEvent = new EcoGiveEvent(x, entity);
+            Bukkit.getPluginManager().callEvent(ecoGiveEvent);
+            if(!ecoGiveEvent.isCancelled()) {
+                giveMoney(user, BigDecimal.valueOf(x).setScale(2, RoundingMode.DOWN), UserBalanceUpdateEvent.Cause.API);
+            }
+        } catch(MaxMoneyException e) {
+            user.sendMessage(plugin.getLocale().parse(plugin.getLanguage().getConfiguration().getString("prefix") + plugin.getLanguage().getConfiguration().getString("economy-max")));
+        }
+    }
+
+    @EventHandler
+    public void mobStackerEntityDeath(EntityUnstackEvent event) {
+        if(plugin.getStackerType() != StackerType.WILDSTACKER) return;
+        if(event.getUnstackSource() == null) return;
+
+        UUID id = event.getUnstackSource().getUniqueId();
+        Entity entity = plugin.getServer().getEntity(id);
+        if(entity.getType() != EntityType.PLAYER) return;
+
+        Player player = (Player) plugin.getServer().getEntity(id);
+        User user = plugin.getEssentials().getUser(player);
+
+        HashMap<EntityType, Double> amounts = plugin.getMobDataHandler().getAmounts();
+        try {
+            double x = applyMultipliers(amounts.get(entity.getType()), entity.getWorld(), itemInHand(player).getType()) * event.getAmount();
+            EcoGiveEvent ecoGiveEvent = new EcoGiveEvent(x, (LivingEntity) entity);
             Bukkit.getPluginManager().callEvent(ecoGiveEvent);
             if(!ecoGiveEvent.isCancelled()) {
                 giveMoney(user, BigDecimal.valueOf(x).setScale(2, RoundingMode.DOWN), UserBalanceUpdateEvent.Cause.API);

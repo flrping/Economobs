@@ -5,6 +5,7 @@ import dev.flrp.economobs.commands.Commands;
 import dev.flrp.economobs.configuration.Configuration;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.configuration.MobDataHandler;
+import dev.flrp.economobs.configuration.StackerType;
 import dev.flrp.economobs.listeners.DeathListener;
 import me.mattstudios.mf.base.CommandManager;
 import org.bukkit.Bukkit;
@@ -29,6 +30,8 @@ public final class Economobs extends JavaPlugin {
     private HashMap<Material, Double> weapons;
     private HashMap<World, Double> worlds;
 
+    private StackerType stackerType;
+
     @Override
     public void onEnable() {
         System.out.println("[Economobs] Starting...");
@@ -43,8 +46,10 @@ public final class Economobs extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         applyEssentials();
 
-        // Multiplier Lists
+        // Extra
         createMultiplierLists();
+        stackerType = StackerType.getName(getConfig().getString("stacker"));
+        System.out.println("[Economobs] Selected stacker plugin: " + stackerType);
 
         // Commands
         CommandManager commandManager = new CommandManager(this);
@@ -63,8 +68,10 @@ public final class Economobs extends JavaPlugin {
         initiateClasses();
         applyEssentials();
 
-        // Multiplier Lists
+        // Extra
         createMultiplierLists();
+        stackerType = StackerType.getName(getConfig().getString("stacker"));
+        System.out.println("[Economobs] Selected stacker plugin: " + stackerType);
 
         System.out.println("[Economobs] Done!");
     }
@@ -123,4 +130,7 @@ public final class Economobs extends JavaPlugin {
     public HashMap<Material, Double> getWeaponMultiplierList() { return weapons; }
 
     public HashMap<World, Double> getWorldMultiplierList() { return worlds; }
+
+    // Temporary
+    public StackerType getStackerType() { return stackerType; }
 }
