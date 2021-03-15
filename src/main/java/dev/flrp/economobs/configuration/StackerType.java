@@ -3,7 +3,8 @@ package dev.flrp.economobs.configuration;
 public enum StackerType {
 
     NONE,
-    WILDSTACKER;
+    WILDSTACKER,
+    STACKMOB;
 
     public static StackerType getName(String name) {
         try {

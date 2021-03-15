@@ -1,6 +1,5 @@
 package dev.flrp.economobs;
 
-import com.bgsoftware.wildstacker.api.WildStacker;
 import com.earth2me.essentials.Essentials;
 import dev.flrp.economobs.commands.Commands;
 import dev.flrp.economobs.configuration.Configuration;
@@ -8,11 +7,16 @@ import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.configuration.MobDataHandler;
 import dev.flrp.economobs.configuration.StackerType;
 import dev.flrp.economobs.listeners.DeathListener;
+import dev.flrp.economobs.listeners.MythicMobListeners;
+import dev.flrp.economobs.listeners.StackMobListeners;
 import dev.flrp.economobs.listeners.WildStackerListener;
+import dev.flrp.economobs.utils.Methods;
+import io.lumine.xikage.mythicmobs.MythicMobs;
 import me.mattstudios.mf.base.CommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
@@ -26,9 +30,10 @@ public final class Economobs extends JavaPlugin {
 
     private MobDataHandler mobDataHandler;
     private Locale locale;
+    private Methods methods;
 
     private Essentials essentials = null;
-    private WildStacker wildstacker = null;
+    private MythicMobs mythicMobs = null;
 
     private HashMap<Material, Double> weapons;
     private HashMap<World, Double> worlds;
@@ -45,9 +50,14 @@ public final class Economobs extends JavaPlugin {
         initiateFiles();
 
         // Initiation
-        initiateClasses();
-        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         applyPlugins();
+        initiateClasses();
+
+        // Listeners
+        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
+        registerListener("WildStacker", new WildStackerListener(this));
+        registerListener("StackMob", new StackMobListeners(this));
+        registerListener("MythicMobs", new MythicMobListeners(this));
 
         // Extra
         createMultiplierLists();
@@ -89,6 +99,7 @@ public final class Economobs extends JavaPlugin {
     public void initiateClasses() {
         mobDataHandler = new MobDataHandler(this);
         locale = new Locale();
+        methods = new Methods(this);
     }
 
     public void createMultiplierLists() {
@@ -107,17 +118,20 @@ public final class Economobs extends JavaPlugin {
     }
 
     public void applyPlugins() {
-        if(this.getServer().getPluginManager().getPlugin("Essentials") != null) {
-            this.essentials = (Essentials) this.getServer().getPluginManager().getPlugin("Essentials");
-            System.out.println("[Economobs] Found Essentials. Using it.");
-        }
-        if(this.getServer().getPluginManager().getPlugin("WildStacker") != null) {
-            this.wildstacker = (WildStacker) this.getServer().getPluginManager().getPlugin("WildStacker");
-            getServer().getPluginManager().registerEvents(new WildStackerListener(this), this);
-            System.out.println("[Economobs] Found WildStacker. Registered Events.");
+        if(getServer().getPluginManager().getPlugin("Essentials") != null)
+            essentials = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
+
+        if(getServer().getPluginManager().getPlugin("MythicMobs") != null)
+            mythicMobs = (MythicMobs) getServer().getPluginManager().getPlugin("MythicMobs");
+    }
+
+    public void registerListener(String name, Listener listener) {
+        if(getServer().getPluginManager().getPlugin(name) != null) {
+            getServer().getPluginManager().registerEvents(listener, this);
+            System.out.println("[Economobs] Found " + name + ". Registered Events.");
         }
     }
-    
+
     public Configuration getMobs() {
         return mobs;
     }
@@ -130,7 +144,11 @@ public final class Economobs extends JavaPlugin {
 
     public Locale getLocale() { return locale; }
 
+    public Methods getMethods() { return methods; }
+
     public Essentials getEssentials() { return essentials; }
+
+    public MythicMobs getMythicMobs() { return mythicMobs; }
 
     public HashMap<Material, Double> getWeaponMultiplierList() { return weapons; }
 
@@ -138,4 +156,5 @@ public final class Economobs extends JavaPlugin {
 
     // Temporary
     public StackerType getStackerType() { return stackerType; }
+
 }
