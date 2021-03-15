@@ -1,5 +1,6 @@
 package dev.flrp.economobs;
 
+import com.bgsoftware.wildstacker.api.WildStacker;
 import com.earth2me.essentials.Essentials;
 import dev.flrp.economobs.commands.Commands;
 import dev.flrp.economobs.configuration.Configuration;
@@ -7,6 +8,7 @@ import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.configuration.MobDataHandler;
 import dev.flrp.economobs.configuration.StackerType;
 import dev.flrp.economobs.listeners.DeathListener;
+import dev.flrp.economobs.listeners.WildStackerListener;
 import me.mattstudios.mf.base.CommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -25,7 +27,8 @@ public final class Economobs extends JavaPlugin {
     private MobDataHandler mobDataHandler;
     private Locale locale;
 
-    private Essentials essentials;
+    private Essentials essentials = null;
+    private WildStacker wildstacker = null;
 
     private HashMap<Material, Double> weapons;
     private HashMap<World, Double> worlds;
@@ -44,7 +47,7 @@ public final class Economobs extends JavaPlugin {
         // Initiation
         initiateClasses();
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
-        applyEssentials();
+        applyPlugins();
 
         // Extra
         createMultiplierLists();
@@ -66,7 +69,6 @@ public final class Economobs extends JavaPlugin {
 
         // Initiation
         initiateClasses();
-        applyEssentials();
 
         // Extra
         createMultiplierLists();
@@ -104,15 +106,18 @@ public final class Economobs extends JavaPlugin {
         }
     }
 
-    public void applyEssentials() {
-        try {
+    public void applyPlugins() {
+        if(this.getServer().getPluginManager().getPlugin("Essentials") != null) {
             this.essentials = (Essentials) this.getServer().getPluginManager().getPlugin("Essentials");
-        } catch (Exception e) {
-            this.essentials = null;
+            System.out.println("[Economobs] Found Essentials. Using it.");
         }
-        if(this.essentials != null) System.out.println("[Economobs] Found Essentials. Using it.");
+        if(this.getServer().getPluginManager().getPlugin("WildStacker") != null) {
+            this.wildstacker = (WildStacker) this.getServer().getPluginManager().getPlugin("WildStacker");
+            getServer().getPluginManager().registerEvents(new WildStackerListener(this), this);
+            System.out.println("[Economobs] Found WildStacker. Registered Events.");
+        }
     }
-
+    
     public Configuration getMobs() {
         return mobs;
     }

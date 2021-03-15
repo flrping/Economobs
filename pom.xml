@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -77,6 +77,10 @@
             <id>paper-repo</id>
             <url>https://papermc.io/repo/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>bgsoftware-repo</id>
+            <url>https://repo.bg-software.com/repository/api/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -96,6 +100,12 @@
             <groupId>me.mattstudios.utils</groupId>
             <artifactId>matt-framework</artifactId>
             <version>1.4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.bgsoftware</groupId>
+            <artifactId>WildStackerAPI</artifactId>
+            <version>latest</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
