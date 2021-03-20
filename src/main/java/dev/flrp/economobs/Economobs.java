@@ -1,15 +1,15 @@
 package dev.flrp.economobs;
 
-import com.earth2me.essentials.Essentials;
 import dev.flrp.economobs.commands.Commands;
 import dev.flrp.economobs.configuration.Configuration;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.configuration.MobDataHandler;
 import dev.flrp.economobs.configuration.StackerType;
 import dev.flrp.economobs.listeners.DeathListener;
-import dev.flrp.economobs.listeners.MythicMobListeners;
-import dev.flrp.economobs.listeners.StackMobListeners;
+import dev.flrp.economobs.listeners.MythicMobListener;
+import dev.flrp.economobs.listeners.StackMobListener;
 import dev.flrp.economobs.listeners.WildStackerListener;
+import dev.flrp.economobs.managers.EconomyManager;
+import dev.flrp.economobs.managers.MobManager;
 import dev.flrp.economobs.utils.Methods;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import me.mattstudios.mf.base.CommandManager;
@@ -25,14 +25,16 @@ import static org.bukkit.util.NumberConversions.toDouble;
 
 public final class Economobs extends JavaPlugin {
 
+    private static Economobs instance;
+
     private Configuration mobs;
     private Configuration language;
 
-    private MobDataHandler mobDataHandler;
+    private MobManager mobManager;
+    private EconomyManager economyManager;
     private Locale locale;
     private Methods methods;
 
-    private Essentials essentials = null;
     private MythicMobs mythicMobs = null;
 
     private HashMap<Material, Double> weapons;
@@ -43,6 +45,7 @@ public final class Economobs extends JavaPlugin {
     @Override
     public void onEnable() {
         System.out.println("[Economobs] Starting...");
+        instance = this;
 
         // Files
         getConfig().options().copyDefaults();
@@ -56,8 +59,8 @@ public final class Economobs extends JavaPlugin {
         // Listeners
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         registerListener("WildStacker", new WildStackerListener(this));
-        registerListener("StackMob", new StackMobListeners(this));
-        registerListener("MythicMobs", new MythicMobListeners(this));
+        registerListener("StackMob", new StackMobListener(this));
+        registerListener("MythicMobs", new MythicMobListener(this));
 
         // Extra
         createMultiplierLists();
@@ -88,7 +91,7 @@ public final class Economobs extends JavaPlugin {
         System.out.println("[Economobs] Done!");
     }
 
-    public void initiateFiles() {
+    private void initiateFiles() {
         mobs = new Configuration(this);
         mobs.load("mobs");
 
@@ -96,13 +99,14 @@ public final class Economobs extends JavaPlugin {
         language.load("language");
     }
 
-    public void initiateClasses() {
-        mobDataHandler = new MobDataHandler(this);
+    private void initiateClasses() {
+        mobManager = new MobManager(this);
+        economyManager = new EconomyManager(this);
         locale = new Locale();
         methods = new Methods(this);
     }
 
-    public void createMultiplierLists() {
+    private void createMultiplierLists() {
         weapons = new HashMap<>();
         for(String entry : getConfig().getStringList("multipliers.weapons")) {
             Material material = Material.getMaterial(entry.substring(0, entry.indexOf(' ')));
@@ -117,19 +121,20 @@ public final class Economobs extends JavaPlugin {
         }
     }
 
-    public void applyPlugins() {
-        if(getServer().getPluginManager().getPlugin("Essentials") != null)
-            essentials = (Essentials) getServer().getPluginManager().getPlugin("Essentials");
-
+    private void applyPlugins() {
         if(getServer().getPluginManager().getPlugin("MythicMobs") != null)
             mythicMobs = (MythicMobs) getServer().getPluginManager().getPlugin("MythicMobs");
     }
 
-    public void registerListener(String name, Listener listener) {
+    private void registerListener(String name, Listener listener) {
         if(getServer().getPluginManager().getPlugin(name) != null) {
             getServer().getPluginManager().registerEvents(listener, this);
             System.out.println("[Economobs] Found " + name + ". Registered Events.");
         }
+    }
+
+    public static Economobs getInstance() {
+        return instance;
     }
 
     public Configuration getMobs() {
@@ -138,15 +143,17 @@ public final class Economobs extends JavaPlugin {
 
     public Configuration getLanguage() {return language; }
 
-    public MobDataHandler getMobDataHandler() {
-        return mobDataHandler;
+    public MobManager getMobManager() {
+        return mobManager;
+    }
+
+    public EconomyManager getEconomyManager() {
+        return economyManager;
     }
 
     public Locale getLocale() { return locale; }
 
     public Methods getMethods() { return methods; }
-
-    public Essentials getEssentials() { return essentials; }
 
     public MythicMobs getMythicMobs() { return mythicMobs; }
 

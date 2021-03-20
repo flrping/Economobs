@@ -26,6 +26,7 @@ public class EcoGiveEvent extends Event implements Cancellable {
         return entity;
     }
 
+    @Override
     public HandlerList getHandlers() {
         return HANDLERS;
     }

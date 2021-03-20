@@ -3,3 +3,4 @@ command-denied: "&cYou do not have permission to run this command"
 # {0} prints out the money made.
 economy-given: "&7You've earned &f${0} &7by killing this mob."
 economy-max: "&cYou can't earn more money due to a maximum balance."
+economy-failed: "&cUnable to add money to your balance."
