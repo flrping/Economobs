@@ -19,7 +19,7 @@ public class Commands extends CommandBase {
 
     @Default
     public void defaultCommand(final CommandSender commandSender) {
-        commandSender.sendMessage(plugin.getLocale().parse("&a&lEconomobs &7Version 1.1.4 &8| &7By flrp <3"));
+        commandSender.sendMessage(plugin.getLocale().parse("&a&lEconomobs &7Version 1.1.5 &8| &7By flrp <3"));
         commandSender.sendMessage(plugin.getLocale().parse("&f/economobs help &8- &7Displays this menu."));
         if(commandSender.hasPermission("economobs.admin")) {
             commandSender.sendMessage(plugin.getLocale().parse("&f/economobs reload &8- &7Reloads the plugin."));
