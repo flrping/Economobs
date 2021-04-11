@@ -26,7 +26,7 @@ public class MythicMobListener implements Listener {
         if(!plugin.getMobManager().getMythicAmounts().containsKey(event.getMobType().getInternalName())) return;
 
         Player player = (Player) event.getKiller();
-        plugin.getEconomyManager().handleDeposit(player, (LivingEntity) entity, plugin.getMobManager().getMythicAmount(event.getMobType().getInternalName()));
+        plugin.getEconomyManager().handleDeposit(player, (LivingEntity) entity, plugin.getMobManager().getMythicAmount(event.getMobType().getInternalName()), plugin.getMobManager().getMythicChance(event.getMobType().getInternalName()));
     }
 
 }

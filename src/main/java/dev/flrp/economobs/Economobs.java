@@ -32,8 +32,6 @@ public final class Economobs extends JavaPlugin {
 
     private MobManager mobManager;
     private EconomyManager economyManager;
-    private Locale locale;
-    private Methods methods;
 
     private MythicMobs mythicMobs = null;
 
@@ -55,6 +53,7 @@ public final class Economobs extends JavaPlugin {
         // Initiation
         applyPlugins();
         initiateClasses();
+        Locale.load();
 
         // Listeners
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
@@ -82,6 +81,7 @@ public final class Economobs extends JavaPlugin {
 
         // Initiation
         initiateClasses();
+        Locale.load();
 
         // Extra
         createMultiplierLists();
@@ -102,8 +102,6 @@ public final class Economobs extends JavaPlugin {
     private void initiateClasses() {
         mobManager = new MobManager(this);
         economyManager = new EconomyManager(this);
-        locale = new Locale();
-        methods = new Methods(this);
     }
 
     private void createMultiplierLists() {
@@ -150,10 +148,6 @@ public final class Economobs extends JavaPlugin {
     public EconomyManager getEconomyManager() {
         return economyManager;
     }
-
-    public Locale getLocale() { return locale; }
-
-    public Methods getMethods() { return methods; }
 
     public MythicMobs getMythicMobs() { return mythicMobs; }
 

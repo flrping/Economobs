@@ -1,8 +1,11 @@
 package dev.flrp.economobs.managers;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.api.events.EcoGiveEvent;
+import dev.flrp.economobs.api.events.MobGiveEconomyEvent;
+import dev.flrp.economobs.configuration.Locale;
+import dev.flrp.economobs.utils.Methods;
 import net.milkbowl.vault.economy.Economy;
+import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -13,72 +16,70 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import static org.bukkit.util.NumberConversions.toDouble;
+import java.util.HashMap;
 
 public class EconomyManager {
 
-    private final Economobs plugin;
-
     private static Economy eco = null;
+    private final HashMap<Material, Double> tools = new HashMap<>();
+    private final HashMap<World, Double> worlds = new HashMap<>();
 
     public EconomyManager(Economobs plugin) {
-        this.plugin = plugin;
         if(plugin.getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
             eco = rsp.getProvider();
         }
-    }
-
-    public void handleDeposit(Player player, LivingEntity entity, double value) {
-        try {
-            double amount = applyMultipliers(value, entity.getWorld(), plugin.getMethods().itemInHand(player).getType());
-            attemptDeposit(player, entity, amount);
-        } catch(Exception e) {
-            player.sendMessage(plugin.getLocale().parse(plugin.getLocale().getValue("prefix") + plugin.getLocale().getValue("economy-max")));
+        for(String entry : plugin.getConfig().getStringList("multipliers.weapons")) {
+            Material material = Material.getMaterial(entry.substring(0, entry.indexOf(' ')));
+            double multiplier = NumberUtils.toDouble(entry.substring(entry.indexOf(' ')));
+            tools.put(material, multiplier);
+        }
+        for(String entry : plugin.getConfig().getStringList("multipliers.worlds")) {
+            World world = Bukkit.getWorld(entry.substring(0, entry.indexOf(' ')));
+            double multiplier = NumberUtils.toDouble(entry.substring(entry.indexOf(' ')));
+            worlds.put(world, multiplier);
         }
     }
 
-    public void handleDeposit(Player player, LivingEntity entity, double value, double deaths) {
-        try {
-            double amount = applyMultipliers(value, entity.getWorld(), plugin.getMethods().itemInHand(player).getType()) * deaths;
-            attemptDeposit(player, entity, amount);
-        } catch(Exception e) {
-            player.sendMessage(plugin.getLocale().parse(plugin.getLocale().getValue("prefix") + plugin.getLocale().getValue("economy-max")));
-        }
+    public void handleDeposit(Player player, LivingEntity entity, double amount, double chance) {
+        handleDeposit(player, entity, amount, chance, 1);
     }
 
-    private void attemptDeposit(Player player, LivingEntity entity, double amount) {
-        EcoGiveEvent ecoGiveEvent = new EcoGiveEvent(amount, entity);
-        Bukkit.getPluginManager().callEvent(ecoGiveEvent);
-        if(hasAccount(player)) {
-            if(!ecoGiveEvent.isCancelled()) {
-                deposit(player, toDouble(BigDecimal.valueOf(amount).setScale(2, RoundingMode.DOWN)));
-                player.sendMessage(plugin.getLocale().parse(plugin.getLocale().getValue("prefix") + plugin.getLocale().getValue("economy-given"), String.valueOf(BigDecimal.valueOf(amount).setScale(2, RoundingMode.DOWN))));
+    public void handleDeposit(Player player, LivingEntity entity, double amount, double chance, double deaths) {
+        try {
+            if(hasAccount(player)) {
+                // Variables
+                Material tool = Methods.itemInHand(player).getType();
+                World world = entity.getWorld();
+
+                // Checks
+                if(Math.random() * 100 > chance) return;
+                if(tools.containsKey(tool)) amount = amount * tools.get(tool);
+                if(worlds.containsKey(world)) amount = amount * worlds.get(world);
+
+                // Event
+                MobGiveEconomyEvent mobGiveEconomyEvent = new MobGiveEconomyEvent(amount, entity);
+                Bukkit.getPluginManager().callEvent(mobGiveEconomyEvent);
+                if(mobGiveEconomyEvent.isCancelled()) {
+                    mobGiveEconomyEvent.setCancelled(true);
+                    return;
+                }
+
+                // Magic
+                String str = String.valueOf(BigDecimal.valueOf(amount * deaths).setScale(2, RoundingMode.DOWN));
+                deposit(player, NumberUtils.toDouble(str));
+                player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_GIVEN.replace("{0}", str)));
                 return;
             }
+            player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_FAILED));
+        } catch(Exception e) {
+            player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_MAX));
         }
-        player.sendMessage(plugin.getLocale().parse(plugin.getLocale().getValue("prefix") + plugin.getLocale().getValue("economy-failed")));
-    }
-
-    private double applyMultipliers(double value, World world, Material item) {
-        if(plugin.getWorldMultiplierList().containsKey(world)) value = value * plugin.getWorldMultiplierList().get(world);
-        if(plugin.getWeaponMultiplierList().containsKey(item)) value = value * plugin.getWeaponMultiplierList().get(item);
-        return value;
     }
 
     public boolean hasAccount(OfflinePlayer player) {
         return eco.hasAccount(player);
     }
 
-    public double getBalance(OfflinePlayer player) {
-        return eco.getBalance(player);
-    }
-
     public boolean deposit(OfflinePlayer player, double amount) { return eco.depositPlayer(player, amount).transactionSuccess(); }
-
-    public String format(double amount) {
-        return eco.format(amount);
-    }
-
 }

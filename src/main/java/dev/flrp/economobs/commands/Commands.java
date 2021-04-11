@@ -1,6 +1,7 @@
 package dev.flrp.economobs.commands;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Locale;
 import me.mattstudios.mf.annotations.Command;
 import me.mattstudios.mf.annotations.Default;
 import me.mattstudios.mf.annotations.Permission;
@@ -19,10 +20,10 @@ public class Commands extends CommandBase {
 
     @Default
     public void defaultCommand(final CommandSender commandSender) {
-        commandSender.sendMessage(plugin.getLocale().parse("&a&lEconomobs &7Version 1.1.5 &8| &7By flrp <3"));
-        commandSender.sendMessage(plugin.getLocale().parse("&f/economobs help &8- &7Displays this menu."));
+        commandSender.sendMessage(Locale.parse("&a&lEconomobs &7Version 1.2.0 &8| &7By flrp <3"));
+        commandSender.sendMessage(Locale.parse("&f/economobs help &8- &7Displays this menu."));
         if(commandSender.hasPermission("economobs.admin")) {
-            commandSender.sendMessage(plugin.getLocale().parse("&f/economobs reload &8- &7Reloads the plugin."));
+            commandSender.sendMessage(Locale.parse("&f/economobs reload &8- &7Reloads the plugin."));
         }
     }
 
@@ -31,7 +32,7 @@ public class Commands extends CommandBase {
     public void reloadCommand(final CommandSender commandSender) {
         plugin.reloadConfig();
         plugin.onReload();
-        commandSender.sendMessage(plugin.getLocale().parse("&aEconomobs successfully reloaded."));
+        commandSender.sendMessage(Locale.parse("&aEconomobs successfully reloaded."));
     }
 
 }

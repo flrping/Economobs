@@ -10,7 +10,7 @@ import uk.antiperson.stackmob.events.StackDeathEvent;
 
 public class StackMobListener implements Listener {
 
-    private Economobs plugin;
+    private final Economobs plugin;
 
     public StackMobListener(Economobs plugin) {
         this.plugin = plugin;
@@ -29,7 +29,7 @@ public class StackMobListener implements Listener {
         if(!plugin.getMobManager().getAmounts().containsKey(entity.getType())) return;
 
         Player player = entity.getKiller();
-        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), event.getDeathStep());
+        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), plugin.getMobManager().getChance(entity.getType()), event.getDeathStep());
     }
 
 }

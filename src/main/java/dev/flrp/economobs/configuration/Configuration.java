@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class Configuration {
 
-    private Economobs plugin;
+    private final Economobs plugin;
 
     public FileConfiguration fileConfig;
     public File file;

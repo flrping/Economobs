@@ -30,6 +30,6 @@ public class DeathListener implements Listener {
         if(!plugin.getMobManager().getAmounts().containsKey(entity.getType())) return;
 
         Player player = event.getEntity().getKiller();
-        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()));
+        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), plugin.getMobManager().getChance(entity.getType()));
     }
 }

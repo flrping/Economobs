@@ -33,7 +33,7 @@ public class WildStackerListener implements Listener {
         if(!plugin.getMobManager().getAmounts().containsKey(entity.getType())) return;
 
         Player player = plugin.getServer().getPlayer(source.getUniqueId());
-        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), event.getAmount());
+        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), plugin.getMobManager().getChance(entity.getType()), event.getAmount());
     }
 
 }
