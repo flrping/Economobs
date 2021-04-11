@@ -1,0 +1,16 @@
+name: Economobs
+version: ${project.version}
+main: dev.flrp.economobs.Economobs
+api-version: 1.13
+author: flrp
+depend: [Vault]
+softdepend: [WildStacker, StackMob, MythicMobs]
+commands:
+  reload:
+    default:
+    description: Reloads the plugin.
+    usage: /economobs reload
+permissions:
+  economobs.admin:
+    description: Gives permission for all admin-like commands.
+    default: op
