@@ -9,6 +9,7 @@ import dev.flrp.economobs.listeners.MythicMobListener;
 import dev.flrp.economobs.listeners.StackMobListener;
 import dev.flrp.economobs.listeners.WildStackerListener;
 import dev.flrp.economobs.managers.EconomyManager;
+import dev.flrp.economobs.managers.MessageManager;
 import dev.flrp.economobs.managers.MobManager;
 import dev.flrp.economobs.utils.Methods;
 import io.lumine.xikage.mythicmobs.MythicMobs;
@@ -16,10 +17,13 @@ import me.mattstudios.mf.base.CommandManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.bukkit.util.NumberConversions.toDouble;
 
@@ -32,6 +36,7 @@ public final class Economobs extends JavaPlugin {
 
     private MobManager mobManager;
     private EconomyManager economyManager;
+    private MessageManager messageManager;
 
     private MythicMobs mythicMobs = null;
 
@@ -39,6 +44,7 @@ public final class Economobs extends JavaPlugin {
     private HashMap<World, Double> worlds;
 
     private StackerType stackerType;
+    private final List<Player> toggleList = new ArrayList<>();
 
     @Override
     public void onEnable() {
@@ -102,6 +108,7 @@ public final class Economobs extends JavaPlugin {
     private void initiateClasses() {
         mobManager = new MobManager(this);
         economyManager = new EconomyManager(this);
+        messageManager = new MessageManager(this);
     }
 
     private void createMultiplierLists() {
@@ -149,6 +156,10 @@ public final class Economobs extends JavaPlugin {
         return economyManager;
     }
 
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+
     public MythicMobs getMythicMobs() { return mythicMobs; }
 
     public HashMap<Material, Double> getWeaponMultiplierList() { return weapons; }
@@ -156,6 +167,12 @@ public final class Economobs extends JavaPlugin {
     public HashMap<World, Double> getWorldMultiplierList() { return worlds; }
 
     // Temporary
-    public StackerType getStackerType() { return stackerType; }
+    public StackerType getStackerType() {
+        return stackerType;
+    }
+
+    public List<Player> getToggleList() {
+        return toggleList;
+    }
 
 }

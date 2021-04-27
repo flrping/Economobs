@@ -16,6 +16,7 @@ public class Locale {
     public static String ECONOMY_GIVEN;
     public static String ECONOMY_MAX;
     public static String ECONOMY_FAILED;
+    public static String ECONOMY_TOGGLE;
 
     public static void load() {
         PREFIX = addMessage("prefix");
@@ -23,6 +24,7 @@ public class Locale {
         ECONOMY_GIVEN = addMessage("economy-given");
         ECONOMY_MAX = addMessage("economy-max");
         ECONOMY_FAILED = addMessage("economy-failed");
+        ECONOMY_TOGGLE = addMessage("economy-toggle");
     }
 
     private static String addMessage(String identifier) {

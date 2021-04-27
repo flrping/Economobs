@@ -21,10 +21,12 @@ import java.util.HashMap;
 public class EconomyManager {
 
     private static Economy eco = null;
+    private final Economobs plugin;
     private final HashMap<Material, Double> tools = new HashMap<>();
     private final HashMap<World, Double> worlds = new HashMap<>();
 
     public EconomyManager(Economobs plugin) {
+        this.plugin = plugin;
         if(plugin.getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
             eco = rsp.getProvider();
@@ -68,7 +70,8 @@ public class EconomyManager {
                 // Magic
                 String str = String.valueOf(BigDecimal.valueOf(amount * deaths).setScale(2, RoundingMode.DOWN));
                 deposit(player, NumberUtils.toDouble(str));
-                player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_GIVEN.replace("{0}", str)));
+                if(plugin.getConfig().getBoolean("message.enabled") && !plugin.getToggleList().contains(player))
+                    plugin.getMessageManager().sendMessage(player, entity, NumberUtils.toDouble(str));
                 return;
             }
             player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_FAILED));
