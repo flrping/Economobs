@@ -25,12 +25,11 @@ message:
 
 # Multipliers.
 # If any conditions are true, they will be considered towards the output amount.
-# Make sure to balance this properly if you use both. You can leave any category empty if you wish not to use it.
+# Make sure to balance this properly if you use both. You can leave any category empty with [] if you wish not to use it.
 multipliers:
   weapons:
     - DIAMOND_SWORD 1.2
-  worlds:
-    - world1 1.8
+  worlds: []
 
 # A list of worlds where money wont be given.
 world-blacklist:
