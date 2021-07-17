@@ -59,40 +59,35 @@ public class EconomyManager {
 
     public void handleDeposit(Player player, LivingEntity entity, double amount, double chance, double deaths) {
         try {
-            if(hasAccount(player)) {
-                // Variables
-                Material tool = Methods.itemInHand(player).getType();
-                UUID uuid = entity.getWorld().getUID();
+            if(!eco.hasAccount(player)) eco.createPlayerAccount(player);
 
-                // Checks
-                if(Math.random() * 100 > chance) return;
-                if(tools.containsKey(tool)) amount = amount * tools.get(tool);
-                if(worlds.containsKey(uuid)) amount = amount * worlds.get(uuid);
+            // Variables
+            Material tool = Methods.itemInHand(player).getType();
+            UUID uuid = entity.getWorld().getUID();
 
-                // Event
-                MobGiveEconomyEvent mobGiveEconomyEvent = new MobGiveEconomyEvent(amount, entity);
-                Bukkit.getPluginManager().callEvent(mobGiveEconomyEvent);
-                if(mobGiveEconomyEvent.isCancelled()) {
-                    mobGiveEconomyEvent.setCancelled(true);
-                    return;
-                }
+            // Checks
+            if(Math.random() * 100 > chance) return;
+            if(tools.containsKey(tool)) amount = amount * tools.get(tool);
+            if(worlds.containsKey(uuid)) amount = amount * worlds.get(uuid);
 
-                // Magic
-                String str = String.valueOf(BigDecimal.valueOf(amount * deaths).setScale(2, RoundingMode.DOWN));
-                deposit(player, NumberUtils.toDouble(str));
-                if(plugin.getConfig().getBoolean("message.enabled") && !plugin.getToggleList().contains(player))
-                    plugin.getMessageManager().sendMessage(player, entity, NumberUtils.toDouble(str));
+            // Event
+            MobGiveEconomyEvent mobGiveEconomyEvent = new MobGiveEconomyEvent(amount, entity);
+            Bukkit.getPluginManager().callEvent(mobGiveEconomyEvent);
+            if(mobGiveEconomyEvent.isCancelled()) {
+                mobGiveEconomyEvent.setCancelled(true);
                 return;
             }
-            player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_FAILED));
+
+            // Magic
+            String str = String.valueOf(BigDecimal.valueOf(amount * deaths).setScale(2, RoundingMode.DOWN));
+            deposit(player, NumberUtils.toDouble(str));
+            if(plugin.getConfig().getBoolean("message.enabled") && !plugin.getToggleList().contains(player))
+                plugin.getMessageManager().sendMessage(player, entity, NumberUtils.toDouble(str));
         } catch(Exception e) {
             player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_MAX));
         }
     }
 
-    public boolean hasAccount(OfflinePlayer player) {
-        return eco.hasAccount(player);
-    }
-
     public boolean deposit(OfflinePlayer player, double amount) { return eco.depositPlayer(player, amount).transactionSuccess(); }
+
 }

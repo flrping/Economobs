@@ -14,6 +14,7 @@ import dev.flrp.economobs.managers.MobManager;
 import dev.flrp.economobs.utils.Methods;
 import io.lumine.xikage.mythicmobs.MythicMobs;
 import me.mattstudios.mf.base.CommandManager;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -50,6 +51,9 @@ public final class Economobs extends JavaPlugin {
     public void onEnable() {
         System.out.println("[Economobs] Starting...");
         instance = this;
+
+        // bStats
+        Metrics metrics = new Metrics(this, 12086);
 
         // Files
         getConfig().options().copyDefaults();

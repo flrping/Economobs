@@ -15,7 +15,6 @@ public class Locale {
     public static String COMMAND_DENIED;
     public static String ECONOMY_GIVEN;
     public static String ECONOMY_MAX;
-    public static String ECONOMY_FAILED;
     public static String ECONOMY_TOGGLE;
 
     public static void load() {
@@ -23,7 +22,6 @@ public class Locale {
         COMMAND_DENIED = addMessage("command-denied");
         ECONOMY_GIVEN = addMessage("economy-given");
         ECONOMY_MAX = addMessage("economy-max");
-        ECONOMY_FAILED = addMessage("economy-failed");
         ECONOMY_TOGGLE = addMessage("economy-toggle");
     }
 
