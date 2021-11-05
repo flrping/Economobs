@@ -2,6 +2,7 @@ package dev.flrp.economobs.listeners;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.StackerType;
+import dev.flrp.economobs.hooks.MythicMobsHook;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,7 +21,7 @@ public class DeathListener implements Listener {
     public void onMobDeath(EntityDeathEvent event) {
         // Important Checks
         if(plugin.getStackerType() != StackerType.NONE) return;
-        if(plugin.getMythicMobs() != null && plugin.getMythicMobs().getMobManager().getActiveMob(event.getEntity().getUniqueId()).isPresent()) return;
+        if(MythicMobsHook.isMythicMob(event.getEntity().getUniqueId())) return;
 
         LivingEntity entity = event.getEntity();
         // Entity Checks

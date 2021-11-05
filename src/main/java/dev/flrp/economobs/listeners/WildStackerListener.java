@@ -3,6 +3,7 @@ package dev.flrp.economobs.listeners;
 import com.bgsoftware.wildstacker.api.events.EntityUnstackEvent;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.StackerType;
+import dev.flrp.economobs.hooks.MythicMobsHook;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -23,7 +24,7 @@ public class WildStackerListener implements Listener {
         // Important Checks
         if(plugin.getStackerType() != StackerType.WILDSTACKER) return;
         if(event.getUnstackSource() == null) return;
-        if(plugin.getMythicMobs() != null && plugin.getMythicMobs().getMobManager().getActiveMob(event.getEntity().getUniqueId()).isPresent()) return;
+        if(MythicMobsHook.isMythicMob(event.getEntity().getUniqueId())) return;
 
         Entity source = event.getUnstackSource();
         LivingEntity entity = event.getEntity().getLivingEntity();

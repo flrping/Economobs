@@ -13,18 +13,27 @@ public class Configuration {
 
     public FileConfiguration fileConfig;
     public File file;
-    public String name;
+    public String path;
 
     public Configuration(Economobs plugin) {
         this.plugin = plugin;
     }
 
-    public void load(String name) {
-        this.file = new File(plugin.getDataFolder(), name + ".yml");
+    public void load(String path) {
+        this.file = new File(plugin.getDataFolder(), path + ".yml");
         if(!file.exists()) {
-            plugin.saveResource(name + ".yml", false);
+            if(plugin.getResource(path + ".yml") != null) {
+                plugin.saveResource(path + ".yml", false);
+            } else {
+                try {
+                    file.getParentFile().mkdir();
+                    file.createNewFile();
+                } catch (IOException e) {
+                    Locale.log("&cFailed to create " + path + ".yml");
+                }
+            }
         }
-        this.name = name;
+        this.path = path;
         this.fileConfig = YamlConfiguration.loadConfiguration(file);
     }
 
@@ -32,7 +41,7 @@ public class Configuration {
         try {
             fileConfig.save(file);
         } catch (IOException e) {
-            System.out.print("[Economobs] failed to save " + name + ".yml");
+            Locale.log("&cFailed to save in " + path + ".yml");
         }
     }
 

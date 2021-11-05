@@ -2,6 +2,7 @@ package dev.flrp.economobs.configuration;
 
 import dev.flrp.economobs.Economobs;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,6 +40,10 @@ public class Locale {
             matcher = hexPattern.matcher(context);
         }
         return ChatColor.translateAlternateColorCodes('&', context);
+    }
+
+    public static void log(String context) {
+        Bukkit.getConsoleSender().sendMessage(parse("&a[Economobs] &f" + context));
     }
 
 }

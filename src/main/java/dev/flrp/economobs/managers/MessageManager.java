@@ -73,10 +73,10 @@ public class MessageManager {
 
         public static MessageType getType(String identifier) {
             try {
-                System.out.println("[Economobs] Message Type: " + MessageType.valueOf(identifier));
+                Locale.log("&fMessage Type: &e" + MessageType.valueOf(identifier));
                 return MessageType.valueOf(identifier);
             } catch (IllegalArgumentException e) {
-                System.out.println("[Economobs] Invalid message type found, resorting to default: CHAT");
+                Locale.log("&cInvalid message type found, resorting to default: CHAT");
                 return CHAT;
             }
         }
@@ -94,7 +94,7 @@ public class MessageManager {
                 if(messageType == MessageType.HOLOGRAM) System.out.println("[Economobs] Selected Animation: " + AnimationType.valueOf(identifier));
                 return AnimationType.valueOf(identifier);
             } catch (IllegalArgumentException e) {
-                System.out.println("[Economobs] Invalid animation type found, resorting to default: STAY");
+                Locale.log("&cInvalid animation type found, resorting to default: STAY");
                 return STAY;
             }
         }
