@@ -43,7 +43,7 @@ public class Locale {
     }
 
     public static void log(String context) {
-        Bukkit.getConsoleSender().sendMessage(parse("&a[Economobs] &f" + context));
+        Bukkit.getConsoleSender().sendMessage(parse("[Economobs] &f" + context));
     }
 
 }

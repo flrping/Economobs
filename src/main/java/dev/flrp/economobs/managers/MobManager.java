@@ -23,7 +23,7 @@ public class MobManager {
             amounts.put(EntityType.valueOf(entry.getKey()), value.contains(" ") ? Double.parseDouble(value.substring(0, value.indexOf(" "))) : Double.parseDouble(value));
             chances.put(EntityType.valueOf(entry.getKey()), value.contains(" ") ? Double.parseDouble(value.substring(value.indexOf(" "))) : 100);
         }
-        Locale.log("&fLoaded &e" + amounts.size() + " &fmob values.");
+        Locale.log("&fLoaded &a" + amounts.size() + " &fmob values.");
     }
 
     private void build() {

@@ -2,6 +2,7 @@ package dev.flrp.economobs.managers;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
+import jdk.vm.ci.meta.Local;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;
@@ -73,7 +74,7 @@ public class MessageManager {
 
         public static MessageType getType(String identifier) {
             try {
-                Locale.log("&fMessage Type: &e" + MessageType.valueOf(identifier));
+                Locale.log("Message Type: &a" + MessageType.valueOf(identifier));
                 return MessageType.valueOf(identifier);
             } catch (IllegalArgumentException e) {
                 Locale.log("&cInvalid message type found, resorting to default: CHAT");
@@ -91,7 +92,7 @@ public class MessageManager {
 
         public static AnimationType getType(String identifier) {
             try {
-                if(messageType == MessageType.HOLOGRAM) System.out.println("[Economobs] Selected Animation: " + AnimationType.valueOf(identifier));
+                if(messageType == MessageType.HOLOGRAM) Locale.log("Selected Animation: &a" + AnimationType.valueOf(identifier));
                 return AnimationType.valueOf(identifier);
             } catch (IllegalArgumentException e) {
                 Locale.log("&cInvalid animation type found, resorting to default: STAY");

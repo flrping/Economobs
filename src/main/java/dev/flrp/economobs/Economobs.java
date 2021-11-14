@@ -41,10 +41,10 @@ public final class Economobs extends JavaPlugin {
         instance = this;
 
         Locale.log("&8--------------");
-        Locale.log("&eEconomobs &fby flrp &8| &fVersion 1.4.0");
-        Locale.log("&fConsider &cPatreon &fto support me for keeping these plugins free.");
+        Locale.log("&aEconomobs &fby flrp &8| &fVersion 1.4.0");
+        Locale.log("Consider &cPatreon &fto support me for keeping these plugins free.");
         Locale.log("&8--------------");
-        Locale.log("&eStarting...");
+        Locale.log("&aStarting...");
 
         // bStats
         Metrics metrics = new Metrics(this, 12086);
@@ -70,17 +70,17 @@ public final class Economobs extends JavaPlugin {
 
         // Extra
         stackerType = StackerType.getName(getConfig().getString("stacker"));
-        Locale.log("&fSelected stacker plugin: &e" + stackerType);
+        Locale.log("Selected stacker plugin: &a" + stackerType);
 
         // Commands
         CommandManager commandManager = new CommandManager(this);
         commandManager.register(new Commands(this));
 
-        Locale.log("&eDone!");
+        Locale.log("&aDone!");
     }
 
     public void onReload() {
-        Locale.log("&eReloading...");
+        Locale.log("&aReloading...");
 
         //Files
         initiateFiles();
@@ -91,9 +91,9 @@ public final class Economobs extends JavaPlugin {
 
         // Extra
         stackerType = StackerType.getName(getConfig().getString("stacker"));
-        Locale.log("&fSelected stacker plugin: &e" + stackerType);
+        Locale.log("Selected stacker plugin: &a" + stackerType);
 
-        Locale.log("&eDone!");
+        Locale.log("&aDone!");
     }
 
     private void initiateFiles() {

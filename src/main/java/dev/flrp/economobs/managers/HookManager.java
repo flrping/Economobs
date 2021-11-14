@@ -4,6 +4,7 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.hooks.LevelledMobsHook;
 import dev.flrp.economobs.hooks.MythicMobsHook;
+import dev.flrp.economobs.hooks.VaultHook;
 
 public class HookManager {
 
@@ -17,6 +18,7 @@ public class HookManager {
     }
 
     private void load() {
+        VaultHook.register();
         LevelledMobsHook.register();
         MythicMobsHook.register();
     }
