@@ -29,7 +29,7 @@ public class EconomyManager {
         for(String identifier : plugin.getConfig().getConfigurationSection("multipliers").getKeys(false)) {
             groups.put(identifier, new MultiplierGroup(identifier));
         }
-        Locale.log("&fLoaded &a" + groups.size() + " &fmultiplier groups.");
+        Locale.log("Loaded &a" + groups.size() + " &rmultiplier groups.");
     }
 
     public void handleDeposit(Player player, LivingEntity entity, double amount, double chance) {

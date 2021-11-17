@@ -2,7 +2,6 @@ package dev.flrp.economobs.managers;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import jdk.vm.ci.meta.Local;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Location;

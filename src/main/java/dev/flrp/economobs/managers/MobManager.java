@@ -23,15 +23,15 @@ public class MobManager {
             amounts.put(EntityType.valueOf(entry.getKey()), value.contains(" ") ? Double.parseDouble(value.substring(0, value.indexOf(" "))) : Double.parseDouble(value));
             chances.put(EntityType.valueOf(entry.getKey()), value.contains(" ") ? Double.parseDouble(value.substring(value.indexOf(" "))) : 100);
         }
-        Locale.log("&fLoaded &a" + amounts.size() + " &fmob values.");
+        Locale.log("Loaded &a" + amounts.size() + " &rmob values.");
     }
 
     private void build() {
         plugin.getMobs().getConfiguration().createSection("mobs");
         for (EntityType type: EnumSet.allOf(EntityType.class)) {
             if (type != EntityType.UNKNOWN && type != EntityType.ARMOR_STAND && type != EntityType.PLAYER && LivingEntity.class.isAssignableFrom(type.getEntityClass())) {
-                plugin.getMobs().getConfiguration().createSection("mobs." + type.toString());
-                plugin.getMobs().getConfiguration().set("mobs." + type.toString(), "10");
+                plugin.getMobs().getConfiguration().createSection("mobs." + type);
+                plugin.getMobs().getConfiguration().set("mobs." + type, "10");
             }
         }
         plugin.getMobs().save();

@@ -41,8 +41,8 @@ public final class Economobs extends JavaPlugin {
         instance = this;
 
         Locale.log("&8--------------");
-        Locale.log("&aEconomobs &fby flrp &8| &fVersion 1.4.0");
-        Locale.log("Consider &cPatreon &fto support me for keeping these plugins free.");
+        Locale.log("&aEconomobs &rby flrp &8(&av1.4.0&8)");
+        Locale.log("Consider &cPatreon &rto support me for keeping these plugins free.");
         Locale.log("&8--------------");
         Locale.log("&aStarting...");
 
@@ -113,7 +113,7 @@ public final class Economobs extends JavaPlugin {
     private void registerListener(String name, Listener listener) {
         if(getServer().getPluginManager().getPlugin(name) != null) {
             getServer().getPluginManager().registerEvents(listener, this);
-            System.out.println("[Economobs] Found " + name + ". Registered Events.");
+            Locale.log("Found stacker plugin &a" + name + "&r. Registered Events.");
         }
     }
 

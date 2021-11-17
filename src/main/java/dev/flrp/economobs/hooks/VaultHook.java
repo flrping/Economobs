@@ -13,7 +13,7 @@ public class VaultHook {
     private static Permission permission = null;
 
     public static void register() {
-        Locale.log("&aVault &ffound. Attempting to hook.");
+        Locale.log("&aVault &rfound. Attempting to hook.");
         if(!setupEconomy() || !setupPermissions()) {
             Locale.log("&cVault cannot hook correctly. Some features may not work.");
         }

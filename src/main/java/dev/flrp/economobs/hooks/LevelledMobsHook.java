@@ -21,7 +21,7 @@ public class LevelledMobsHook {
 
     public static void register() {
         if(!isEnabled()) return;
-        Locale.log("&aLevelledMobs &ffound. Attempting to hook.");
+        Locale.log("&aLevelledMobs &rfound. Attempting to hook.");
         build();
     }
 
@@ -45,7 +45,7 @@ public class LevelledMobsHook {
             String value = String.valueOf(entry.getValue());
             additions.put(EntityType.valueOf(entry.getKey()), value.contains(" ") ? Double.parseDouble(value.substring(0, value.indexOf(" "))) : Double.parseDouble(value));
         }
-        Locale.log("&fLoaded &a" + additions.size() + " &fLevelledMobs values.");
+        Locale.log("Loaded &a" + additions.size() + " &rLevelledMobs values.");
 
     }
 

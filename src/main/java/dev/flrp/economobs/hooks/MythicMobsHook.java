@@ -20,7 +20,7 @@ public class MythicMobsHook {
 
     public static void register() {
         if(!isEnabled()) return;
-        Locale.log("&aMythicMobs &ffound. Attempting to hook.");
+        Locale.log("&aMythicMobs &rfound. Attempting to hook.");
         build();
         Bukkit.getPluginManager().registerEvents(new MythicMobListener(instance), instance);
     }
@@ -41,7 +41,7 @@ public class MythicMobsHook {
             amounts.put(entry.getKey(), value.contains(" ") ? Double.parseDouble(value.substring(0, value.indexOf(" "))) : Double.parseDouble(value));
             chances.put(entry.getKey(), value.contains(" ") ? Double.parseDouble(value.substring(value.indexOf(" "))) : 100);
         }
-        Locale.log("Loaded &a" + amounts.size() + " &fMythicMob values.");
+        Locale.log("Loaded &a" + amounts.size() + " &rMythicMob values.");
 
     }
 
