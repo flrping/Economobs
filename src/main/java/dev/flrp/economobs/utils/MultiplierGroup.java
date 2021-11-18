@@ -25,7 +25,7 @@ public class MultiplierGroup {
                 double multiplier = NumberUtils.toDouble(entry.substring(entry.indexOf(' ')));
                 entities.put(entity, multiplier);
             } catch (IndexOutOfBoundsException e) {
-                Locale.log("&cInvalid formatting (" + entry + "), skipping.");
+                Locale.log("&cInvalid entry (" + entry + "), skipping.");
             } catch (IllegalArgumentException e) {
                 Locale.log("&cEntity cannot be found (" + entry + "), skipping.");
             }
@@ -36,7 +36,7 @@ public class MultiplierGroup {
                 double multiplier = NumberUtils.toDouble(entry.substring(entry.indexOf(' ')));
                 materials.put(material, multiplier);
             } catch (IndexOutOfBoundsException e) {
-                Locale.log("&cInvalid formatting (" + entry + "), skipping.");
+                Locale.log("&cInvalid entry (" + entry + "), skipping.");
             }
         }
         for(String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".worlds")) {
@@ -45,7 +45,7 @@ public class MultiplierGroup {
                 double multiplier = NumberUtils.toDouble(entry.substring(entry.indexOf(' ')));
                 worlds.put(uuid, multiplier);
             } catch (IndexOutOfBoundsException e) {
-                Locale.log("&cInvalid formatting (" + entry + "), skipping.");
+                Locale.log("&cInvalid entry (" + entry + "), skipping.");
             } catch (NullPointerException e) {
                 Locale.log("&cWorld cannot be found (" + entry + "), skipping.");
             }
