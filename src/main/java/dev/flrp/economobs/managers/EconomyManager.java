@@ -83,7 +83,6 @@ public class EconomyManager {
                 plugin.getMessageManager().sendMessage(player, entity, dub);
         } catch(Exception e) {
             player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_MAX));
-            System.out.println(e);
         }
     }
 
