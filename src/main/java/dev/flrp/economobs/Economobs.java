@@ -5,28 +5,21 @@ import dev.flrp.economobs.configuration.Configuration;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.configuration.StackerType;
 import dev.flrp.economobs.listeners.DeathListener;
-import dev.flrp.economobs.listeners.MythicMobListener;
 import dev.flrp.economobs.listeners.StackMobListener;
 import dev.flrp.economobs.listeners.WildStackerListener;
 import dev.flrp.economobs.managers.EconomyManager;
+import dev.flrp.economobs.managers.HookManager;
 import dev.flrp.economobs.managers.MessageManager;
 import dev.flrp.economobs.managers.MobManager;
-import dev.flrp.economobs.utils.Methods;
-import io.lumine.xikage.mythicmobs.MythicMobs;
 import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-
-import static org.bukkit.util.NumberConversions.toDouble;
 
 public final class Economobs extends JavaPlugin {
 
@@ -38,19 +31,20 @@ public final class Economobs extends JavaPlugin {
     private MobManager mobManager;
     private EconomyManager economyManager;
     private MessageManager messageManager;
-
-    private MythicMobs mythicMobs = null;
-
-    private HashMap<Material, Double> weapons;
-    private HashMap<World, Double> worlds;
+    private HookManager hookManager;
 
     private StackerType stackerType;
     private final List<Player> toggleList = new ArrayList<>();
 
     @Override
     public void onEnable() {
-        System.out.println("[Economobs] Starting...");
         instance = this;
+
+        Locale.log("&8--------------");
+        Locale.log("&aEconomobs &rby flrp &8(&av1.4.0&8)");
+        Locale.log("Consider &cPatreon &rto support me for keeping these plugins free.");
+        Locale.log("&8--------------");
+        Locale.log("&aStarting...");
 
         // bStats
         Metrics metrics = new Metrics(this, 12086);
@@ -61,7 +55,6 @@ public final class Economobs extends JavaPlugin {
         initiateFiles();
 
         // Initiation
-        applyPlugins();
         initiateClasses();
         Locale.load();
 
@@ -69,22 +62,25 @@ public final class Economobs extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
         registerListener("WildStacker", new WildStackerListener(this));
         registerListener("StackMob", new StackMobListener(this));
-        registerListener("MythicMobs", new MythicMobListener(this));
+
+        // Hooks
+        File dir = new File(getDataFolder(), "hooks");
+        if(!dir.exists()) dir.mkdir();
+        hookManager = new HookManager(this);
 
         // Extra
-        createMultiplierLists();
         stackerType = StackerType.getName(getConfig().getString("stacker"));
-        System.out.println("[Economobs] Selected stacker plugin: " + stackerType);
+        Locale.log("Selected stacker plugin: &a" + stackerType);
 
         // Commands
         CommandManager commandManager = new CommandManager(this);
         commandManager.register(new Commands(this));
 
-        System.out.println("[Economobs] Done!");
+        Locale.log("&aDone!");
     }
 
     public void onReload() {
-        System.out.println("[Economobs] Reloading...");
+        Locale.log("&aReloading...");
 
         //Files
         initiateFiles();
@@ -94,11 +90,10 @@ public final class Economobs extends JavaPlugin {
         Locale.load();
 
         // Extra
-        createMultiplierLists();
         stackerType = StackerType.getName(getConfig().getString("stacker"));
-        System.out.println("[Economobs] Selected stacker plugin: " + stackerType);
+        Locale.log("Selected stacker plugin: &a" + stackerType);
 
-        System.out.println("[Economobs] Done!");
+        Locale.log("&aDone!");
     }
 
     private void initiateFiles() {
@@ -115,30 +110,10 @@ public final class Economobs extends JavaPlugin {
         messageManager = new MessageManager(this);
     }
 
-    private void createMultiplierLists() {
-        weapons = new HashMap<>();
-        for(String entry : getConfig().getStringList("multipliers.weapons")) {
-            Material material = Material.getMaterial(entry.substring(0, entry.indexOf(' ')));
-            double multiplier = toDouble(entry.substring(entry.indexOf(' ')));
-            weapons.put(material, multiplier);
-        }
-        worlds = new HashMap<>();
-        for(String entry : getConfig().getStringList("multipliers.worlds")) {
-            World world = Bukkit.getWorld(entry.substring(0, entry.indexOf(' ')));
-            double multiplier = toDouble(entry.substring(entry.indexOf(' ')));
-            worlds.put(world, multiplier);
-        }
-    }
-
-    private void applyPlugins() {
-        if(getServer().getPluginManager().getPlugin("MythicMobs") != null)
-            mythicMobs = (MythicMobs) getServer().getPluginManager().getPlugin("MythicMobs");
-    }
-
     private void registerListener(String name, Listener listener) {
         if(getServer().getPluginManager().getPlugin(name) != null) {
             getServer().getPluginManager().registerEvents(listener, this);
-            System.out.println("[Economobs] Found " + name + ". Registered Events.");
+            Locale.log("Found stacker plugin &a" + name + "&r. Registered Events.");
         }
     }
 
@@ -150,7 +125,7 @@ public final class Economobs extends JavaPlugin {
         return mobs;
     }
 
-    public Configuration getLanguage() {return language; }
+    public Configuration getLanguage() { return language; }
 
     public MobManager getMobManager() {
         return mobManager;
@@ -164,11 +139,9 @@ public final class Economobs extends JavaPlugin {
         return messageManager;
     }
 
-    public MythicMobs getMythicMobs() { return mythicMobs; }
-
-    public HashMap<Material, Double> getWeaponMultiplierList() { return weapons; }
-
-    public HashMap<World, Double> getWorldMultiplierList() { return worlds; }
+    public HookManager getHookManager() {
+        return hookManager;
+    }
 
     // Temporary
     public StackerType getStackerType() {

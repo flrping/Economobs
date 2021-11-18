@@ -19,18 +19,41 @@ message:
   holograms:
     # OPTIONS: STAY, FLOAT, BOUNCE
     animation: STAY
-    # This option will effect animations.
+    # This option will affect animations.
     # How long should the hologram stay? This is in seconds.
     duration: 1
 
-# Multipliers.
+# Multiplier groups.
+# Here you can create specific multipliers for the ranks you have on the server.
+# The group names will automatically try to find the rank with the same name, so there's no need for permissions.
 # If any conditions are true, they will be considered towards the output amount.
-# Make sure to balance this properly if you use both. You can leave any category empty with [] if you wish not to use it.
+# Make sure to balance this properly if you use multipliers. You can leave any category empty with [] if you wish not to use it.
 multipliers:
-  weapons:
-    - DIAMOND_SWORD 1.2
-  worlds: []
+  # Attaches to the rank "example" - if there is one.
+  example:
+    # Specific mob multipliers.
+    mobs:
+      - CHICKEN 1.1
+      - PIG 1.1
+      - COW 1.1
+    # The tool used to kill the mob.
+    weapons:
+      - DIAMOND_SWORD 1.2
+    # The world the mob died in.
+    worlds:
+      - real_world
+  # More examples...
+  coal:
+    mobs:
+      - COW 1.5
+    weapons:
+      - DIAMOND_SWORD 1.5
+  diamond:
+    mobs:
+      - COW 2
+    weapons:
+      - DIAMOND_SWORD 2.5
 
-# A list of worlds where money wont be given.
+# A list of worlds where money won't be given.
 world-blacklist:
   - world2

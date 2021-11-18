@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.3.2</version>
+    <version>1.4.0</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -94,6 +94,10 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>rosewood-repo</id>
+            <url>https://repo.rosewooddev.io/repository/public/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -138,6 +142,13 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>2.2.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.lokka30</groupId>
+            <artifactId>LevelledMobs</artifactId>
+            <version>3.1.8 b517</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/LevelledMobs.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

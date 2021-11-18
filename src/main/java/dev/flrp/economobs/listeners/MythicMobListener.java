@@ -1,6 +1,7 @@
 package dev.flrp.economobs.listeners;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.hooks.MythicMobsHook;
 import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -23,10 +24,10 @@ public class MythicMobListener implements Listener {
         if(event.getKiller() == null) return;
         if(!(event.getKiller() instanceof Player)) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getMobManager().getMythicAmounts().containsKey(event.getMobType().getInternalName())) return;
+        if(!MythicMobsHook.getAmounts().containsKey(event.getMobType().getInternalName())) return;
 
         Player player = (Player) event.getKiller();
-        plugin.getEconomyManager().handleDeposit(player, (LivingEntity) entity, plugin.getMobManager().getMythicAmount(event.getMobType().getInternalName()), plugin.getMobManager().getMythicChance(event.getMobType().getInternalName()));
+        plugin.getEconomyManager().handleDeposit(player, (LivingEntity) entity, MythicMobsHook.getAmount(event.getMobType().getInternalName()), MythicMobsHook.getChance(event.getMobType().getInternalName()));
     }
 
 }

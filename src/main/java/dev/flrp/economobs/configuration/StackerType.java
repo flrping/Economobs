@@ -10,7 +10,7 @@ public enum StackerType {
         try {
             return StackerType.valueOf(name);
         } catch (IllegalArgumentException e) {
-            System.out.println("[Economobs] Stacker can't be recognized in config.yml. Listening to regular deaths.");
+            Locale.log("&cStacker can't be recognized in config.yml. Listening to regular deaths.");
             return NONE;
         }
     }
