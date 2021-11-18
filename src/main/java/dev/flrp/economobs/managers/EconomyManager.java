@@ -54,7 +54,7 @@ public class EconomyManager {
             if(LevelledMobsHook.isLevelledMob(entity)) amount = amount + ((LevelledMobsHook.getLevel(entity) - 1) * LevelledMobsHook.getAddition(entity));
 
             // Groups
-            String primary = VaultHook.getPrimaryGroup(player);
+            String primary = VaultHook.hasGroupSupport() ? VaultHook.getPrimaryGroup(player) : null;
             if(primary != null && groups.containsKey(primary)) {
                 MultiplierGroup group = groups.get(primary);
                 // Checks
@@ -83,6 +83,7 @@ public class EconomyManager {
                 plugin.getMessageManager().sendMessage(player, entity, dub);
         } catch(Exception e) {
             player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_MAX));
+            System.out.println(e);
         }
     }
 

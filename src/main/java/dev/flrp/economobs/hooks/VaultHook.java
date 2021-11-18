@@ -62,4 +62,8 @@ public class VaultHook {
         return permission.getPrimaryGroup(player);
     }
 
+    public static boolean hasGroupSupport() {
+        return permission.hasGroupSupport();
+    }
+
 }
