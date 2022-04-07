@@ -25,6 +25,11 @@ public class MythicMobsHook {
         Bukkit.getPluginManager().registerEvents(new MythicMobListener(instance), instance);
     }
 
+    public static void reload() {
+        amounts.clear();
+        build();
+    }
+
     private static void build() {
 
         Configuration mythicFile = new Configuration(instance);

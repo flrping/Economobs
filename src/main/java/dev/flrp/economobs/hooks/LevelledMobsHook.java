@@ -25,6 +25,11 @@ public class LevelledMobsHook {
         build();
     }
 
+    public static void reload() {
+        additions.clear();
+        build();
+    }
+
     public static void build() {
 
         Configuration levelledFile = new Configuration(instance);
@@ -34,8 +39,8 @@ public class LevelledMobsHook {
             levelledFile.getConfiguration().createSection("mobs");
             for (EntityType type: EnumSet.allOf(EntityType.class)) {
                 if (type != EntityType.UNKNOWN && type != EntityType.ARMOR_STAND && type != EntityType.PLAYER && LivingEntity.class.isAssignableFrom(type.getEntityClass())) {
-                    levelledFile.getConfiguration().createSection("mobs." + type.toString());
-                    levelledFile.getConfiguration().set("mobs." + type.toString(), "1.0");
+                    levelledFile.getConfiguration().createSection("mobs." + type);
+                    levelledFile.getConfiguration().set("mobs." + type, "1.0");
                 }
             }
             levelledFile.save();

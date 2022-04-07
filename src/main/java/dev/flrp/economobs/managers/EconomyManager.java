@@ -4,32 +4,24 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.api.events.MobGiveEconomyEvent;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.hooks.LevelledMobsHook;
-import dev.flrp.economobs.hooks.MythicMobsHook;
 import dev.flrp.economobs.hooks.VaultHook;
 import dev.flrp.economobs.utils.Methods;
-import dev.flrp.economobs.utils.MultiplierGroup;
+import dev.flrp.economobs.utils.multiplier.MultiplierGroup;
+import dev.flrp.economobs.utils.multiplier.MultiplierProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 public class EconomyManager {
 
     private final Economobs plugin;
-    private final HashMap<String, MultiplierGroup> groups = new HashMap<>();
 
     public EconomyManager(Economobs plugin) {
         this.plugin = plugin;
-
-        // Multipliers
-        for(String identifier : plugin.getConfig().getConfigurationSection("multipliers").getKeys(false)) {
-            groups.put(identifier, new MultiplierGroup(identifier));
-        }
-        Locale.log("Loaded &a" + groups.size() + " &rmultiplier groups.");
     }
 
     public void handleDeposit(Player player, LivingEntity entity, double amount, double chance) {
@@ -53,19 +45,31 @@ public class EconomyManager {
             // LevelledMobs - How much money to be added per level to the BASE amount.
             if(LevelledMobsHook.isLevelledMob(entity)) amount = amount + ((LevelledMobsHook.getLevel(entity) - 1) * LevelledMobsHook.getAddition(entity));
 
-            // Groups
-            String primary = VaultHook.hasGroupSupport() ? VaultHook.getPrimaryGroup(player) : null;
-            if(primary != null && groups.containsKey(primary)) {
-                MultiplierGroup group = groups.get(primary);
-                // Checks
-                if(group.getMaterials().containsKey(tool)) amount = amount * group.getMaterials().get(tool);
-                if(group.getWorlds().containsKey(uuid)) amount = amount * group.getWorlds().get(uuid);
+            // Multipliers
+            if(plugin.getDatabaseManager().isCached(player.getUniqueId())) {
+                MultiplierProfile multiplierProfile = plugin.getDatabaseManager().getMultiplierProfile(player.getUniqueId());
+                MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(player.getUniqueId());
 
-                // Mob Type Check
-                if(!MythicMobsHook.isMythicMob(entity.getUniqueId())) {
-                    if(group.getEntities().containsKey(type)) amount = amount * group.getEntities().get(type);
+                if(multiplierProfile.getEntities().containsKey(type)) {
+                    amount = amount * multiplierProfile.getEntities().get(type);
+                } else
+                if(group != null && group.getEntities().containsKey(type)) {
+                    amount = amount * group.getEntities().get(type);
                 }
 
+                if(multiplierProfile.getTools().containsKey(tool)) {
+                    amount = amount * multiplierProfile.getTools().get(tool);
+                } else
+                if(group != null && group.getTools().containsKey(tool)){
+                    amount = amount * group.getTools().get(tool);
+                }
+
+                if(multiplierProfile.getWorlds().containsKey(uuid)) {
+                    amount = amount * multiplierProfile.getWorlds().get(uuid);
+                } else
+                if(group != null && group.getWorlds().containsKey(uuid)){
+                    amount = amount * group.getWorlds().get(uuid);
+                }
             }
 
             // Event

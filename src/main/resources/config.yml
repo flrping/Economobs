@@ -23,13 +23,11 @@ message:
     # How long should the hologram stay? This is in seconds.
     duration: 1
 
-# Multiplier groups.
-# Here you can create specific multipliers for the ranks you have on the server.
-# The group names will automatically try to find the rank with the same name, so there's no need for permissions.
+# Multiplier handling.
+# Down below are configurable multiplier groups.
 # If any conditions are true, they will be considered towards the output amount.
 # Make sure to balance this properly if you use multipliers. You can leave any category empty with [] if you wish not to use it.
 multipliers:
-  # Attaches to the rank "example" - if there is one.
   example:
     # Specific mob multipliers.
     mobs:
@@ -41,7 +39,7 @@ multipliers:
       - DIAMOND_SWORD 1.2
     # The world the mob died in.
     worlds:
-      - real_world
+      - real_world 1.1
   # More examples...
   coal:
     mobs:

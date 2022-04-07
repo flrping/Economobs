@@ -23,4 +23,11 @@ public class HookManager {
         MythicMobsHook.register();
     }
 
+    public void reload() {
+        Locale.log("Rebuilding some hook lists. Please wait.");
+        LevelledMobsHook.reload();
+        MythicMobsHook.reload();
+        Locale.log("Rebuild complete.");
+    }
+
 }
