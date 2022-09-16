@@ -26,6 +26,7 @@ public class MythicMobsHook {
     }
 
     public static void reload() {
+        if(!isEnabled()) return;
         amounts.clear();
         build();
     }

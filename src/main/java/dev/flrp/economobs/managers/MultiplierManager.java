@@ -5,7 +5,6 @@ import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.utils.multiplier.MultiplierGroup;
 import dev.flrp.economobs.utils.multiplier.MultiplierProfile;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.HashMap;
@@ -35,11 +34,25 @@ public class MultiplierManager {
 
     public MultiplierGroup getMultiplierGroup(UUID uuid) {
         Set<PermissionAttachmentInfo> infoSet = Bukkit.getPlayer(uuid).getEffectivePermissions();
+        String group = null;
+        int weight = 0;
         for(PermissionAttachmentInfo info : infoSet) {
             if(!info.getPermission().startsWith("economobs.group.")) continue;
-            return groups.get(info.getPermission().substring(16));
+            String g = info.getPermission().substring(16);
+            if(!groups.containsKey(g)) continue;
+            int w = groups.get(g).getWeight();
+            if(w < weight) continue;
+            group = g;
+            weight = w;
         }
-        return null;
+        return plugin.getMultiplierManager().getMultiplierGroup(group);
+    }
+
+    public boolean hasMultiplierGroup(UUID uuid) {
+        for(String groupName : groups.keySet()) {
+            if(Bukkit.getPlayer(uuid).hasPermission("economobs.group." + groupName)) return true;
+        }
+        return false;
     }
 
     public boolean isMultiplierGroup(String identifier) {

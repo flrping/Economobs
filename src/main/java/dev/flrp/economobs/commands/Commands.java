@@ -26,7 +26,7 @@ public class Commands extends CommandBase {
 
     @Default
     public void defaultCommand(final CommandSender sender) {
-        sender.sendMessage(Locale.parse("\n&a&lECONOMOBS &7Version 1.4.0 &8| &7By flrp"));
+        sender.sendMessage(Locale.parse("\n&a&lECONOMOBS &7Version 1.4.1 &8| &7By flrp"));
         sender.sendMessage(Locale.parse("&a/economobs &fhelp &8- &7Displays this menu."));
         sender.sendMessage(Locale.parse("&a/economobs &ftoggle &8- &7Toggles income messages."));
         if(sender.hasPermission("economobs.admin")) {
@@ -155,7 +155,7 @@ public class Commands extends CommandBase {
 
         sender.sendMessage(Locale.parse("\n&a&lMULTIPLIER PROFILE"));
         sender.sendMessage(Locale.parse("&7Username: &f" + player.getName()));
-        sender.sendMessage(Locale.parse("&7Group: &f" + (group != null ? group.getIdentifier() : "N/A")));
+        sender.sendMessage(Locale.parse("&7Group: &f" + (group != null ? group.getIdentifier() + " &a(Weight: " + group.getWeight() + ")" : "N/A")));
 
         sender.sendMessage(Locale.parse("&7Entity Multipliers:"));
         if(!multiplierProfile.getEntities().isEmpty()) multiplierProfile.getEntities().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
@@ -188,11 +188,11 @@ public class Commands extends CommandBase {
     public void toggleCommand(final CommandSender sender) {
         Player player = (Player) sender;
         sender.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_TOGGLE));
-        if(!plugin.getToggleList().contains(player)) {
-            plugin.getToggleList().add(player);
+        if(!plugin.getToggleList().contains(player.getUniqueId())) {
+            plugin.getToggleList().add(player.getUniqueId());
             return;
         }
-        plugin.getToggleList().remove(player);
+        plugin.getToggleList().remove(player.getUniqueId());
     }
 
 

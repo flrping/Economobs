@@ -10,13 +10,13 @@ import dev.flrp.economobs.listeners.WildStackerListener;
 import dev.flrp.economobs.managers.*;
 import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public final class Economobs extends JavaPlugin {
 
@@ -34,14 +34,14 @@ public final class Economobs extends JavaPlugin {
     private DatabaseManager databaseManager;
 
     private StackerType stackerType;
-    private final List<Player> toggleList = new ArrayList<>();
+    private final List<UUID> toggleList = new ArrayList<>();
 
     @Override
     public void onEnable() {
         instance = this;
 
         Locale.log("&8--------------");
-        Locale.log("&aEconomobs &rby flrp &8(&av1.4.0&8)");
+        Locale.log("&aEconomobs &rby flrp &8(&av1.4.1&8)");
         Locale.log("Consider &cPatreon &rto support me for keeping these plugins free.");
         Locale.log("&8--------------");
         Locale.log("&aStarting...");
@@ -169,7 +169,7 @@ public final class Economobs extends JavaPlugin {
         return stackerType;
     }
 
-    public List<Player> getToggleList() {
+    public List<UUID> getToggleList() {
         return toggleList;
     }
 

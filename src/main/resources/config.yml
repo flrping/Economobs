@@ -29,6 +29,8 @@ message:
 # Make sure to balance this properly if you use multipliers. You can leave any category empty with [] if you wish not to use it.
 multipliers:
   example:
+    # Higher the number, heavier the group, higher priority.
+    weight: 1
     # Specific mob multipliers.
     mobs:
       - CHICKEN 1.1
@@ -42,11 +44,13 @@ multipliers:
       - real_world 1.1
   # More examples...
   coal:
+    weight: 2
     mobs:
       - COW 1.5
     weapons:
       - DIAMOND_SWORD 1.5
   diamond:
+    weight: 3
     mobs:
       - COW 2
     weapons:

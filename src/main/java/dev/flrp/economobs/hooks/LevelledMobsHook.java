@@ -26,6 +26,7 @@ public class LevelledMobsHook {
     }
 
     public static void reload() {
+        if(!isEnabled()) return;
         additions.clear();
         build();
     }

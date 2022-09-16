@@ -46,7 +46,7 @@ public class EconomyManager {
             if(LevelledMobsHook.isLevelledMob(entity)) amount = amount + ((LevelledMobsHook.getLevel(entity) - 1) * LevelledMobsHook.getAddition(entity));
 
             // Multipliers
-            if(plugin.getDatabaseManager().isCached(player.getUniqueId())) {
+            if(plugin.getDatabaseManager().isCached(player.getUniqueId()) || plugin.getMultiplierManager().hasMultiplierGroup(player.getUniqueId())) {
                 MultiplierProfile multiplierProfile = plugin.getDatabaseManager().getMultiplierProfile(player.getUniqueId());
                 MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(player.getUniqueId());
 
@@ -83,7 +83,7 @@ public class EconomyManager {
             // Magic
             double dub = (double) Math.round((amount * deaths) * 100) / 100;
             VaultHook.deposit(player, dub);
-            if(plugin.getConfig().getBoolean("message.enabled") && !plugin.getToggleList().contains(player))
+            if(plugin.getConfig().getBoolean("message.enabled") && !plugin.getToggleList().contains(player.getUniqueId()))
                 plugin.getMessageManager().sendMessage(player, entity, dub);
         } catch(Exception e) {
             player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_MAX));
