@@ -4,7 +4,7 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Configuration;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.listeners.MythicMobListener;
-import io.lumine.xikage.mythicmobs.MythicMobs;
+import io.lumine.mythic.bukkit.MythicBukkit;
 import org.bukkit.Bukkit;
 
 import java.util.HashMap;
@@ -14,7 +14,7 @@ import java.util.UUID;
 public class MythicMobsHook {
 
     private static final Economobs instance = Economobs.getInstance();
-    private static final MythicMobs mythicMobs = Bukkit.getPluginManager().isPluginEnabled("MythicMobs") ? (MythicMobs) Bukkit.getPluginManager().getPlugin("MythicMobs") : null;
+    private static final MythicBukkit mythicMobs = Bukkit.getPluginManager().isPluginEnabled("MythicMobs") ? (MythicBukkit) Bukkit.getPluginManager().getPlugin("MythicMobs") : null;
 
     private static final HashMap<String, Double> amounts = new HashMap<>(), chances = new HashMap<>();
 

@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -121,9 +121,9 @@
             <systemPath>${project.basedir}/lib/StackMob.jar</systemPath>
         </dependency>
         <dependency>
-            <groupId>io.lumine.xikage</groupId>
-            <artifactId>MythicMobs</artifactId>
-            <version>4.9.1</version>
+            <groupId>io.lumine</groupId>
+            <artifactId>Mythic-Dist</artifactId>
+            <version>5.0.3-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

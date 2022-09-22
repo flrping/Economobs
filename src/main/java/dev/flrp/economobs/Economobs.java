@@ -41,7 +41,7 @@ public final class Economobs extends JavaPlugin {
         instance = this;
 
         Locale.log("&8--------------");
-        Locale.log("&aEconomobs &rby flrp &8(&av1.4.1&8)");
+        Locale.log("&aEconomobs &rby flrp &8(&av1.4.2&8)");
         Locale.log("Consider &cPatreon &rto support me for keeping these plugins free.");
         Locale.log("&8--------------");
         Locale.log("&aStarting...");

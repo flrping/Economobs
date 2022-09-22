@@ -2,7 +2,7 @@ package dev.flrp.economobs.listeners;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.MythicMobsHook;
-import io.lumine.xikage.mythicmobs.api.bukkit.events.MythicMobDeathEvent;
+import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
