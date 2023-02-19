@@ -26,20 +26,21 @@ public class MessageManager {
         animationType = AnimationType.getType(plugin.getConfig().getString("message.holograms.animation"));
     }
 
-    public void sendMessage(Player player, LivingEntity entity, double amount) {
+    public void sendMessage(Player player, LivingEntity entity, double base, double payout, double multiplier) {
+        String economyGiven = Locale.ECONOMY_GIVEN.replace("{0}", String.valueOf(payout)).replace("{1}", String.valueOf(base)).replace("{2}", String.valueOf(multiplier));
         switch(messageType) {
             case CHAT:
-                player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_GIVEN.replace("{0}", String.valueOf(amount))));
+                player.sendMessage(Locale.parse(Locale.PREFIX + economyGiven));
                 break;
             case ACTION_BAR:
-                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Locale.parse(Locale.ECONOMY_GIVEN.replace("{0}", String.valueOf(amount)))));
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Locale.parse(economyGiven)));
                 break;
             case HOLOGRAM:
                 Location location = entity.getLocation();
                 location.add(0, 1,0);
                 ArmorStand title = location.getWorld().spawn(location, ArmorStand.class);
                 title.setVisible(false);
-                title.setCustomName(Locale.parse(Locale.ECONOMY_GIVEN.replace("{0}", String.valueOf(amount))));
+                title.setCustomName(Locale.parse(economyGiven));
                 title.setCustomNameVisible(true);
                 title.setGravity(false);
                 title.setInvulnerable(true);

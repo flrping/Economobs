@@ -24,10 +24,11 @@ public class MythicMobListener implements Listener {
         if(event.getKiller() == null) return;
         if(!(event.getKiller() instanceof Player)) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!MythicMobsHook.getAmounts().containsKey(event.getMobType().getInternalName())) return;
+        if(!MythicMobsHook.hasReward(event.getMobType().getInternalName())) return;
 
         Player player = (Player) event.getKiller();
-        plugin.getEconomyManager().handleDeposit(player, (LivingEntity) entity, MythicMobsHook.getAmount(event.getMobType().getInternalName()), MythicMobsHook.getChance(event.getMobType().getInternalName()));
+        plugin.getEconomyManager().handleDeposit(player, (LivingEntity) entity, MythicMobsHook.getReward(event.getMobType().getInternalName()));
+
     }
 
 }

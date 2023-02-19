@@ -31,10 +31,10 @@ public class WildStackerListener implements Listener {
         // Entity Checks
         if(source.getType() != EntityType.PLAYER) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getMobManager().getAmounts().containsKey(entity.getType())) return;
+        if(!plugin.getMobManager().hasReward(entity.getType())) return;
 
         Player player = plugin.getServer().getPlayer(source.getUniqueId());
-        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), plugin.getMobManager().getChance(entity.getType()), event.getAmount());
+        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getReward(entity.getType()), event.getAmount());
     }
 
 }

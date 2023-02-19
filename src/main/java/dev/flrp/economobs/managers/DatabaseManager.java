@@ -126,7 +126,7 @@ public class DatabaseManager {
     }
 
     private void updateMultiplier(UUID uuid, String context, String type, double multiplier) {
-        query("UPDATE multipliers SET multiplier=" + multiplier + " WHERE user='" + uuid + "' AND context='" + context + "' AND type=" + type + "';");
+        query("UPDATE multipliers SET multiplier=" + multiplier + " WHERE user='" + uuid + "' AND context='" + context + "' AND type='" + type + "';");
     }
 
     public void updateEntityMultiplier(UUID uuid, EntityType entity, double multiplier) {
