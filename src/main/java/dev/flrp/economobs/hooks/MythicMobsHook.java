@@ -75,11 +75,12 @@ public class MythicMobsHook {
     }
 
     public static boolean isEnabled() {
-        return mythicMobs != null;
+        if(mythicMobs == null) return false;
+        return instance.getConfig().getBoolean("hooks.MythicMobs");
     }
 
     public static boolean isMythicMob(UUID unique) {
-        if(mythicMobs == null) return false;
+        if(!isEnabled()) return false;
         return mythicMobs.getMobManager().getActiveMob(unique).isPresent();
     }
 

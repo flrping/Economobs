@@ -36,82 +36,90 @@ public class EconomyManager {
             // Check if player has balance.
             if(!VaultHook.hasAccount(player)) VaultHook.createAccount(player);
 
-            // Variables
+            // Multiplier Variables
             EntityType type = entity.getType();
             Material tool = Methods.itemInHand(player).getType();
             UUID uuid = entity.getWorld().getUID();
-            double payout = 0;
-            double multiplier = 1;
 
-            // Rolls the reward(s) based on death count and adds it to the amount.
-            for (int i = 0; i < deaths; i++) {
-                payout += reward.calculateReward();
-            }
+            // Money
+            double base = 0;
+            for(int i = 0; i < deaths; i++) base += reward.calculateReward();
+
+            // Multipliers
+            double multiplier = handleMultipliers(player, type, tool, uuid);
 
             // Hooks
             // LevelledMobs shouldn't stack.
             // LevelledMobs - How much money to be added per level to the BASE amount.
-            if(LevelledMobsHook.isLevelledMob(entity)) payout += ((LevelledMobsHook.getLevel(entity) - 1) * LevelledMobsHook.getAddition(entity));
+            if(LevelledMobsHook.isLevelledMob(entity)) base += ((LevelledMobsHook.getLevel(entity) - 1) * LevelledMobsHook.getAddition(entity));
 
             // LevelledMobs shouldn't stack.
             // InfernalMobs - How much money added per modifier to the BASE amount.
             if(InfernalMobsHook.isInfernalMob(entity)) {
                 for(MetadataValue value : entity.getMetadata("infernalMetadata")) {
                     for(String modifier : value.asString().split(",")) {
-                        payout += InfernalMobsHook.getAddition(modifier);
+                        base += InfernalMobsHook.getAddition(modifier);
                     }
                 }
             }
 
-            double base = payout;
+            // Mathing
+            multiplier = (double) Math.round(multiplier * 100) / 100;
+            double result = (double) Math.round((base * multiplier) * 100) / 100;
 
-            // Calculating multipliers.
-            if(plugin.getDatabaseManager().isCached(player.getUniqueId()) || plugin.getMultiplierManager().hasMultiplierGroup(player.getUniqueId())) {
-                MultiplierProfile multiplierProfile = plugin.getDatabaseManager().getMultiplierProfile(player.getUniqueId());
-                MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(player.getUniqueId());
-
-                if(multiplierProfile.getEntities().containsKey(type)) {
-                    multiplier = multiplier * multiplierProfile.getEntities().get(type);
-                } else
-                if(group != null && group.getEntities().containsKey(type)) {
-                    multiplier = multiplier * group.getEntities().get(type);
-                }
-
-                if(multiplierProfile.getTools().containsKey(tool)) {
-                    multiplier = multiplier * multiplierProfile.getTools().get(tool);
-                } else
-                if(group != null && group.getTools().containsKey(tool)){
-                    multiplier = multiplier * group.getTools().get(tool);
-                }
-
-                if(multiplierProfile.getWorlds().containsKey(uuid)) {
-                    multiplier = multiplier * multiplierProfile.getWorlds().get(uuid);
-                } else
-                if(group != null && group.getWorlds().containsKey(uuid)){
-                    multiplier = multiplier * group.getWorlds().get(uuid);
-                }
-            }
+            // Check
+            if(result == 0) return;
 
             // Event
-            MobGiveEconomyEvent mobGiveEconomyEvent = new MobGiveEconomyEvent(payout, entity);
+            MobGiveEconomyEvent mobGiveEconomyEvent = new MobGiveEconomyEvent(result, entity);
             Bukkit.getPluginManager().callEvent(mobGiveEconomyEvent);
             if(mobGiveEconomyEvent.isCancelled()) {
                 mobGiveEconomyEvent.setCancelled(true);
                 return;
             }
 
-            // Final
-            multiplier = (double) Math.round(multiplier * 100) / 100;
-            double result = (double) Math.round((payout * multiplier) * 100) / 100;
-
             // Distribution
             VaultHook.deposit(player, result);
-            if(plugin.getConfig().getBoolean("message.enabled") && !plugin.getToggleList().contains(player.getUniqueId()))
-                plugin.getMessageManager().sendMessage(player, entity, base, result, multiplier);
+
+            // Message
+            if(!plugin.getConfig().getBoolean("message.enabled")) return;
+            if(plugin.getToggleList().contains(player.getUniqueId())) return;
+            plugin.getMessageManager().sendMessage(player, entity, base, result, multiplier);
+
         } catch(Exception e) {
             e.printStackTrace();
             player.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_MAX));
         }
+    }
+
+    private double handleMultipliers(Player player, EntityType entityType, Material tool, UUID uuid) {
+        double multiplier = 1;
+        if(plugin.getDatabaseManager().isCached(player.getUniqueId()) || plugin.getMultiplierManager().hasMultiplierGroup(player.getUniqueId())) {
+            MultiplierProfile multiplierProfile = plugin.getDatabaseManager().getMultiplierProfile(player.getUniqueId());
+            MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(player.getUniqueId());
+
+            if(multiplierProfile.getEntities().containsKey(entityType)) {
+                multiplier = multiplier * multiplierProfile.getEntities().get(entityType);
+            } else
+            if(group != null && group.getEntities().containsKey(entityType)) {
+                multiplier = multiplier * group.getEntities().get(entityType);
+            }
+
+            if(multiplierProfile.getTools().containsKey(tool)) {
+                multiplier = multiplier * multiplierProfile.getTools().get(tool);
+            } else
+            if(group != null && group.getTools().containsKey(tool)){
+                multiplier = multiplier * group.getTools().get(tool);
+            }
+
+            if(multiplierProfile.getWorlds().containsKey(uuid)) {
+                multiplier = multiplier * multiplierProfile.getWorlds().get(uuid);
+            } else
+            if(group != null && group.getWorlds().containsKey(uuid)){
+                multiplier = multiplier * group.getWorlds().get(uuid);
+            }
+        }
+        return multiplier;
     }
 
 }

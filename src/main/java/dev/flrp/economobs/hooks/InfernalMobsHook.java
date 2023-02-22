@@ -59,7 +59,8 @@ public class InfernalMobsHook {
     }
 
     public static boolean isEnabled() {
-        return infernalMobs != null;
+        if(infernalMobs == null) return false;
+        return instance.getConfig().getBoolean("hooks.InfernalMobs");
     }
 
     public static boolean isInfernalMob(LivingEntity entity) {

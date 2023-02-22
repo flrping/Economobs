@@ -20,16 +20,16 @@ public class HookManager {
 
     private void load() {
         VaultHook.register();
-        if(plugin.getConfig().getBoolean("hooks.LevelledMobs")) LevelledMobsHook.register();
-        if(plugin.getConfig().getBoolean("hooks.MythicMobs")) MythicMobsHook.register();
-        if(plugin.getConfig().getBoolean("hooks.InfernalMobs")) InfernalMobsHook.register();
+        LevelledMobsHook.register();
+        MythicMobsHook.register();
+        InfernalMobsHook.register();
     }
 
     public void reload() {
         Locale.log("Rebuilding some hook lists. Please wait.");
-        if(plugin.getConfig().getBoolean("hooks.LevelledMobs")) LevelledMobsHook.reload();
-        if(plugin.getConfig().getBoolean("hooks.MythicMobs")) MythicMobsHook.reload();
-        if(plugin.getConfig().getBoolean("hooks.InfernalMobs")) InfernalMobsHook.reload();
+        LevelledMobsHook.reload();
+        MythicMobsHook.reload();
+        InfernalMobsHook.reload();
         Locale.log("Rebuild complete.");
     }
 

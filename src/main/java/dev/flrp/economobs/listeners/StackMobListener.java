@@ -6,7 +6,6 @@ import dev.flrp.economobs.hooks.MythicMobsHook;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import uk.antiperson.stackmob.events.StackDeathEvent;
 
