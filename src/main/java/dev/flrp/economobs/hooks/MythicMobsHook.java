@@ -39,7 +39,7 @@ public class MythicMobsHook {
         // Initial Build
         if(mythicFile.getConfiguration().getConfigurationSection("mobs") == null) {
             mythicFile.getConfiguration().createSection("mobs");
-            mythicFile.getConfiguration().set("mobs.SkeletalKnight", "10");
+            mythicFile.getConfiguration().set("mobs.SkeletalKnight", new ArrayList<>(Collections.singletonList("10")));
             mythicFile.save();
         }
 
