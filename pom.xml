@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.4.2</version>
+    <version>1.5.0</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>com.bgsoftware</groupId>
             <artifactId>WildStackerAPI</artifactId>
-            <version>3.7.0</version>
+            <version>2022.6</version>
         </dependency>
         <dependency>
             <groupId>uk.antiperson</groupId>
@@ -144,6 +144,13 @@
             <version>3.1.8 b517</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/LevelledMobs.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>io.hotmail.com.jacob_vejvoda</groupId>
+            <artifactId>InfernalMobs</artifactId>
+            <version>6.7.5</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/InfernalMobs.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

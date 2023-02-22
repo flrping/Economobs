@@ -27,10 +27,10 @@ public class StackMobListener implements Listener {
         // Entity Checks
         if(entity.getKiller() == null) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getMobManager().getAmounts().containsKey(entity.getType())) return;
+        if(!plugin.getMobManager().getRewards().containsKey(entity.getType())) return;
 
         Player player = entity.getKiller();
-        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), plugin.getMobManager().getChance(entity.getType()), event.getDeathStep());
+        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getRewards().get(entity.getType()), event.getDeathStep());
     }
 
 }

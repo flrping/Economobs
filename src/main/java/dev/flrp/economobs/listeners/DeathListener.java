@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.metadata.MetadataValue;
 
 public class DeathListener implements Listener {
 
@@ -28,9 +29,9 @@ public class DeathListener implements Listener {
         if(entity.getKiller() == null) return;
         if(entity instanceof Player) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getMobManager().getAmounts().containsKey(entity.getType())) return;
+        if(!plugin.getMobManager().hasReward(entity.getType())) return;
 
         Player player = event.getEntity().getKiller();
-        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getAmount(entity.getType()), plugin.getMobManager().getChance(entity.getType()));
+        plugin.getEconomyManager().handleDeposit(player, entity, plugin.getMobManager().getReward(entity.getType()));
     }
 }

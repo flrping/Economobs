@@ -1,4 +1,5 @@
 # Configuration of Economobs. For help, visit https://docs.axelli.net/
+config-version: 5
 
 # What stacker should the plugin look for?
 # Current list: NONE, WILDSTACKER, STACKMOB
@@ -22,6 +23,15 @@ message:
     # This option will affect animations.
     # How long should the hologram stay? This is in seconds.
     duration: 1
+
+# Hook management.
+hooks:
+  # Enable MythicMobs support? Adds the ability to earn money from custom mobs.
+  MythicMobs: true
+  # Enable LevelledMobs support? Adds the ability to add money per level to the base amount (before applying multipliers).
+  LevelledMobs: true
+  # Enable InfernalMobs support? Adds the ability to add money per modifier to the base amount (before applying multipliers).
+  InfernalMobs: true
 
 # Multiplier handling.
 # Down below are configurable multiplier groups.

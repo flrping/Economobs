@@ -56,21 +56,22 @@ public class LevelledMobsHook {
     }
 
     public static boolean isEnabled() {
-        return levelledMobs != null;
+        if(levelledMobs == null) return false;
+        return instance.getConfig().getBoolean("hooks.LevelledMobs");
     }
 
     public static boolean isLevelledMob(LivingEntity entity) {
-        if(levelledMobs == null) return false;
+        if(!isEnabled()) return false;
         return levelledMobs.levelManager.isLevelled(entity);
     }
 
     public static int getLevel(LivingEntity entity) {
-        if(levelledMobs == null) return 0;
+        if(!isEnabled()) return 1;
         return levelledMobs.levelManager.getLevelOfMob(entity);
     }
 
     public static double getAddition(LivingEntity entity) {
-        if(levelledMobs == null) return 0;
+        if(!isEnabled()) return 0;
         return additions.get(entity.getType());
     }
 
