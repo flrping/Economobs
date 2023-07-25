@@ -2,10 +2,7 @@ package dev.flrp.economobs.managers;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hooks.InfernalMobsHook;
-import dev.flrp.economobs.hooks.LevelledMobsHook;
-import dev.flrp.economobs.hooks.MythicMobsHook;
-import dev.flrp.economobs.hooks.VaultHook;
+import dev.flrp.economobs.hooks.*;
 
 public class HookManager {
 
@@ -23,6 +20,7 @@ public class HookManager {
         LevelledMobsHook.register();
         MythicMobsHook.register();
         InfernalMobsHook.register();
+        ItemsAdderHook.register();
     }
 
     public void reload() {
@@ -30,6 +28,7 @@ public class HookManager {
         LevelledMobsHook.reload();
         MythicMobsHook.reload();
         InfernalMobsHook.reload();
+        ItemsAdderHook.reload();
         Locale.log("Rebuild complete.");
     }
 

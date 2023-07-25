@@ -13,10 +13,11 @@ import java.util.UUID;
 public class MultiplierGroup {
 
     private final String identifier;
-    private final int weight;
+    private int weight;
     private final HashMap<EntityType, Double> entities = new HashMap<>();
     private final HashMap<Material, Double> tools = new HashMap<>();
     private final HashMap<UUID, Double> worlds = new HashMap<>();
+    private final HashMap<String, Double> customEntities = new HashMap<>(), customTools = new HashMap<>();
 
     public MultiplierGroup(String identifier) {
         this.identifier = identifier;
@@ -72,6 +73,34 @@ public class MultiplierGroup {
 
     public HashMap<Material, Double> getTools() {
         return tools;
+    }
+
+    public HashMap<String, Double> getCustomEntities() {
+        return customEntities;
+    }
+
+    public HashMap<String, Double> getCustomTools() {
+        return customTools;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public void setCustomEntities(HashMap<String, Double> customEntities) {
+        this.customEntities.putAll(customEntities);
+    }
+
+    public void setCustomTools(HashMap<String, Double> customTools) {
+        this.customTools.putAll(customTools);
+    }
+
+    public void addCustomEntityMultiplier(String identifier, double multiplier) {
+        customEntities.put(identifier, multiplier);
+    }
+
+    public void addCustomToolMultiplier(String identifier, double multiplier) {
+        customTools.put(identifier, multiplier);
     }
 
 }

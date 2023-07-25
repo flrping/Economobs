@@ -30,6 +30,7 @@ public class WildStackerListener implements Listener {
         LivingEntity entity = event.getEntity().getLivingEntity();
         // Entity Checks
         if(source.getType() != EntityType.PLAYER) return;
+        if(source.hasMetadata("NPC")) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
         if(!plugin.getMobManager().hasReward(entity.getType())) return;
 

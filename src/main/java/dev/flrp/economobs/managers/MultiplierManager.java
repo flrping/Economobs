@@ -59,4 +59,20 @@ public class MultiplierManager {
         return groups.containsKey(identifier);
     }
 
+    public void addMultiplierGroup(String identifier) {
+        groups.put(identifier, new MultiplierGroup(identifier));
+    }
+
+    public void addMultiplierGroup(String identifier, MultiplierGroup multiplierGroup) {
+        groups.put(identifier, multiplierGroup);
+    }
+
+    public void removeMultiplierGroup(String identifier) {
+        groups.remove(identifier);
+    }
+
+    public HashMap<String, MultiplierGroup> getGroups() {
+        return groups;
+    }
+
 }

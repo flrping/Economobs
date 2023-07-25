@@ -4,7 +4,7 @@ main: dev.flrp.economobs.Economobs
 api-version: 1.13
 author: flrp
 depend: [Vault]
-softdepend: [WildStacker, StackMob, MythicMobs, LevelledMobs, InfernalMobs, Multiverse-Core]
+softdepend: [WildStacker, StackMob, MythicMobs, LevelledMobs, InfernalMobs, Multiverse-Core, ItemsAdder]
 commands:
   reload:
     default:

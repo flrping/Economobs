@@ -2,6 +2,7 @@ package dev.flrp.economobs.commands;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
+import dev.flrp.economobs.hooks.ItemsAdderHook;
 import dev.flrp.economobs.utils.multiplier.MultiplierGroup;
 import dev.flrp.economobs.utils.multiplier.MultiplierProfile;
 import me.mattstudios.mf.annotations.*;
@@ -26,13 +27,13 @@ public class Commands extends CommandBase {
 
     @Default
     public void defaultCommand(final CommandSender sender) {
-        sender.sendMessage(Locale.parse("\n&a&lECONOMOBS &7Version 1.5.0 &8| &7By flrp"));
+        sender.sendMessage(Locale.parse("\n&a&lECONOMOBS &7Version " + plugin.getDescription().getVersion() + " &8| &7By flrp"));
         sender.sendMessage(Locale.parse("&a/economobs &fhelp &8- &7Displays this menu."));
         sender.sendMessage(Locale.parse("&a/economobs &ftoggle &8- &7Toggles income messages."));
         if(sender.hasPermission("economobs.admin")) {
             sender.sendMessage(Locale.parse("&a/economobs &fcheck <user> &8- &7Shows the multipliers a user has."));
-            sender.sendMessage(Locale.parse("&a/economobs &fmultiplier add <user> <entity/tool/world> <context> <multiplier> &8- &7Adds a multiplier to a user."));
-            sender.sendMessage(Locale.parse("&a/economobs &fmultiplier remove <user> <entity/tool/world> <context> &8- &7Removes a multiplier from a user."));
+            sender.sendMessage(Locale.parse("&a/economobs &fmultiplier add <user> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier> &8- &7Adds a multiplier to a user."));
+            sender.sendMessage(Locale.parse("&a/economobs &fmultiplier remove <user> <entity/tool/world/custom_entity/custom_tool> <context> &8- &7Removes a multiplier from a user."));
             sender.sendMessage(Locale.parse("&a/economobs &freload &8- &7Reloads the plugin."));
         }
     }
@@ -143,6 +144,42 @@ public class Commands extends CommandBase {
                     return;
                 }
                 break;
+
+            case "custom_entity":
+                String customEntity = args[4];
+                if (args[1].equals("add")) {
+                    multiplierProfile.addCustomEntityMultiplier(customEntity, multiplier);
+                    send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+                    return;
+                }
+                if (args[1].equals("remove")) {
+                    if(!multiplierProfile.getCustomEntities().containsKey(customEntity)) {
+                        send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
+                        return;
+                    }
+                    multiplierProfile.removeCustomEntityMultiplier(customEntity);
+                    send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+                    return;
+                }
+                break;
+
+            case "custom_tool":
+                String customTool = args[4];
+                if (args[1].equals("add")) {
+                    multiplierProfile.addCustomToolMultiplier(customTool, multiplier);
+                    send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+                    return;
+                }
+                if (args[1].equals("remove")) {
+                    if(!multiplierProfile.getCustomTools().containsKey(customTool)) {
+                        send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
+                        return;
+                    }
+                    multiplierProfile.removeCustomToolMultiplier(customTool);
+                    send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+                    return;
+                }
+                break;
         }
         send(sender, "&cInvalid usage. See /economobs.");
     }
@@ -181,6 +218,21 @@ public class Commands extends CommandBase {
             });
         }
 
+        // Custom Multipliers
+        sender.sendMessage(Locale.parse("&7Custom Entity Multipliers:"));
+        if(!multiplierProfile.getCustomEntities().isEmpty()) multiplierProfile.getCustomEntities().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
+        if(group != null) {
+            group.getCustomEntities().forEach((key, value) -> {
+                if(!multiplierProfile.getCustomEntities().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+            });
+        }
+        sender.sendMessage(Locale.parse("&7Custom Tool Multipliers:"));
+        if(!multiplierProfile.getCustomTools().isEmpty()) multiplierProfile.getCustomTools().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
+        if(group != null) {
+            group.getCustomTools().forEach((key, value) -> {
+                if(!multiplierProfile.getCustomTools().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+            });
+        }
     }
 
     @SubCommand("toggle")

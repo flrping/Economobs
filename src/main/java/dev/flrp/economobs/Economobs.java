@@ -8,6 +8,7 @@ import dev.flrp.economobs.listeners.DeathListener;
 import dev.flrp.economobs.listeners.StackMobListener;
 import dev.flrp.economobs.listeners.WildStackerListener;
 import dev.flrp.economobs.managers.*;
+import dev.flrp.economobs.utils.UpdateChecker;
 import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.event.Listener;
@@ -41,7 +42,7 @@ public final class Economobs extends JavaPlugin {
         instance = this;
 
         Locale.log("&8--------------");
-        Locale.log("&aEconomobs &rby flrp &8(&av1.5.0&8)");
+        Locale.log("&aEconomobs &rby flrp &8(&av" + this.getDescription().getVersion() + "&8)");
         Locale.log("Consider &cPatreon &rto support me for keeping these plugins free.");
         Locale.log("&8--------------");
         Locale.log("&aStarting...");
@@ -55,6 +56,18 @@ public final class Economobs extends JavaPlugin {
         // Initiation
         initiateClasses();
         Locale.load();
+
+        // Update Checker
+        new UpdateChecker(this, 90004).checkForUpdate(version -> {
+            if(getConfig().getBoolean("check-for-updates")) {
+                if(!getDescription().getVersion().equalsIgnoreCase(version)) {
+                    Locale.log("&8--------------");
+                    Locale.log("A new version of Economobs is available!");
+                    Locale.log("Download it here:&a https://www.spigotmc.org/resources/economobs.90004/");
+                    Locale.log("&8--------------");
+                }
+            }
+        });
 
         // Listeners
         getServer().getPluginManager().registerEvents(new DeathListener(this), this);
