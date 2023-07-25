@@ -26,6 +26,7 @@ public class StackMobListener implements Listener {
         LivingEntity entity = event.getStackEntity().getEntity();
         // Entity Checks
         if(entity.getKiller() == null) return;
+        if(entity.getKiller().hasMetadata("NPC")) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
         if(!plugin.getMobManager().getRewards().containsKey(entity.getType())) return;
 

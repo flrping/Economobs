@@ -4,6 +4,7 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.api.events.MobGiveEconomyEvent;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.hooks.InfernalMobsHook;
+import dev.flrp.economobs.hooks.ItemsAdderHook;
 import dev.flrp.economobs.hooks.LevelledMobsHook;
 import dev.flrp.economobs.hooks.VaultHook;
 import dev.flrp.economobs.utils.Methods;
@@ -15,38 +16,58 @@ import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import java.util.UUID;
 
 public class EconomyManager {
 
     private final Economobs plugin;
+    private final List<String> allEntities = new ArrayList<>();
 
     public EconomyManager(Economobs plugin) {
         this.plugin = plugin;
+        for(EntityType type : EnumSet.allOf(EntityType.class)) {
+            allEntities.add(type.name());
+        }
     }
 
     public void handleDeposit(Player player, LivingEntity entity, Reward reward) {
         handleDeposit(player, entity, reward, 1);
     }
 
-    public void handleDeposit(Player player, LivingEntity entity, Reward reward,  double deaths) {
+    public void handleDeposit(Player player, LivingEntity entity, Reward reward, double deaths) {
         try {
             // Check if player has balance.
             if(!VaultHook.hasAccount(player)) VaultHook.createAccount(player);
 
             // Multiplier Variables
-            EntityType type = entity.getType();
-            Material tool = Methods.itemInHand(player).getType();
+            ItemStack itemStack = Methods.itemInHand(player);
+            Material tool = itemStack.getType();
             UUID uuid = entity.getWorld().getUID();
 
-            // Money
+            // Money - checks for custom mob first.
             double base = 0;
-            for(int i = 0; i < deaths; i++) base += reward.calculateReward();
+            String entityName;
+            if(ItemsAdderHook.isCustomEntity(entity) && ItemsAdderHook.hasReward(entity)) {
+                entityName = ItemsAdderHook.getCustomEntityName(entity);
+                base = ItemsAdderHook.getReward(entity).calculateReward();
+            } else {
+                entityName = entity.getType().name();
+                for(int i = 0; i < deaths; i++) base += reward.calculateReward();
+            }
 
+            // Custom Checks
+            String toolName;
+            if(ItemsAdderHook.isCustomStack(itemStack)) {
+                toolName = ItemsAdderHook.getCustomItemName(itemStack);
+            } else toolName = tool.name();
             // Multipliers
-            double multiplier = handleMultipliers(player, type, tool, uuid);
+            double multiplier = handleMultipliers(player, entityName, toolName, uuid);
 
             // Hooks
             // LevelledMobs shouldn't stack.
@@ -92,32 +113,56 @@ public class EconomyManager {
         }
     }
 
-    private double handleMultipliers(Player player, EntityType entityType, Material tool, UUID uuid) {
+    private double handleMultipliers(Player player, String entity, String tool, UUID uuid) {
         double multiplier = 1;
         if(plugin.getDatabaseManager().isCached(player.getUniqueId()) || plugin.getMultiplierManager().hasMultiplierGroup(player.getUniqueId())) {
             MultiplierProfile multiplierProfile = plugin.getDatabaseManager().getMultiplierProfile(player.getUniqueId());
             MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(player.getUniqueId());
 
-            if(multiplierProfile.getEntities().containsKey(entityType)) {
-                multiplier = multiplier * multiplierProfile.getEntities().get(entityType);
-            } else
-            if(group != null && group.getEntities().containsKey(entityType)) {
-                multiplier = multiplier * group.getEntities().get(entityType);
+            // Profile Multipliers
+            //  - Vanilla Multipliers
+            //  - Custom Multipliers
+            // Group Multipliers
+            //  - Vanilla Multipliers
+            //  - Custom Multipliers
+
+            if(allEntities.contains(entity)) {
+                EntityType type = EntityType.valueOf(entity);
+                if(multiplierProfile.getEntities().containsKey(type)) {
+                    multiplier = multiplier * multiplierProfile.getEntities().get(type);
+                } else
+                if(group != null && group.getEntities().containsKey(type)) {
+                    multiplier = multiplier * group.getEntities().get(type);
+                }
+            } else {
+                if(multiplierProfile.getCustomEntities().containsKey(entity)) {
+                    multiplier = multiplier * multiplierProfile.getCustomEntities().get(entity);
+                } else
+                if(group != null && group.getCustomEntities().containsKey(entity)) {
+                    multiplier = multiplier * group.getCustomEntities().get(entity);
+                }
             }
 
-            if(multiplierProfile.getTools().containsKey(tool)) {
-                multiplier = multiplier * multiplierProfile.getTools().get(tool);
-            } else
-            if(group != null && group.getTools().containsKey(tool)){
-                multiplier = multiplier * group.getTools().get(tool);
+            if(Material.matchMaterial(tool) != null) {
+                if(multiplierProfile.getTools().containsKey(Material.matchMaterial(tool))) {
+                    multiplier = multiplier * multiplierProfile.getTools().get(Material.matchMaterial(tool));
+                } else
+                if(group != null && group.getTools().containsKey(Material.matchMaterial(tool))) {
+                    multiplier = multiplier * group.getTools().get(Material.matchMaterial(tool));
+                }
+            } else {
+                if(multiplierProfile.getCustomTools().containsKey(tool)) {
+                    multiplier = multiplier * multiplierProfile.getCustomTools().get(tool);
+                } else
+                if(group != null && group.getCustomTools().containsKey(tool)) {
+                    multiplier = multiplier * group.getCustomTools().get(tool);
+                }
             }
 
             if(multiplierProfile.getWorlds().containsKey(uuid)) {
                 multiplier = multiplier * multiplierProfile.getWorlds().get(uuid);
-            } else
-            if(group != null && group.getWorlds().containsKey(uuid)){
-                multiplier = multiplier * group.getWorlds().get(uuid);
             }
+
         }
         return multiplier;
     }

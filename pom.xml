@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.5.0</version>
+    <version>1.5.1</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -151,6 +151,12 @@
             <version>6.7.5</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/InfernalMobs.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>com.github.LoneDev6</groupId>
+            <artifactId>api-itemsadder</artifactId>
+            <version>3.5.0b</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

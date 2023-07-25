@@ -13,6 +13,7 @@ public class MultiplierProfile {
     HashMap<EntityType, Double> entities = new HashMap<>();
     HashMap<Material, Double> tools = new HashMap<>();
     HashMap<UUID, Double> worlds = new HashMap<>();
+    HashMap<String, Double> customEntities = new HashMap<>(), customTools = new HashMap<>();
 
     public MultiplierProfile(UUID uuid) {
         this.uuid = uuid;
@@ -32,6 +33,14 @@ public class MultiplierProfile {
 
     public HashMap<UUID, Double> getWorlds() {
         return worlds;
+    }
+
+    public HashMap<String, Double> getCustomEntities() {
+        return customEntities;
+    }
+
+    public HashMap<String, Double> getCustomTools() {
+        return customTools;
     }
 
     public void addEntityMultiplier(EntityType entityType, double multiplier) {
@@ -64,6 +73,26 @@ public class MultiplierProfile {
         }
     }
 
+    public void addCustomEntityMultiplier(String entity, double multiplier) {
+        if(customEntities.containsKey(entity)) {
+            customEntities.replace(entity, multiplier);
+            Economobs.getInstance().getDatabaseManager().updateCustomEntityMultiplier(uuid, entity, multiplier);
+        } else {
+            customEntities.put(entity, multiplier);
+            Economobs.getInstance().getDatabaseManager().addCustomEntityMultiplier(uuid, entity, multiplier);
+        }
+    }
+
+    public void addCustomToolMultiplier(String material, double multiplier) {
+        if(customTools.containsKey(material)) {
+            customTools.replace(material, multiplier);
+            Economobs.getInstance().getDatabaseManager().updateCustomToolMultiplier(uuid, material, multiplier);
+        } else {
+            customTools.put(material, multiplier);
+            Economobs.getInstance().getDatabaseManager().addCustomToolMultiplier(uuid, material, multiplier);
+        }
+    }
+
     public void removeEntityMultiplier(EntityType entityType) {
         entities.remove(entityType);
         Economobs.getInstance().getDatabaseManager().removeEntityMultiplier(uuid, entityType);
@@ -77,6 +106,16 @@ public class MultiplierProfile {
     public void removeWorldMultiplier(UUID world) {
         worlds.remove(world);
         Economobs.getInstance().getDatabaseManager().removeWorldMultiplier(uuid, world);
+    }
+
+    public void removeCustomEntityMultiplier(String entity) {
+        customEntities.remove(entity);
+        Economobs.getInstance().getDatabaseManager().removeCustomEntityMultiplier(uuid, entity);
+    }
+
+    public void removeCustomToolMultiplier(String material) {
+        customTools.remove(material);
+        Economobs.getInstance().getDatabaseManager().removeCustomToolMultiplier(uuid, material);
     }
 
 }

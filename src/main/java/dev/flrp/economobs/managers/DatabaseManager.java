@@ -75,6 +75,43 @@ public class DatabaseManager {
             multiplierStatement.close();
             multiplierResultSet.close();
 
+            // Specific custom multiplier table
+            Statement customMultiplierTableStatement = connection.createStatement();
+            String createCustomMultiplierTable = "CREATE TABLE IF NOT EXISTS custom_multipliers (" +
+                    "user varchar(36) NOT NULL," +
+                    "context varchar NOT NULL," +
+                    "multiplier double NOT NULL," +
+                    "type varchar CHECK( type IN ('ENTITY', 'TOOL')) NOT NULL)";
+            customMultiplierTableStatement.executeUpdate(createCustomMultiplierTable);
+            customMultiplierTableStatement.close();
+
+            // Handling specific custom multipliers
+            String customMultiplierSql = "SELECT * FROM custom_multipliers";
+            Statement customMultiplierStatement = connection.createStatement();
+            ResultSet  customMultiplierResultSet = customMultiplierStatement.executeQuery(customMultiplierSql);
+            while (customMultiplierResultSet.next()) {
+                UUID uuid = UUID.fromString(customMultiplierResultSet.getString("user"));
+                MultiplierProfile mp;
+                if (!playerCache.containsKey(uuid)) {
+                    mp = new MultiplierProfile(uuid);
+                    playerCache.put(uuid, mp);
+                } else mp = playerCache.get(uuid);
+
+                switch (customMultiplierResultSet.getString("type")) {
+                    case "ENTITY":
+                        mp.getCustomEntities().put(customMultiplierResultSet.getString("context"),
+                                customMultiplierResultSet.getDouble("multiplier"));
+                        break;
+                    case "TOOL":
+                        mp.getCustomTools().put(customMultiplierResultSet.getString("context"),
+                                customMultiplierResultSet.getDouble("multiplier"));
+                        break;
+                    default:
+                }
+            }
+            customMultiplierStatement.close();
+            customMultiplierResultSet.close();
+
             Locale.log("Loaded &a" + playerCache.size() + " &rmultiplier profiles from the database.");
 
         } catch (ClassNotFoundException e) {
@@ -155,6 +192,44 @@ public class DatabaseManager {
 
     public void removeWorldMultiplier(UUID uuid, UUID world) {
         removeMultiplier(uuid, world.toString(), "WORLD");
+    }
+
+    //
+
+    public void addCustomMultiplier(UUID uuid, String context, String type, double multiplier) {
+        query("INSERT INTO custom_multipliers (user,context,multiplier,type) VALUES ('" + uuid + "', '" + context + "', " + multiplier + " ,'" + type + "');");
+    }
+
+    public void addCustomEntityMultiplier(UUID uuid, String entity, double multiplier) {
+        addCustomMultiplier(uuid, entity, "ENTITY", multiplier);
+    }
+
+    public void addCustomToolMultiplier(UUID uuid, String tool, double multiplier) {
+        addCustomMultiplier(uuid, tool, "TOOL", multiplier);
+    }
+
+    public void updateCustomMultiplier(UUID uuid, String context, String type, double multiplier) {
+        query("UPDATE custom_multipliers SET multiplier=" + multiplier + " WHERE user='" + uuid + "' AND context='" + context + "' AND type='" + type + "';");
+    }
+
+    public void updateCustomEntityMultiplier(UUID uuid, String entity, double multiplier) {
+        updateCustomMultiplier(uuid, entity, "ENTITY", multiplier);
+    }
+
+    public void updateCustomToolMultiplier(UUID uuid, String tool, double multiplier) {
+        updateCustomMultiplier(uuid, tool, "TOOL", multiplier);
+    }
+
+    public void removeCustomMultiplier(UUID uuid, String context, String type) {
+        query("DELETE FROM custom_multipliers WHERE user='" + uuid + "' AND context='" + context + "' AND type='" + type + "';");
+    }
+
+    public void removeCustomEntityMultiplier(UUID uuid, String entity) {
+        removeCustomMultiplier(uuid, entity, "ENTITY");
+    }
+
+    public void removeCustomToolMultiplier(UUID uuid, String tool) {
+        removeCustomMultiplier(uuid, tool, "TOOL");
     }
 
     private void query(String sql) {
