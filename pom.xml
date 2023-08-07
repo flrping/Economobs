@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.5.1</version>
+    <version>1.6.0</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -156,6 +156,25 @@
             <groupId>com.github.LoneDev6</groupId>
             <artifactId>api-itemsadder</artifactId>
             <version>3.5.0b</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Realizedd</groupId>
+            <artifactId>TokenManager</artifactId>
+            <version>3.2.8</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/TokenManager.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.black_ixx</groupId>
+            <artifactId>playerpoints</artifactId>
+            <version>3.2.6</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

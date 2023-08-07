@@ -2,7 +2,6 @@ package dev.flrp.economobs.commands;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hooks.ItemsAdderHook;
 import dev.flrp.economobs.utils.multiplier.MultiplierGroup;
 import dev.flrp.economobs.utils.multiplier.MultiplierProfile;
 import me.mattstudios.mf.annotations.*;

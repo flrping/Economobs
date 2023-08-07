@@ -6,7 +6,7 @@ import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.hooks.InfernalMobsHook;
 import dev.flrp.economobs.hooks.ItemsAdderHook;
 import dev.flrp.economobs.hooks.LevelledMobsHook;
-import dev.flrp.economobs.hooks.VaultHook;
+import dev.flrp.economobs.hooks.economy.*;
 import dev.flrp.economobs.utils.Methods;
 import dev.flrp.economobs.utils.mob.Reward;
 import dev.flrp.economobs.utils.multiplier.MultiplierGroup;
@@ -29,11 +29,16 @@ public class EconomyManager {
     private final Economobs plugin;
     private final List<String> allEntities = new ArrayList<>();
 
+    private EconomyType economy;
+    private EconomyProvider economyProvider;
+
     public EconomyManager(Economobs plugin) {
         this.plugin = plugin;
         for(EntityType type : EnumSet.allOf(EntityType.class)) {
             allEntities.add(type.name());
         }
+        Locale.log("Starting to register hooks. Please wait.");
+        setupEconomy();
     }
 
     public void handleDeposit(Player player, LivingEntity entity, Reward reward) {
@@ -43,7 +48,7 @@ public class EconomyManager {
     public void handleDeposit(Player player, LivingEntity entity, Reward reward, double deaths) {
         try {
             // Check if player has balance.
-            if(!VaultHook.hasAccount(player)) VaultHook.createAccount(player);
+            if(!economyProvider.hasAccount(player)) economyProvider.createAccount(player);
 
             // Multiplier Variables
             ItemStack itemStack = Methods.itemInHand(player);
@@ -100,7 +105,7 @@ public class EconomyManager {
             }
 
             // Distribution
-            VaultHook.deposit(player, result);
+            economyProvider.deposit(player, result);
 
             // Message
             if(!plugin.getConfig().getBoolean("message.enabled")) return;
@@ -165,6 +170,37 @@ public class EconomyManager {
 
         }
         return multiplier;
+    }
+
+    private void setupEconomy() {
+        if (!plugin.getConfig().contains("economy") || EconomyType.getByName(plugin.getConfig().getString("economy")) == null) {
+            Locale.log("Invalid or unspecified economy type, defaulting to Vault.");
+            economy = EconomyType.VAULT;
+            economyProvider = new VaultEconomy();
+        }
+        economy = EconomyType.getByName(plugin.getConfig().getString("economy"));
+        switch (economy) {
+            case TOKEN_MANAGER:
+                economyProvider = new TokenManagerEconomy();
+                break;
+            case PLAYER_POINTS:
+                economyProvider = new PlayerPointsEconomy();
+                break;
+            case VAULT:
+                economyProvider = new VaultEconomy();
+                break;
+            default:
+                Locale.log("Unrecognized economy type, defaulting to Vault.");
+                economyProvider = new VaultEconomy(); // Provide a default EconomyProvider (VaultEconomy in this case)
+        }
+    }
+
+    public EconomyProvider getEconomyProvider() {
+        return economyProvider;
+    }
+
+    public EconomyType getEconomyType() {
+        return economy;
     }
 
 }

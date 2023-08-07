@@ -16,7 +16,6 @@ public class HookManager {
     }
 
     private void load() {
-        VaultHook.register();
         LevelledMobsHook.register();
         MythicMobsHook.register();
         InfernalMobsHook.register();

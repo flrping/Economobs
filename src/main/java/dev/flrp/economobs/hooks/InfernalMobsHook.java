@@ -11,7 +11,6 @@ import java.util.*;
 
 public class InfernalMobsHook {
 
-
     private static final Economobs instance = Economobs.getInstance();
     private static final infernal_mobs infernalMobs = Bukkit.getPluginManager().isPluginEnabled("InfernalMobs") ? (infernal_mobs) Bukkit.getPluginManager().getPlugin("InfernalMobs") : null;
 
