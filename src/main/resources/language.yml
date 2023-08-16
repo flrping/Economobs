@@ -1,6 +1,8 @@
 prefix: "&8[&aEconomobs&8] "
 command-denied: "&cYou do not have permission to run this command"
 # {0} prints out the money made.
+# {1} prints out the base amount.
+# {2} prints out the multiplier.
 economy-given: "&7You've earned &f${0} &7by killing this mob. &7&o({1} x {2})"
 economy-max: "&cYou can't earn more money due to a maximum balance."
 economy-toggle: "&7Toggled income messages."

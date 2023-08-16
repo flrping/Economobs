@@ -3,15 +3,11 @@ package dev.flrp.economobs;
 import dev.flrp.economobs.commands.Commands;
 import dev.flrp.economobs.configuration.Configuration;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.configuration.StackerType;
-import dev.flrp.economobs.listeners.DeathListener;
-import dev.flrp.economobs.listeners.StackMobListener;
-import dev.flrp.economobs.listeners.WildStackerListener;
+import dev.flrp.economobs.listeners.PlayerListener;
 import dev.flrp.economobs.managers.*;
 import dev.flrp.economobs.utils.UpdateChecker;
 import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -34,7 +30,6 @@ public final class Economobs extends JavaPlugin {
     private MultiplierManager multiplierManager;
     private DatabaseManager databaseManager;
 
-    private StackerType stackerType;
     private final List<UUID> toggleList = new ArrayList<>();
 
     @Override
@@ -69,10 +64,8 @@ public final class Economobs extends JavaPlugin {
             }
         });
 
-        // Listeners
-        getServer().getPluginManager().registerEvents(new DeathListener(this), this);
-        registerListener("WildStacker", new WildStackerListener(this));
-        registerListener("StackMob", new StackMobListener(this));
+        // Player Listener
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
         // Hooks
         File dir = new File(getDataFolder(), "hooks");
@@ -81,10 +74,6 @@ public final class Economobs extends JavaPlugin {
 
         // Database
         databaseManager = new DatabaseManager(this);
-
-        // Extra
-        stackerType = StackerType.getName(getConfig().getString("stacker"));
-        Locale.log("Selected stacker plugin: &a" + stackerType);
 
         // Commands
         CommandManager commandManager = new CommandManager(this);
@@ -103,10 +92,6 @@ public final class Economobs extends JavaPlugin {
         initiateClasses();
         Locale.load();
         hookManager.reload();
-
-        // Extra
-        stackerType = StackerType.getName(getConfig().getString("stacker"));
-        Locale.log("Selected stacker plugin: &a" + stackerType);
 
         Locale.log("&aDone!");
     }
@@ -132,13 +117,6 @@ public final class Economobs extends JavaPlugin {
         economyManager = new EconomyManager(this);
         messageManager = new MessageManager(this);
         multiplierManager = new MultiplierManager(this);
-    }
-
-    private void registerListener(String name, Listener listener) {
-        if(getServer().getPluginManager().getPlugin(name) != null) {
-            getServer().getPluginManager().registerEvents(listener, this);
-            Locale.log("Found stacker plugin &a" + name + "&r. Registered Events.");
-        }
     }
 
     public static Economobs getInstance() {
@@ -175,11 +153,6 @@ public final class Economobs extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
-    }
-
-    // Temporary
-    public StackerType getStackerType() {
-        return stackerType;
     }
 
     public List<UUID> getToggleList() {

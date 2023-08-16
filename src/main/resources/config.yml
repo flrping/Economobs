@@ -1,4 +1,4 @@
-# Configuration of Economobs. For help, visit https://docs.axelli.net/
+# Configuration of Economobs. For help, visit https://wiki.flrp.dev
 config-version: 5
 
 # Allow the plugin to check for updates?
@@ -13,7 +13,7 @@ reward-pvp: false
 economy: VAULT
 
 # What stacker should the plugin look for?
-# Current list: NONE (Default), WILDSTACKER, STACKMOB
+# Current list: NONE (Default), WILDSTACKER, STACKMOB, ULTIMATESTACKER, ROSESTACKER
 stacker: NONE
 
 # Message handling.

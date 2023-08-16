@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -35,11 +35,11 @@
                     <relocations>
                         <relocation>
                             <pattern>me.mattstudios.mf</pattern>
-                            <shadedPattern>dev.flrp.economobs</shadedPattern>
+                            <shadedPattern>dev.flrp.utils.cmds</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>dev.flrp.economobs</shadedPattern>
+                            <shadedPattern>dev.flrp.utils.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -94,6 +94,14 @@
             <id>rosewood-repo</id>
             <url>https://repo.rosewooddev.io/repository/public/</url>
         </repository>
+        <repository>
+            <id>CodeMC</id>
+            <url>https://repo.codemc.org/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>citizens-repo</id>
+            <url>https://maven.citizensnpcs.co/repo</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -111,14 +119,14 @@
         <dependency>
             <groupId>com.bgsoftware</groupId>
             <artifactId>WildStackerAPI</artifactId>
-            <version>2022.6</version>
+            <version>2023.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>uk.antiperson</groupId>
+            <groupId>uk.antiperson.stackmob</groupId>
             <artifactId>StackMob</artifactId>
-            <version>5.4.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/StackMob.jar</systemPath>
+            <version>5.8.2</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.lumine</groupId>
@@ -176,6 +184,45 @@
             <artifactId>playerpoints</artifactId>
             <version>3.2.6</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.craftaro</groupId>
+            <artifactId>UltimateStacker</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/UltimateStacker.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>dev.rosewood</groupId>
+            <artifactId>rosestacker</artifactId>
+            <version>1.5.10</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.citizensnpcs</groupId>
+            <artifactId>citizens-main</artifactId>
+            <version>2.0.30-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.mcmonkey</groupId>
+            <artifactId>sentinel</artifactId>
+            <version>2.8.0-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 </project>

@@ -7,7 +7,7 @@ import org.bukkit.OfflinePlayer;
 
 public class TokenManagerEconomy implements EconomyProvider {
 
-    public static TokenManagerPlugin tokenManager;
+    public TokenManagerPlugin tokenManager;
     private static boolean enabled;
 
     public TokenManagerEconomy() {
@@ -18,7 +18,7 @@ public class TokenManagerEconomy implements EconomyProvider {
     public void register() {
         tokenManager = Bukkit.getPluginManager().isPluginEnabled("TokenManager") ? TokenManagerPlugin.getInstance() : null;
         enabled = tokenManager != null;
-        if(enabled) Locale.log("&aTokenManager &rfound. Unlocking economy.");
+        if(enabled) Locale.log("&aTokenManager &rfound.");
     }
 
     @Override

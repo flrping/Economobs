@@ -15,7 +15,7 @@ public class VaultEconomy implements EconomyProvider {
     }
 
     public void register() {
-        Locale.log("&aVault &rfound. Unlocking economy.");
+        Locale.log("&aVault &rfound.");
         if(!setupEconomy()) {
             Locale.log("&cVault cannot hook correctly. Some features may not work.");
         }

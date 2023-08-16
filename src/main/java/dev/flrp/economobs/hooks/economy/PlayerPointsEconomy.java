@@ -19,7 +19,7 @@ public class PlayerPointsEconomy implements EconomyProvider {
     public void register() {
         playerPointsAPI = Bukkit.getPluginManager().isPluginEnabled("PlayerPoints") ? PlayerPoints.getInstance().getAPI() : null;
         enabled = playerPointsAPI != null;
-        if(enabled) Locale.log("&aPlayerPoints &rfound. Unlocking economy.");
+        if(enabled) Locale.log("&aPlayerPoints &rfound.");
     }
 
     @Override

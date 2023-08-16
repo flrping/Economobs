@@ -28,7 +28,7 @@ public class MessageManager {
     }
 
     public void sendMessage(Player player, LivingEntity entity, double base, double payout, double multiplier) {
-        String num = (plugin.getEconomyManager().getEconomyType() != EconomyType.VAULT) ? String.valueOf((int) Math.round(payout)) : String.valueOf(payout);
+        String num = (plugin.getHookManager().getEconomyType() != EconomyType.VAULT) ? String.valueOf((int) Math.round(payout)) : String.valueOf(payout);
         String economyGiven = Locale.ECONOMY_GIVEN.replace("{0}", num).replace("{1}", String.valueOf(base)).replace("{2}", String.valueOf(multiplier));
         switch(messageType) {
             case CHAT:
