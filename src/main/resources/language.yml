@@ -1,8 +1,33 @@
+# Economobs v1 Placeholders, these are deprecated and will be removed in a future update.
+# {0} prints out money made
+# {1} prints out base amount
+# {2} prints out multiplier
+
+# New placeholders from v2 - OLD ONES ARE DEPRECATED AND ARE NOT SUPPORTED ANYMORE. THEY CAN BE REMOVED AT ANY TIME.
+# {base} prints out base amount.
+# {multiplier} prints out multiplier.
+# {mob} prints out mob name.
+# {amount} prints out amount.
+# {item} prints out item name.
+# {effect} prints out potion effect given.
+# {amplifier} prints out potion amplifier.
+# {duration} prints out potion duration.
+# {command} prints out command used.
+# {weight} prints out weight.
+
+# {loot} prints out the loot identifier.
+# {loot_table} prints out the loot table identifier.
+# {loot_prefix} prints out the loot prefix.
+
 prefix: "&8[&aEconomobs&8] "
 command-denied: "&cYou do not have permission to run this command"
-# {0} prints out the money made.
-# {1} prints out the base amount.
-# {2} prints out the multiplier.
-economy-given: "&7You've earned &f${0} &7by killing this mob. &7&o({1} x {2})"
+
+economy-given: "&7You've earned &f${amount} &7by killing a {mob}. &7&o({base} x {multiplier})"
 economy-max: "&cYou can't earn more money due to a maximum balance."
-economy-toggle: "&7Toggled income messages."
+item-given: "&7You have found &fx{amount} {item} &7by killing a {mob}."
+custom-item-given: "&7You have found &fx{amount} {item} &7by killing a {mob}."
+potion-given: "&7You have been enchanted with {effect} {amplifier} for {duration} seconds &7by killing a {mob}."
+command-given: "&7Killing a {mob} caused &f{command} &7to be ran {amount} times."
+
+reward-toggle: "&7Toggled messages."
+

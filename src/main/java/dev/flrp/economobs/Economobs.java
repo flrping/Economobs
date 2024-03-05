@@ -1,11 +1,14 @@
 package dev.flrp.economobs;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import dev.flrp.economobs.commands.Commands;
-import dev.flrp.economobs.configuration.Configuration;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.listeners.PlayerListener;
-import dev.flrp.economobs.managers.*;
-import dev.flrp.economobs.utils.UpdateChecker;
+import dev.flrp.economobs.manager.*;
+import dev.flrp.economobs.module.*;
+import dev.flrp.economobs.util.UpdateChecker;
+import dev.flrp.espresso.configuration.Configuration;
 import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,14 +23,21 @@ public final class Economobs extends JavaPlugin {
     private static Economobs instance;
 
     private Configuration config;
+
     private Configuration mobs;
+
     private Configuration language;
 
-    private MobManager mobManager;
-    private EconomyManager economyManager;
+    private Configuration lootTables;
+
+    private RewardManager rewardManager;
+
     private MessageManager messageManager;
+
     private HookManager hookManager;
+
     private MultiplierManager multiplierManager;
+
     private DatabaseManager databaseManager;
 
     private final List<UUID> toggleList = new ArrayList<>();
@@ -47,10 +57,15 @@ public final class Economobs extends JavaPlugin {
 
         // Files
         initiateFiles();
+        Locale.load();
 
         // Initiation
         initiateClasses();
-        Locale.load();
+
+        // Modules
+        Injector hookInjector = Guice.createInjector(new EconomyModule(this), new StackerModule(this), new EntityModule(this), new ItemModule(this), new HologramModule(this));
+        hookManager = hookInjector.getInstance(HookManager.class);
+        hookManager.getStackerProvider().registerEvents();
 
         // Update Checker
         new UpdateChecker(this, 90004).checkForUpdate(version -> {
@@ -64,13 +79,12 @@ public final class Economobs extends JavaPlugin {
             }
         });
 
-        // Player Listener
-        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-
         // Hooks
         File dir = new File(getDataFolder(), "hooks");
         if(!dir.exists()) dir.mkdir();
-        hookManager = new HookManager(this);
+
+        // Player Listener
+        getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
         // Database
         databaseManager = new DatabaseManager(this);
@@ -84,6 +98,7 @@ public final class Economobs extends JavaPlugin {
 
     public void onReload() {
         Locale.log("&aReloading...");
+        hookManager.getStackerProvider().unregisterEvents();
 
         //Files
         initiateFiles();
@@ -91,8 +106,8 @@ public final class Economobs extends JavaPlugin {
         // Initiation
         initiateClasses();
         Locale.load();
-        hookManager.reload();
 
+        hookManager.getStackerProvider().registerEvents();
         Locale.log("&aDone!");
     }
 
@@ -102,21 +117,16 @@ public final class Economobs extends JavaPlugin {
     }
 
     private void initiateFiles() {
-        config = new Configuration(this);
-        config.load("config");
-
-        mobs = new Configuration(this);
-        mobs.load("mobs");
-
-        language = new Configuration(this);
-        language.load("language");
+        config = new Configuration(this, "config");
+        mobs = new Configuration(this, "mobs");
+        language = new Configuration(this, "language");
+        lootTables = new Configuration(this, "loot");
     }
 
     private void initiateClasses() {
-        mobManager = new MobManager(this);
-        economyManager = new EconomyManager(this);
         messageManager = new MessageManager(this);
         multiplierManager = new MultiplierManager(this);
+        rewardManager = new RewardManager(this);
     }
 
     public static Economobs getInstance() {
@@ -131,20 +141,20 @@ public final class Economobs extends JavaPlugin {
         return language;
     }
 
-    public MobManager getMobManager() {
-        return mobManager;
-    }
-
-    public EconomyManager getEconomyManager() {
-        return economyManager;
-    }
-
-    public MessageManager getMessageManager() {
-        return messageManager;
+    public Configuration getLootTables() {
+        return lootTables;
     }
 
     public HookManager getHookManager() {
         return hookManager;
+    }
+
+    public RewardManager getRewardManager() {
+        return rewardManager;
+    }
+
+    public MessageManager getMessageManager() {
+        return messageManager;
     }
 
     public MultiplierManager getMultiplierManager() {

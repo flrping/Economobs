@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>1.6.1</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -23,8 +23,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -35,11 +35,15 @@
                     <relocations>
                         <relocation>
                             <pattern>me.mattstudios.mf</pattern>
-                            <shadedPattern>dev.flrp.utils.cmds</shadedPattern>
+                            <shadedPattern>dev.flrp.economobs.util.cmds</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>dev.flrp.utils.bstats</shadedPattern>
+                            <shadedPattern>dev.flrp.economobs.util.bstats</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>dev.flrp.espresso</pattern>
+                            <shadedPattern>dev.flrp.economobs.util.espresso</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -106,6 +110,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>7.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>1.19.2-R0.1-SNAPSHOT</version>
@@ -117,10 +126,27 @@
             <version>1.4</version>
         </dependency>
         <dependency>
+            <groupId>dev.flrp</groupId>
+            <artifactId>Espresso</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>2.2.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>com.bgsoftware</groupId>
             <artifactId>WildStackerAPI</artifactId>
             <version>2023.2</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.antiperson.stackmob</groupId>
@@ -130,8 +156,20 @@
         </dependency>
         <dependency>
             <groupId>io.lumine</groupId>
+            <artifactId>MythicLib-dist</artifactId>
+            <version>1.5.2-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.lumine</groupId>
             <artifactId>Mythic-Dist</artifactId>
-            <version>5.0.3-SNAPSHOT</version>
+            <version>5.3.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -141,24 +179,16 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.bstats</groupId>
-            <artifactId>bstats-bukkit</artifactId>
-            <version>2.2.1</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>me.lokka30</groupId>
+            <groupId>com.github.lokka30</groupId>
             <artifactId>LevelledMobs</artifactId>
-            <version>3.1.8 b517</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/LevelledMobs.jar</systemPath>
+            <version>3.12.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.hotmail.com.jacob_vejvoda</groupId>
             <artifactId>InfernalMobs</artifactId>
-            <version>6.7.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/InfernalMobs.jar</systemPath>
+            <version>6.7.6</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.LoneDev6</groupId>
@@ -170,14 +200,13 @@
             <groupId>com.github.Realizedd</groupId>
             <artifactId>TokenManager</artifactId>
             <version>3.2.8</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/TokenManager.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>org.black_ixx</groupId>
@@ -189,13 +218,18 @@
             <groupId>com.craftaro</groupId>
             <artifactId>UltimateStacker</artifactId>
             <version>3.0.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/UltimateStacker.jar</systemPath>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>dev.rosewood</groupId>
             <artifactId>rosestacker</artifactId>
             <version>1.5.10</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -223,6 +257,52 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.oraxen</groupId>
+            <artifactId>oraxen</artifactId>
+            <version>1.161.0</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>gs.mclo</groupId>
+                    <artifactId>mclogs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.ticxo</groupId>
+                    <artifactId>PlayerAnimator</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>me.gabytm.util</groupId>
+                    <artifactId>actions-spigot</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.kyori</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.jeff_media</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.Indyuce</groupId>
+            <artifactId>MMOItems-API</artifactId>
+            <version>6.9.2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.angeschossen</groupId>
+            <artifactId>UpgradeableSpawnersAPI</artifactId>
+            <version>4.1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.decentsoftware-eu</groupId>
+            <artifactId>decentholograms</artifactId>
+            <version>2.8.3</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

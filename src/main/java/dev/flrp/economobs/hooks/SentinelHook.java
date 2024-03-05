@@ -1,5 +1,6 @@
 package dev.flrp.economobs.hooks;
 
+import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.trait.trait.Owner;
@@ -10,10 +11,11 @@ import java.util.UUID;
 
 public class SentinelHook {
 
+    private static final Economobs instance = Economobs.getInstance();
     private static boolean enabled;
 
     public static void register() {
-        enabled = Bukkit.getPluginManager().isPluginEnabled("Sentinel");
+        enabled = Bukkit.getPluginManager().isPluginEnabled("Sentinel") && instance.getConfig().getBoolean("hooks.Sentinel");
         if(enabled) Locale.log("&aSentinel &rfound. NPC support enabled.");
     }
 

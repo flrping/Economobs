@@ -3,6 +3,7 @@ package dev.flrp.economobs.configuration;
 import dev.flrp.economobs.Economobs;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -16,14 +17,22 @@ public class Locale {
     public static String COMMAND_DENIED;
     public static String ECONOMY_GIVEN;
     public static String ECONOMY_MAX;
-    public static String ECONOMY_TOGGLE;
+    public static String ITEM_GIVEN;
+    public static String CUSTOM_ITEM_GIVEN;
+    public static String POTION_GIVEN;
+    public static String COMMAND_GIVEN;
+    public static String REWARD_TOGGLE;
 
     public static void load() {
         PREFIX = addMessage("prefix");
         COMMAND_DENIED = addMessage("command-denied");
         ECONOMY_GIVEN = addMessage("economy-given");
         ECONOMY_MAX = addMessage("economy-max");
-        ECONOMY_TOGGLE = addMessage("economy-toggle");
+        ITEM_GIVEN = addMessage("item-given");
+        CUSTOM_ITEM_GIVEN = addMessage("custom-item-given");
+        POTION_GIVEN = addMessage("potion-given");
+        COMMAND_GIVEN = addMessage("command-given");
+        REWARD_TOGGLE = addMessage("reward-toggle");
     }
 
     private static String addMessage(String identifier) {

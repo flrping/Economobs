@@ -1,5 +1,5 @@
 # Configuration of Economobs. For help, visit https://wiki.flrp.dev
-config-version: 5
+config-version: 6
 
 # Allow the plugin to check for updates?
 check-for-updates: true
@@ -8,13 +8,17 @@ check-for-updates: true
 # This system currently doesn't contain any countermeasures for repeat kills.
 reward-pvp: false
 
-# What currency should the plugin use?
-# Current list: VAULT (Default), PLAYER_POINTS, TOKEN_MANAGER
-economy: VAULT
-
 # What stacker should the plugin look for?
-# Current list: NONE (Default), WILDSTACKER, STACKMOB, ULTIMATESTACKER, ROSESTACKER
+# Current list: NONE (Default), WILD_STACKER, STACK_MOB, ULTIMATE_STACKER, ROSE_STACKER
 stacker: NONE
+
+# Reward handling.
+rewards:
+  limit:
+    # Should rewards be limited? This is to aid with stackers.
+    enabled: true
+    # The max amount of rewards that are rolled.
+    amount: 10
 
 # Message handling.
 message:
@@ -23,17 +27,27 @@ message:
 
   # How should the plugin display messages when a player is given money?
   # NOTE: Some options will only work with select versions. You can see which below.
-  # OPTIONS: CHAT, ACTION_BAR (1.12+), HOLOGRAM (1.12+)
+  # OPTIONS: CHAT, ACTION_BAR (1.12+), HOLOGRAM (1.12+), TITLE (1.12+)
   message-type: CHAT
 
   # HOLOGRAMS
   # This will only work if you have holograms set as your type.
   holograms:
-    # OPTIONS: STAY, FLOAT, BOUNCE
-    animation: STAY
     # This option will affect animations.
     # How long should the hologram stay? This is in seconds.
     duration: 1
+
+  # This will only work if you have title set as your type.
+  title:
+    # How long should the title stay? This is in seconds.
+    stay: 3
+    # How long should the title fade in? This is in seconds.
+    fade-in: 1
+    # How long should the title fade out? This is in seconds.
+    fade-out: 1
+    # Naturally, the money message will be displayed in the subtitle.
+    # You can change the title to whatever you want here. Placeholders are supported.
+    title: "&a&lREWARD"
 
 # Hook management.
 hooks:
@@ -45,6 +59,8 @@ hooks:
   InfernalMobs: true
   #Enable ItemsAdder support? Allows players to earn money from custom entities, and enabled multipliers for custom items and entities.
   ItemsAdder: true
+  # Enable Sentinels support? Adds the ability for Sentinels to reward their owners.
+  Sentinel: true
 
 # Multiplier handling.
 # Down below are configurable multiplier groups.
