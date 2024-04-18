@@ -37,7 +37,7 @@ public class Commands extends CommandBase {
         sender.sendMessage(Locale.parse("&a/economobs &fhelp &8- &7Displays this menu."));
         sender.sendMessage(Locale.parse("&a/economobs &ftoggle &8- &7Toggles income messages."));
         if(sender.hasPermission("economobs.admin")) {
-            sender.sendMessage(Locale.parse("&a/economobs &fcheck <user> &8- &7Shows the multipliers a user has."));
+            sender.sendMessage(Locale.parse("&a/economobs &fcheck <player/mob/custom> <context> &8- &7Displays information about an entity."));
             sender.sendMessage(Locale.parse("&a/economobs &fmultiplier add <user> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier> &8- &7Adds a multiplier to a user."));
             sender.sendMessage(Locale.parse("&a/economobs &fmultiplier remove <user> <entity/tool/world/custom_entity/custom_tool> <context> &8- &7Removes a multiplier from a user."));
             sender.sendMessage(Locale.parse("&a/economobs &freload &8- &7Reloads the plugin."));
@@ -90,11 +90,9 @@ public class Commands extends CommandBase {
             case "world":
                 handleWorldMultiplier(sender, args, multiplierProfile, multiplier, recipient);
                 break;
-
             case "custom_entity":
                 handleCustomEntityMultiplier(sender, args, multiplierProfile, multiplier, recipient);
                 break;
-
             case "custom_tool":
                 handleCustomToolMultiplier(sender, args, multiplierProfile, multiplier, recipient);
                 break;

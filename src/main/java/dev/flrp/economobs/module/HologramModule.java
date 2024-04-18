@@ -23,7 +23,7 @@ public class HologramModule extends AbstractModule {
             HologramType hologramType = plugin.getConfig().contains("hologram") ? HologramType.valueOf(plugin.getConfig().getString("hologram")) : HologramType.NONE;
             switch(hologramType) {
                 case DECENT_HOLOGRAMS:
-                    Locale.log("Hooking into HolographicDisplays");
+                    Locale.log("Hooking into HolographicDisplays.");
                     return new DecentHologramsHologramProvider();
                 default:
                     Locale.log("No hologram plugin found.");

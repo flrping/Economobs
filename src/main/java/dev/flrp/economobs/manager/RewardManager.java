@@ -21,6 +21,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.*;
@@ -232,28 +233,33 @@ public class RewardManager {
     }
 
     // Helpers
-
     private double calculateMultiplier(Player player, LivingEntity entity, MultiplierProfile profile) {
         double amount = 1;
         amount *= getWorldMultiplier(profile, player.getWorld().getUID());
+        boolean isCustomEntity = false;
         if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
             for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) {
                 if(provider.isCustomEntity(entity)) {
                     amount *= getCustomEntityMultiplier(profile, provider.getCustomEntityName(entity));
+                    isCustomEntity = true;
                     break;
                 }
             }
-        } else {
+        }
+        if(!isCustomEntity) {
             amount *= getEntityMultiplier(profile, entity);
         }
-        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
+        boolean isCustomTool = false;
+        if(!plugin.getHookManager().getItemProviders().isEmpty()) {
             for(ItemProvider provider : plugin.getHookManager().getItemProviders()) {
                 if(provider.isCustomItem(player.getInventory().getItemInMainHand())) {
                     amount *= getCustomToolMultiplier(profile, provider.getCustomItemName(player.getInventory().getItemInMainHand()));
+                    isCustomTool = true;
                     break;
                 }
             }
-        } else {
+        }
+        if(!isCustomTool) {
             amount *= getToolMultiplier(profile, player.getInventory().getItemInMainHand().getType());
         }
         return amount;
@@ -375,6 +381,20 @@ public class RewardManager {
         MultiplierProfile profile = plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId());
         double multiplier = calculateMultiplier(player, entity, profile);
         double base = result.getAmount();
+
+        if(plugin.getHookManager().getLevelledMobs() != null && plugin.getHookManager().getLevelledMobs().hasLevel(entity)) {
+            base += (plugin.getHookManager().getLevelledMobs().getLevel(entity)
+                    * plugin.getHookManager().getLevelledMobs().getAdditions().get(entity.getType()).calculateNumber(true));
+        }
+        if(plugin.getHookManager().getInfernalMobs() != null && plugin.getHookManager().getInfernalMobs().hasModifiers(entity)) {
+            for(MetadataValue value : entity.getMetadata("infernalMetadata")) {
+                for(String modifier : value.asString().split(",")) {
+                    base += plugin.getHookManager().getInfernalMobs().getAdditions().get(modifier).calculateNumber(true);
+                }
+            }
+        }
+        result.setAmount(base);
+
         double amount = base * multiplier;
 
         plugin.getHookManager().getEconomyProvider(loot.getEconomyType()).deposit(player, amount);

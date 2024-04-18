@@ -23,21 +23,14 @@ public final class Economobs extends JavaPlugin {
     private static Economobs instance;
 
     private Configuration config;
-
     private Configuration mobs;
-
     private Configuration language;
-
     private Configuration lootTables;
 
     private RewardManager rewardManager;
-
     private MessageManager messageManager;
-
     private HookManager hookManager;
-
     private MultiplierManager multiplierManager;
-
     private DatabaseManager databaseManager;
 
     private final List<UUID> toggleList = new ArrayList<>();

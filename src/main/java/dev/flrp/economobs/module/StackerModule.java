@@ -30,13 +30,13 @@ public class StackerModule extends AbstractModule {
                     Locale.log("Using RoseStacker for entity tracking.");
                     return new RoseStackerListener(plugin);
                 case STACK_MOB:
-                    Locale.log("Hooking into StackMob");
+                    Locale.log("Hooking into StackMob.");
                     return new StackMobListener(plugin);
                 case ULTIMATE_STACKER:
-                    Locale.log("Hooking into UltimateStacker");
+                    Locale.log("Hooking into UltimateStacker.");
                     return new UltimateStackerListener(plugin);
                 case WILD_STACKER:
-                    Locale.log("Hooking into WildStacker");
+                    Locale.log("Hooking into WildStacker.");
                     return new WildStackerListener(plugin);
                 default:
                     Locale.log("No stacker plugin found. Using default listener.");

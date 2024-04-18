@@ -20,15 +20,15 @@ public class EconomyModule extends AbstractModule {
         bind(Economobs.class).toInstance(plugin);
         Multibinder<EconomyProvider> economyProviderMultibinder = Multibinder.newSetBinder(binder(), EconomyProvider.class);
         if(Bukkit.getPluginManager().isPluginEnabled("TokenManager")) {
-            Locale.log("Hooking into TokenManager");
+            Locale.log("Hooking into TokenManager.");
             economyProviderMultibinder.addBinding().to(TokenManagerEconomyProvider.class);
         }
         if(Bukkit.getPluginManager().isPluginEnabled("PlayerPoints")) {
-            Locale.log("Hooking into PlayerPoints");
+            Locale.log("Hooking into PlayerPoints.");
             economyProviderMultibinder.addBinding().to(PlayerPointsEconomyProvider.class);
         }
         if(Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-            Locale.log("Hooking into Vault");
+            Locale.log("Hooking into Vault.");
             economyProviderMultibinder.addBinding().to(VaultEconomyProvider.class);
         }
     }
