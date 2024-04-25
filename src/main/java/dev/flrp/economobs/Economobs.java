@@ -3,12 +3,15 @@ package dev.flrp.economobs;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import dev.flrp.economobs.commands.Commands;
+import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.listeners.PlayerListener;
 import dev.flrp.economobs.manager.*;
 import dev.flrp.economobs.module.*;
 import dev.flrp.economobs.util.UpdateChecker;
 import dev.flrp.espresso.configuration.Configuration;
+import dev.flrp.espresso.hook.entity.custom.EntityProvider;
+import dev.flrp.espresso.hook.item.ItemProvider;
 import me.mattstudios.mf.base.CommandManager;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,6 +102,14 @@ public final class Economobs extends JavaPlugin {
         // Initiation
         initiateClasses();
         Locale.load();
+
+        // Modules
+        for(EntityProvider entityProvider : hookManager.getEntityProviders()) {
+            ((Builder) entityProvider).reload();
+        }
+        for(ItemProvider itemProvider : hookManager.getItemProviders()) {
+            ((Builder) itemProvider).reload();
+        }
 
         hookManager.getStackerProvider().registerEvents();
         Locale.log("&aDone!");

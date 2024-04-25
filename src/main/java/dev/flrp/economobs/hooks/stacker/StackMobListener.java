@@ -2,6 +2,7 @@ package dev.flrp.economobs.hooks.stacker;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.StackMobStackerProvider;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -20,6 +21,10 @@ public class StackMobListener extends StackMobStackerProvider {
     @EventHandler
     public void onStackKill(StackDeathEvent event) {
         LivingEntity entity = event.getStackEntity().getEntity();
+
+        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
+            for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
+        }
 
         if(entity.getKiller() == null) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;

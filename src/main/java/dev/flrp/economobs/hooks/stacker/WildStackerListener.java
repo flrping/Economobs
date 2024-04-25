@@ -3,6 +3,7 @@ package dev.flrp.economobs.hooks.stacker;
 import com.bgsoftware.wildstacker.api.events.EntityUnstackEvent;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.WildStackerStackerProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -23,6 +24,11 @@ public class WildStackerListener extends WildStackerStackerProvider {
     public void onStackKill(EntityUnstackEvent event) {
         Entity source = event.getUnstackSource();
         LivingEntity entity = event.getEntity().getLivingEntity();
+
+        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
+            for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
+        }
+
         if(!(source instanceof Player)) return;
         Player player = (Player) source;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;

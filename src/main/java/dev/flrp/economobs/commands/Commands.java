@@ -9,6 +9,7 @@ import dev.flrp.economobs.util.multiplier.MultiplierProfile;
 import dev.flrp.espresso.condition.BiomeCondition;
 import dev.flrp.espresso.condition.Condition;
 import dev.flrp.espresso.condition.WithCondition;
+import dev.flrp.espresso.condition.WithConditionExtended;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.table.LootContainer;
 import me.mattstudios.mf.annotations.*;
@@ -206,15 +207,16 @@ public class Commands extends CommandBase {
     @SubCommand("check")
     @Permission("economobs.admin")
     public void checkCommand(final CommandSender sender, final String action, final String target) {
-
         switch(action) {
             case "player":
                 checkPlayer(sender, target);
                 break;
             case "mob":
+            case "entity":
                 checkMob(sender, target);
                 break;
             case "custom":
+            case "custom_entity":
                 checkCustomMob(sender, target);
                 break;
             default:
@@ -285,34 +287,7 @@ public class Commands extends CommandBase {
             sender.sendMessage(Locale.parse("&cInvalid entity: " + entityName));
             return;
         }
-        sender.sendMessage(Locale.parse("\n&a&lLOOT PROFILE &7(" + entityType.name() + ")"));
-        plugin.getRewardManager().getLootContainer(entityType).getLootTables().forEach((tableName, table) -> {
-            sender.sendMessage(Locale.parse("\n&7Table: &f" + tableName));
-            double chance = Math.round(table.getWeight() / plugin.getRewardManager().getLootContainer(entityType).getTotalWeightOfTables() * 10000.0) / 100.0;
-            sender.sendMessage(Locale.parse("&7Weight: &f" + table.getWeight() + " &7(&a" + chance + "%&7)"));
-            sender.sendMessage(Locale.parse("&7Conditions:"));
-            for(Condition condition : table.getConditions()) {
-                switch (condition.getType()) {
-                    case WITH:
-                        sender.sendMessage(Locale.parse(" &7With:"));
-                        ((WithCondition) condition).getMaterials().forEach(item -> sender.sendMessage(Locale.parse(" &8 - &f" + item.name())));
-                        break;
-                    case BIOME:
-                        sender.sendMessage(Locale.parse(" &7Biome:"));
-                        ((BiomeCondition) condition).getBiomes().forEach(biome -> sender.sendMessage(Locale.parse(" &8 - &f" + biome.name())));
-                        break;
-                }
-            }
-            sender.sendMessage(Locale.parse("&aPossible Drops:"));
-            double chanceOfNothing = table.getEntryTotalWeight() < 100 ? Math.round((100 - table.getEntryTotalWeight()) * 100.0) / 100.0 : 0;
-            sender.sendMessage(Locale.parse("&7 No Reward Chance: &c" + chanceOfNothing + "%"));
-            table.getLoots().forEach((lootName, loot) -> {
-                double lootChance = Math.round(loot.getWeight() / table.getEntryTotalWeight() * 10000.0) / 100.0;
-                double lootActualChance = Math.round((loot.getWeight() / table.getEntryTotalWeight()) * (table.getWeight() / plugin.getRewardManager().getLootContainer(entityType).getTotalWeightOfTables()) * 10000.0) / 100.0;
-                sender.sendMessage(Locale.parse(" &7ID: &f" + lootName + " &8&o(" + loot.getType().name() + ")"));
-                sender.sendMessage(Locale.parse(" &7Weight: &f" + loot.getWeight() + " &7(&a" + lootChance + "% &8| &a" + lootActualChance + "%&7)"));
-            });
-        });
+        generateInfo(sender, entityType.name(), plugin.getRewardManager().getLootContainer(entityType));
     }
 
     private void checkCustomMob(final CommandSender sender, final String target) {
@@ -341,8 +316,7 @@ public class Commands extends CommandBase {
             for(Condition condition : table.getConditions()) {
                 switch (condition.getType()) {
                     case WITH:
-                        sender.sendMessage(Locale.parse(" &7With:"));
-                        ((WithCondition) condition).getMaterials().forEach(item -> sender.sendMessage(Locale.parse(" &8 - &f" + item.name())));
+                        generateWithInfo(sender, (WithConditionExtended) condition);
                         break;
                     case BIOME:
                         sender.sendMessage(Locale.parse(" &7Biome:"));
@@ -359,6 +333,19 @@ public class Commands extends CommandBase {
                 sender.sendMessage(Locale.parse(" &7ID: &f" + lootName + " &8&o(" + loot.getType().name() + ")"));
                 sender.sendMessage(Locale.parse(" &7Weight: &f" + loot.getWeight() + " &7(&a" + lootChance + "% &8| &a" + lootActualChance + "%&7)"));
             });
+        });
+    }
+
+    private void generateWithInfo(CommandSender sender, WithConditionExtended condition) {
+        sender.sendMessage(Locale.parse(" &7With:"));
+        condition.getMaterials().forEach((key, value) -> {
+            if(value.toString().contains(":")) {
+                String item = value.toString().split(":")[1].replace("]", "");
+                sender.sendMessage(Locale.parse(" &8 - &f" + item + " &7&o(" + key.name() + ")"));
+            } else {
+                String item = value.toString().replace("[", "").replace("]", "");
+                sender.sendMessage(Locale.parse(" &8 - &f" + item));
+            }
         });
     }
 

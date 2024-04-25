@@ -1,6 +1,7 @@
 package dev.flrp.economobs.hooks.entity;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.MythicMobsEntityProvider;
@@ -9,7 +10,7 @@ import org.bukkit.event.Listener;
 
 import java.util.HashMap;
 
-public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Listener {
+public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Listener, Builder {
 
     private final Economobs plugin;
     private final HashMap<String, LootContainer> mythicMobsRewards = new HashMap<>();
@@ -18,6 +19,7 @@ public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Li
         super();
         this.plugin = plugin;
         build();
+        plugin.getServer().getPluginManager().registerEvents(new MythicMobsEntityHook(plugin), plugin);
     }
 
     public LootContainer getLootContainer(String entityName) {
@@ -28,7 +30,8 @@ public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Li
         return mythicMobsRewards.containsKey(entityName);
     }
 
-    private void build() {
+    @Override
+    public void build() {
         Configuration mythicMobsFile = new Configuration(plugin, "hooks/MythicMobs");
         mythicMobsFile.load();
 
@@ -38,6 +41,12 @@ public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Li
         Methods.buildRewardList(mythicMobsFile, mythicMobsRewards, "MythicMobs");
 
         mythicMobsFile.save();
+    }
+
+    @Override
+    public void reload() {
+        mythicMobsRewards.clear();
+        build();
     }
 
 }

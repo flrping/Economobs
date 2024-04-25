@@ -1,6 +1,7 @@
 package dev.flrp.economobs.hooks.entity;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.util.MinMax;
 import dev.flrp.espresso.configuration.Configuration;
 import org.bukkit.entity.EntityType;
@@ -9,7 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.EnumSet;
 import java.util.HashMap;
 
-public class LevelledMobsHook extends dev.flrp.espresso.hook.entity.LevelledMobsHook {
+public class LevelledMobsHook extends dev.flrp.espresso.hook.entity.LevelledMobsHook implements Builder {
 
     private final Economobs plugin;
     private final HashMap<EntityType, MinMax> additions = new HashMap<>();
@@ -19,7 +20,8 @@ public class LevelledMobsHook extends dev.flrp.espresso.hook.entity.LevelledMobs
         build();
     }
 
-    private void build() {
+    @Override
+    public void build() {
         Configuration levelledMobsConfig = new Configuration(plugin, "hooks/LevelledMobs");
 
         if(levelledMobsConfig.getConfiguration().getConfigurationSection("mobs") == null) {
@@ -41,6 +43,12 @@ public class LevelledMobsHook extends dev.flrp.espresso.hook.entity.LevelledMobs
             additions.put(type, new MinMax(min, max));
         }
 
+    }
+
+    @Override
+    public void reload() {
+        additions.clear();
+        build();
     }
 
     public HashMap<EntityType, MinMax> getAdditions() {

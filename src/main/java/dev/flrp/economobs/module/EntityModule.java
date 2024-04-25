@@ -22,13 +22,13 @@ public class EntityModule extends AbstractModule {
     protected void configure() {
         bind(Economobs.class).toInstance(plugin);
         Multibinder<EntityProvider> entityProviderMultibinder = Multibinder.newSetBinder(binder(), EntityProvider.class);
-        if(Bukkit.getPluginManager().isPluginEnabled("MythicMobs")) {
+        if(Bukkit.getPluginManager().isPluginEnabled("MythicMobs") && plugin.getConfig().getBoolean("hooks.entity.MythicMobs")) {
             plugin.getLogger().info("Hooking into MythicMobs Entities.");
             MythicMobsEntityHook mythicMobsEntityHook = new MythicMobsEntityHook(plugin);
             entityProviderMultibinder.addBinding().toInstance(mythicMobsEntityHook);
             bind(MythicMobsEntityProvider.class).toInstance(mythicMobsEntityHook);
         }
-        if(Bukkit.getPluginManager().isPluginEnabled("ItemsAdder")) {
+        if(Bukkit.getPluginManager().isPluginEnabled("ItemsAdder") && plugin.getConfig().getBoolean("hooks.entity.ItemsAdder")) {
             plugin.getLogger().info("Hooking into ItemsAdder Entities.");
             ItemsAdderEntityHook itemsAdderEntityHook = new ItemsAdderEntityHook(plugin);
             entityProviderMultibinder.addBinding().toInstance(itemsAdderEntityHook);

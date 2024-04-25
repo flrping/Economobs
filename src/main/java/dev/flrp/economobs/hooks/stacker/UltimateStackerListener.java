@@ -3,6 +3,7 @@ package dev.flrp.economobs.hooks.stacker;
 import com.craftaro.ultimatestacker.api.events.entity.EntityStackKillEvent;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.UltimateStackerStackerProvider;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -21,6 +22,10 @@ public class UltimateStackerListener extends UltimateStackerStackerProvider {
     @EventHandler
     public void onStackKill(EntityStackKillEvent event) {
         LivingEntity entity = event.getEntity();
+
+        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
+            for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
+        }
 
         if(entity.getKiller() == null) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;

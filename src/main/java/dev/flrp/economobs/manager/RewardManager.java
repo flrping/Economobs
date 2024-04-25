@@ -1,15 +1,16 @@
 package dev.flrp.economobs.manager;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.api.events.MobRewardEvent;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.util.multiplier.MultiplierGroup;
 import dev.flrp.economobs.util.multiplier.MultiplierProfile;
 import dev.flrp.espresso.condition.BiomeCondition;
 import dev.flrp.espresso.condition.ByCondition;
 import dev.flrp.espresso.condition.Condition;
-import dev.flrp.espresso.condition.WithCondition;
-import dev.flrp.espresso.hook.entity.custom.EntityProvider;
+import dev.flrp.espresso.condition.WithConditionExtended;
 import dev.flrp.espresso.hook.item.ItemProvider;
+import dev.flrp.espresso.hook.item.ItemType;
 import dev.flrp.espresso.table.*;
 import dev.flrp.espresso.util.LootUtils;
 import org.bukkit.Bukkit;
@@ -32,7 +33,10 @@ public class RewardManager {
     List<String> allEntities = new ArrayList<>();
 
     private final HashMap<String, LootTable> availableTables = new HashMap<>();
-    public final HashMap<EntityType, LootContainer> lootList = new HashMap<>();
+    private final HashMap<EntityType, LootContainer> lootList = new HashMap<>();
+
+    private LootContainer defaultLootContainer = new LootContainer();
+    private final List<EntityType> excludedEntities = new ArrayList<>();
 
     public RewardManager(Economobs plugin) {
         this.plugin = plugin;
@@ -40,6 +44,7 @@ public class RewardManager {
         if(!plugin.getMobs().getConfiguration().isSet("mobs")) buildMobFile();
         buildRewardList();
         buildRewardListForDefaultMobs();
+        if(plugin.getMobs().getConfiguration().contains("default")) buildWildcardLootContainer();
     }
 
     // Lootable Getters
@@ -67,7 +72,47 @@ public class RewardManager {
         return availableTables;
     }
 
-    // Multiplier Getters
+    public HashMap<EntityType, LootContainer> getLootContainers() {
+        return lootList;
+    }
+
+    public LootContainer getDefaultLootContainer() {
+        return defaultLootContainer;
+    }
+
+    public List<EntityType> getExcludedEntities() {
+        return excludedEntities;
+    }
+
+    // Multiplier Methods
+    private double calculateMultiplier(Player player, LivingEntity entity, MultiplierProfile profile) {
+        return calculateMultiplier(player, entity, profile, entity.getType().name());
+    }
+
+    private double calculateMultiplier(Player player, LivingEntity entity, MultiplierProfile profile, String entityName) {
+        double amount = 1;
+        amount *= getWorldMultiplier(profile, player.getWorld().getUID());
+        if(!plugin.getHookManager().getEntityProviders().isEmpty() && !allEntities.contains(entityName)) {
+            amount *= getCustomEntityMultiplier(profile, entityName);
+        } else {
+            amount *= getEntityMultiplier(profile, entity);
+        }
+        boolean isCustomTool = false;
+        if(!plugin.getHookManager().getItemProviders().isEmpty()) {
+            for(ItemProvider provider : plugin.getHookManager().getItemProviders()) {
+                if(provider.isCustomItem(player.getInventory().getItemInMainHand())) {
+                    amount *= getCustomToolMultiplier(profile, provider.getCustomItemName(player.getInventory().getItemInMainHand()));
+                    isCustomTool = true;
+                    break;
+                }
+            }
+        }
+        if(!isCustomTool) {
+            amount *= getToolMultiplier(profile, player.getInventory().getItemInMainHand().getType());
+        }
+        return amount;
+    }
+
     public double getEntityMultiplier(MultiplierProfile profile, LivingEntity entity) {
         MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(profile.getUUID());
         EntityType type = entity.getType();
@@ -232,40 +277,35 @@ public class RewardManager {
         Locale.log("Loaded &a" + modifiedTables + " &rmodified loot tables.");
     }
 
-    // Helpers
-    private double calculateMultiplier(Player player, LivingEntity entity, MultiplierProfile profile) {
-        double amount = 1;
-        amount *= getWorldMultiplier(profile, player.getWorld().getUID());
-        boolean isCustomEntity = false;
-        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
-            for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) {
-                if(provider.isCustomEntity(entity)) {
-                    amount *= getCustomEntityMultiplier(profile, provider.getCustomEntityName(entity));
-                    isCustomEntity = true;
-                    break;
+    private void buildWildcardLootContainer() {
+        LootContainer lootContainer = new LootContainer();
+        Set<String> tableSet = plugin.getMobs().getConfiguration().getConfigurationSection("default.tables").getKeys(false);
+        for(String tableNumber : tableSet) {
+            LootTable lootTable = availableTables.get(plugin.getMobs().getConfiguration().getString("default.tables." + tableNumber + ".table"));
+            if(lootTable == null) continue;
+            if(plugin.getMobs().getConfiguration().contains("default.tables." + tableNumber + ".conditions")) {
+                LootTable modifiedLootTable = lootTable.clone();
+                parseConditions(modifiedLootTable, plugin.getMobs().getConfiguration().getConfigurationSection("default.tables." + tableNumber));
+                lootContainer.addLootTable(modifiedLootTable);
+            } else {
+                lootContainer.addLootTable(lootTable);
+            }
+            if(plugin.getMobs().getConfiguration().contains("default.excludes")) {
+                for(String entity : plugin.getMobs().getConfiguration().getStringList("default.excludes")) {
+                    try {
+                        excludedEntities.add(EntityType.valueOf(entity.toUpperCase()));
+                    } catch (IllegalArgumentException e) {
+                        Locale.log("&cInvalid entity type (" + entity + ") for exclusion in default loot table. Skipping.");
+
+                    }
                 }
             }
         }
-        if(!isCustomEntity) {
-            amount *= getEntityMultiplier(profile, entity);
-        }
-        boolean isCustomTool = false;
-        if(!plugin.getHookManager().getItemProviders().isEmpty()) {
-            for(ItemProvider provider : plugin.getHookManager().getItemProviders()) {
-                if(provider.isCustomItem(player.getInventory().getItemInMainHand())) {
-                    amount *= getCustomToolMultiplier(profile, provider.getCustomItemName(player.getInventory().getItemInMainHand()));
-                    isCustomTool = true;
-                    break;
-                }
-            }
-        }
-        if(!isCustomTool) {
-            amount *= getToolMultiplier(profile, player.getInventory().getItemInMainHand().getType());
-        }
-        return amount;
+        defaultLootContainer = lootContainer;
+        Locale.log("Default loot created with &a" + lootContainer.getLootTables().size() + " &rtables.");
     }
 
-    //       Will be eventually cleaned up....
+    // Condition Methods
     public void parseConditions(LootTable lootTable, ConfigurationSection tableSection) {
         List<String> conditionSet = tableSection.getStringList("conditions");
         List<Condition> conditions = new ArrayList<>();
@@ -276,40 +316,17 @@ public class RewardManager {
                 switch (conditionString) {
                     case "with":
                         // Get the material from the value.
-                        Material material;
-                        try {
-                            material = Material.valueOf(value);
-                        } catch (IllegalArgumentException e) {
-                            Locale.log("&cInvalid material (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
-                            continue;
-                        }
-                        WithCondition withCondition;
-                        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof WithCondition)) {
-                            withCondition = (WithCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof WithCondition).findFirst().get();
-                            withCondition.addMaterial(material);
-                        } else {
-                            withCondition = new WithCondition();
-                            withCondition.addMaterial(material);
-                            conditions.add(withCondition);
-                        }
+                        parseWithCondition(lootTable, tableSection, value, conditions);
                         break;
                     case "biome":
-                        Biome biome;
-                        try {
-                            biome = Biome.valueOf(value);
-                        } catch (IllegalArgumentException e) {
-                            Locale.log("&cInvalid biome (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
-                            continue;
-                        }
-                        BiomeCondition biomeCondition;
-                        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof BiomeCondition)) {
-                            biomeCondition = (BiomeCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof BiomeCondition).findFirst().get();
-                            biomeCondition.addBiome(biome);
-                        } else {
-                            biomeCondition = new BiomeCondition();
-                            biomeCondition.addBiome(biome);
-                            conditions.add(biomeCondition);
-                        }
+                        if (parseBiomeCondition(lootTable, tableSection, value, conditions)) continue;
+                        break;
+                    case "by":
+                        if(parseByCondition(lootTable, tableSection, value, conditions)) continue;
+                        break;
+                    case "permission":
+                        break;
+                    case "world":
                         break;
                 }
                 lootTable.setConditions(conditions);
@@ -317,11 +334,92 @@ public class RewardManager {
         }
     }
 
+    private boolean parseBiomeCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
+        Biome biome;
+        try {
+            biome = Biome.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            Locale.log("&cInvalid biome (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
+            return true;
+        }
+        BiomeCondition biomeCondition;
+        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof BiomeCondition)) {
+            biomeCondition = (BiomeCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof BiomeCondition).findFirst().get();
+            biomeCondition.addBiome(biome);
+        } else {
+            biomeCondition = new BiomeCondition();
+            biomeCondition.addBiome(biome);
+            conditions.add(biomeCondition);
+        }
+        return false;
+    }
+
+    private void parseWithCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
+        ItemType itemType;
+        if(value.contains(":")) {
+            String hookString = value.split(":")[0];
+            itemType = ItemType.getByName(hookString) == ItemType.NONE ? null : ItemType.getByName(hookString);
+            if(itemType == null) {
+                Locale.log("&cInvalid Hook (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
+                return;
+            }
+        } else {
+            itemType = ItemType.NONE;
+            try {
+                Material.valueOf(value.toUpperCase());
+                value = value.toUpperCase();
+            } catch (IllegalArgumentException e) {
+                Locale.log("&cInvalid material (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
+                return;
+            }
+        }
+        WithConditionExtended withCondition;
+        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof WithConditionExtended)) {
+            withCondition = (WithConditionExtended) lootTable.getConditions().stream().filter(condition -> condition instanceof WithConditionExtended).findFirst().get();
+            withCondition.addMaterial(itemType, value);
+        } else {
+            withCondition = new WithConditionExtended();
+            withCondition.addMaterial(itemType, value);
+            conditions.add(withCondition);
+        }
+    }
+
+    private boolean parseByCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
+        EntityType entityType;
+        try {
+            entityType = EntityType.valueOf(value);
+        } catch (IllegalArgumentException e) {
+            Locale.log("&cInvalid entity type (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
+            return true;
+        }
+        ByCondition byCondition;
+        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof ByCondition)) {
+            byCondition = (ByCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof ByCondition).findFirst().get();
+            byCondition.addEntity(entityType);
+        } else {
+            byCondition = new ByCondition();
+            byCondition.addEntity(entityType);
+            conditions.add(byCondition);
+        }
+        return false;
+    }
+
     private boolean meetsConditions(Player player, LivingEntity entity, LootTable lootTable) {
         if(lootTable.getConditions().isEmpty()) return true;
         for(Condition condition : lootTable.getConditions()) {
-            if(condition instanceof WithCondition) {
-                if(!((WithCondition) condition).getMaterials().contains(player.getInventory().getItemInMainHand().getType())) return false;
+            if(condition instanceof WithConditionExtended) {
+                ItemType type = ItemType.NONE;
+                ItemStack item = player.getInventory().getItemInMainHand();
+                String itemName = item.getType().toString();
+                if(!plugin.getHookManager().getItemProviders().isEmpty()) {
+                    for (ItemProvider provider : plugin.getHookManager().getItemProviders()) {
+                        if (provider.isCustomItem(item)) {
+                            itemName = provider.getCustomItemName(item);
+                            type = provider.getType();
+                        }
+                    }
+                }
+                if(!((WithConditionExtended) condition).check(type, itemName)) return false;
             }
             if(condition instanceof ByCondition) {
                 if(!((ByCondition) condition).getEntities().contains(entity.getType())) return false;
@@ -377,13 +475,50 @@ public class RewardManager {
         }
     }
 
+    public void handleCustomEntityLootReward(Player player, LivingEntity entity, LootContainer lootContainer, String entityName) {
+        LootTable lootTable = lootContainer.rollLootTable();
+        if (lootTable == null || !meetsConditions(player, entity, lootTable)) {
+            return;
+        }
+
+        Lootable loot = lootTable.roll();
+        if (loot == null) {
+            return;
+        }
+
+        LootResult result = loot.generateResult();
+        result.setLootTable(lootTable);
+
+        switch (loot.getType()) {
+            case ECONOMY:
+                handleEconomyReward(player, entity, (LootableEconomy) loot, result, entityName);
+                break;
+            case COMMAND:
+                handleCommandReward(player, entity, (LootableCommand) loot, result, entityName);
+                break;
+            case POTION:
+                handlePotionReward(player, entity, (LootablePotionEffect) loot, result, entityName);
+                break;
+            case CUSTOM_ITEM:
+                handleCustomItemReward(player, entity, (LootableCustomItem) loot, result, entityName);
+                break;
+            case ITEM:
+                handleItemReward(player, entity, (LootableItem) loot, result, entityName);
+                break;
+        }
+    }
+
     private void handleEconomyReward(Player player, LivingEntity entity, LootableEconomy loot, LootResult result) {
+        handleEconomyReward(player, entity, loot, result, entity.getType().name());
+    }
+
+    private void handleEconomyReward(Player player, LivingEntity entity, LootableEconomy loot, LootResult result, String entityName) {
         MultiplierProfile profile = plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId());
-        double multiplier = calculateMultiplier(player, entity, profile);
+        double multiplier = calculateMultiplier(player, entity, profile, entityName);
         double base = result.getAmount();
 
         if(plugin.getHookManager().getLevelledMobs() != null && plugin.getHookManager().getLevelledMobs().hasLevel(entity)) {
-            base += (plugin.getHookManager().getLevelledMobs().getLevel(entity)
+            base += ((plugin.getHookManager().getLevelledMobs().getLevel(entity) - 1)
                     * plugin.getHookManager().getLevelledMobs().getAdditions().get(entity.getType()).calculateNumber(true));
         }
         if(plugin.getHookManager().getInfernalMobs() != null && plugin.getHookManager().getInfernalMobs().hasModifiers(entity)) {
@@ -397,31 +532,68 @@ public class RewardManager {
 
         double amount = base * multiplier;
 
+        MobRewardEvent event = new MobRewardEvent(player, result);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) return;
+
         plugin.getHookManager().getEconomyProvider(loot.getEconomyType()).deposit(player, amount);
-        plugin.getMessageManager().sendMessage(player, entity, result, multiplier, amount);
+        plugin.getMessageManager().sendMessage(player, entity, result, multiplier, amount, entityName);
     }
 
     private void handleCommandReward(Player player, LivingEntity entity, LootableCommand loot, LootResult result) {
+        handleCommandReward(player, entity, loot, result, entity.getType().name());
+    }
+
+    private void handleCommandReward(Player player, LivingEntity entity, LootableCommand loot, LootResult result, String entityName) {
+        MobRewardEvent event = new MobRewardEvent(player, result);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) return;
+
         for (int j = 0; j < result.getAmount(); j++) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), loot.getCommand().replace("{player}", player.getName()));
-            plugin.getMessageManager().sendMessage(player, entity, result);
+            plugin.getMessageManager().sendMessage(player, entity, result, entityName);
         }
     }
 
     private void handlePotionReward(Player player, LivingEntity entity, LootablePotionEffect loot, LootResult result) {
+        handlePotionReward(player, entity, loot, result, entity.getType().name());
+    }
+
+    private void handlePotionReward(Player player, LivingEntity entity, LootablePotionEffect loot, LootResult result, String entityName) {
+        MobRewardEvent event = new MobRewardEvent(player, result);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) return;
+
         player.addPotionEffect(new PotionEffect(loot.getEffectType(), (int) (result.getAmount() * 20), loot.getAmplifier()));
-        plugin.getMessageManager().sendMessage(player, entity, result);
+        plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
     private void handleCustomItemReward(Player player, LivingEntity entity, LootableCustomItem loot, LootResult result) {
+        handleCustomItemReward(player, entity, loot, result, entity.getType().name());
+    }
+
+    private void handleCustomItemReward(Player player, LivingEntity entity, LootableCustomItem loot, LootResult result, String entityName) {
+        MobRewardEvent event = new MobRewardEvent(player, result);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) return;
+
         plugin.getHookManager().getItemProvider(loot.getItemType()).giveItem(player, loot.getCustomItemName(), (int) result.getAmount());
-        plugin.getMessageManager().sendMessage(player, entity, result);
+        plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
     private void handleItemReward(Player player, LivingEntity entity, LootableItem loot, LootResult result) {
+        handleItemReward(player, entity, loot, result, entity.getType().name());
+    }
+
+    private void handleItemReward(Player player, LivingEntity entity, LootableItem loot, LootResult result, String entityName) {
+        MobRewardEvent event = new MobRewardEvent(player, result);
+        Bukkit.getPluginManager().callEvent(event);
+        if(event.isCancelled()) return;
+
         ItemStack item = loot.getItemStack();
         item.setAmount((int) result.getAmount());
         player.getInventory().addItem(item);
-        plugin.getMessageManager().sendMessage(player, entity, result);
+        plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
+
 }

@@ -9,6 +9,7 @@ import dev.flrp.economobs.hooks.entity.LevelledMobsHook;
 import dev.flrp.espresso.hook.economy.EconomyProvider;
 import dev.flrp.espresso.hook.economy.EconomyType;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
+import dev.flrp.espresso.hook.entity.custom.EntityType;
 import dev.flrp.espresso.hook.hologram.HologramProvider;
 import dev.flrp.espresso.hook.item.ItemProvider;
 import dev.flrp.espresso.hook.item.ItemType;
@@ -31,19 +32,19 @@ public class HookManager {
     private InfernalMobsHook infernalMobsHook;
 
     @Inject
-    public HookManager(Set<EconomyProvider> economyProvider, StackerProvider stackerProvider, Set<EntityProvider> entityProviders, Set<ItemProvider> itemProviders, @Nullable HologramProvider hologramProvider) {
+    public HookManager(Economobs plugin, Set<EconomyProvider> economyProvider, StackerProvider stackerProvider, Set<EntityProvider> entityProviders, Set<ItemProvider> itemProviders, @Nullable HologramProvider hologramProvider) {
         this.economyProvider = economyProvider;
         this.stackerProvider = stackerProvider;
         this.entityProviders = entityProviders;
         this.itemProviders = itemProviders;
         this.hologramProvider = hologramProvider;
 
-        if(Bukkit.getServer().getPluginManager().isPluginEnabled("InfernalMobs")) {
-            infernalMobsHook = new InfernalMobsHook(Economobs.getInstance());
+        if(Bukkit.getServer().getPluginManager().isPluginEnabled("InfernalMobs") && plugin.getConfig().getBoolean("hooks.entity.InfernalMobs")) {
+            infernalMobsHook = new InfernalMobsHook(plugin);
             Locale.log("Hooking into InfernalMobs.");
         }
-        if(Bukkit.getServer().getPluginManager().isPluginEnabled("LevelledMobs")) {
-            levelledMobsHook = new LevelledMobsHook(Economobs.getInstance());
+        if(Bukkit.getServer().getPluginManager().isPluginEnabled("LevelledMobs") && plugin.getConfig().getBoolean("hooks.entity.LevelledMobs")) {
+            levelledMobsHook = new LevelledMobsHook(plugin);
             Locale.log("Hooking into LevelledMobs.");
         }
     }
@@ -72,6 +73,15 @@ public class HookManager {
     public EntityProvider getEntityProvider(String entityName) {
         for (EntityProvider entityProvider : entityProviders) {
             if (entityProvider.getName().equalsIgnoreCase(entityName)) {
+                return entityProvider;
+            }
+        }
+        return null;
+    }
+
+    public EntityProvider getEntityProvider(EntityType entityType) {
+        for (EntityProvider entityProvider : entityProviders) {
+            if (entityProvider.getType() == entityType) {
                 return entityProvider;
             }
         }

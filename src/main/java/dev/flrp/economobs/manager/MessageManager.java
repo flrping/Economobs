@@ -32,55 +32,48 @@ public class MessageManager {
     }
 
     public void sendMessage(Player player, LivingEntity entity, LootResult result) {
+        sendMessage(player, entity, result, 1.0, result.getAmount(), entity.getType().name());
+    }
+
+    public void sendMessage(Player player, LivingEntity entity, LootResult result, double multiplier, double amount) {
+        sendMessage(player, entity, result, multiplier, amount, entity.getType().name());
+    }
+
+    public void sendMessage(Player player, LivingEntity entity, LootResult result, String entityName) {
+        sendMessage(player, entity, result, 1.0, result.getAmount(), entityName);
+    }
+
+    public void sendMessage(Player player, LivingEntity entity, LootResult result, double multiplier, double amount, String entityName) {
         Lootable loot = result.getLootable();
         Message message = Message.of(loot.getMessage());
         configureMessageType(message);
-        switch (loot.getType()) {
-            case ITEM:
-                String name = ((LootableItem) loot).getItemStack().getItemMeta().hasDisplayName() ?
-                        ((LootableItem) loot).getItemStack().getItemMeta().getDisplayName() : capitalizeAndRemoveUnderscores(((LootableItem) loot).getItemStack().getType().name());
-                message.register("{item}", name);
-                break;
-            case CUSTOM_ITEM:
-                message.register("{item}", ((LootableCustomItem) loot).getCustomItemName());
-                break;
-            case POTION:
-                message.register("{effect}", capitalizeAndRemoveUnderscores(((LootablePotionEffect) loot).getEffectType().getName()));
-                message.register("{amplifier}", String.valueOf(((LootablePotionEffect) loot).getAmplifier() + 1));
-                message.register("{duration}", String.valueOf(result.getAmount()));
-                break;
-            case COMMAND:
-                message.register("{command}", ((LootableCommand) loot).getCommand());
-                break;
+
+        if (loot.getType() == LootType.ITEM) {
+            String name = ((LootableItem) loot).getItemStack().getItemMeta().hasDisplayName() ?
+                    ((LootableItem) loot).getItemStack().getItemMeta().getDisplayName() :
+                    capitalizeAndRemoveUnderscores(((LootableItem) loot).getItemStack().getType().name());
+            message.register("{item}", name);
+        } else if (loot.getType() == LootType.CUSTOM_ITEM) {
+            message.register("{item}", ((LootableCustomItem) loot).getCustomItemName());
+        } else if (loot.getType() == LootType.POTION) {
+            message.register("{effect}", capitalizeAndRemoveUnderscores(((LootablePotionEffect) loot).getEffectType().getName()));
+            message.register("{amplifier}", String.valueOf(((LootablePotionEffect) loot).getAmplifier() + 1));
+            message.register("{duration}", String.valueOf(result.getAmount()));
+        } else if (loot.getType() == LootType.COMMAND) {
+            message.register("{command}", ((LootableCommand) loot).getCommand());
         }
-        message.register("{amount}", handleNumber(result.getAmount()));
-        message.register("{mob}", capitalizeAndRemoveUnderscores(entity.getType().name()));
+
+        message.register("{base}", handleNumber(result.getAmount()));
+        message.register("{multiplier}", handleNumber(multiplier));
+        message.register("{amount}", handleNumber(amount));
+        message.register("{mob}", capitalizeAndRemoveUnderscores(entityName));
         message.register("{weight}", String.valueOf(loot.getWeight()));
         message.register("{loot}", loot.getIdentifier());
         // message.register("{loot_chance}", )
         message.register("{loot_table}", result.getLootTable().getIdentifier());
         // message.register("{loot_table_chance}", );
-        if(messageType == MessageType.HOLOGRAM) {
-            message.at(entity);
-        } else {
-            message.to(player);
-        }
-    }
 
-    public void sendMessage(Player player, LivingEntity entity, LootResult result, double multiplier, double amount) {
-        Lootable loot = result.getLootable();
-        Message message = Message.of(loot.getMessage());
-        configureMessageType(message);
-        message.register("{base}", handleNumber(result.getAmount()));
-        message.register("{multiplier}", handleNumber(multiplier));
-        message.register("{amount}", handleNumber(amount));
-        message.register("{mob}", capitalizeAndRemoveUnderscores(entity.getType().name()));
-        message.register("{weight}", String.valueOf(loot.getWeight()));
-        message.register("{loot}", loot.getIdentifier());
-        // message.register("{loot_chance}", );
-        message.register("{loot_table}", result.getLootTable().getIdentifier());
-        // message.register("{loot_table_chance}", );
-        if(messageType == MessageType.HOLOGRAM) {
+        if (messageType == MessageType.HOLOGRAM) {
             message.at(entity);
         } else {
             message.to(player);

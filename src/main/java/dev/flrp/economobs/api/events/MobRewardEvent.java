@@ -1,8 +1,6 @@
 package dev.flrp.economobs.api.events;
 
-import dev.flrp.espresso.table.LootContainer;
-import dev.flrp.espresso.table.LootTable;
-import dev.flrp.espresso.table.Lootable;
+import dev.flrp.espresso.table.LootResult;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -14,31 +12,19 @@ public class MobRewardEvent extends Event implements Cancellable {
     private boolean isCancelled = false;
 
     private final LivingEntity entity;
-    private final LootContainer lootContainer;
-    private final LootTable lootTable;
-    private final Lootable loot;
+    private final LootResult lootResult;
 
-    public MobRewardEvent(LivingEntity entity, LootContainer lootContainer, LootTable lootTable, Lootable loot) {
+    public MobRewardEvent(LivingEntity entity, LootResult lootResult) {
         this.entity = entity;
-        this.lootContainer = lootContainer;
-        this.lootTable = lootTable;
-        this.loot = loot;
+        this.lootResult = lootResult;
     }
 
     public LivingEntity getEntity() {
         return entity;
     }
 
-    public LootContainer getLootContainer() {
-        return lootContainer;
-    }
-
-    public LootTable getLootTable() {
-        return lootTable;
-    }
-
-    public Lootable getLoot() {
-        return loot;
+    public LootResult getLootResult() {
+        return lootResult;
     }
 
     @Override

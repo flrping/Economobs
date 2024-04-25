@@ -1,15 +1,16 @@
 package dev.flrp.economobs.hooks.entity;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Builder;
+import dev.flrp.economobs.listeners.ItemsAdderListener;
 import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.ItemsAdderEntityProvider;
 import dev.flrp.espresso.table.LootContainer;
-import org.bukkit.event.Listener;
 
 import java.util.HashMap;
 
-public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Listener {
+public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Builder {
 
     private final Economobs plugin;
     private final HashMap<String, LootContainer> itemsAdderRewards = new HashMap<>();
@@ -18,6 +19,7 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Li
         super();
         this.plugin = plugin;
         build();
+        plugin.getServer().getPluginManager().registerEvents(new ItemsAdderListener(plugin), plugin);
     }
 
     public LootContainer getLootContainer(String entityName) {
@@ -28,7 +30,8 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Li
         return itemsAdderRewards.containsKey(entityName);
     }
 
-    private void build() {
+    @Override
+    public void build() {
         Configuration itemsAdderFile = new Configuration(plugin, "hooks/ItemsAdder");
         itemsAdderFile.load();
 
@@ -38,6 +41,12 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Li
         Methods.buildRewardList(itemsAdderFile, itemsAdderRewards, "ItemsAdder");
 
         itemsAdderFile.save();
+    }
+
+    @Override
+    public void reload() {
+        itemsAdderRewards.clear();
+        build();
     }
 
 }

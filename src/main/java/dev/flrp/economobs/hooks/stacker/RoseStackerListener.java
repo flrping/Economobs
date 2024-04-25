@@ -2,6 +2,7 @@ package dev.flrp.economobs.hooks.stacker;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.RoseStackerStackerProvider;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import org.bukkit.Bukkit;
@@ -21,6 +22,10 @@ public class RoseStackerListener extends RoseStackerStackerProvider {
     @EventHandler
     public void onStackKill(EntityUnstackEvent event) {
         LivingEntity entity = event.getStack().getEntity();
+
+        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
+            for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
+        }
 
         if(entity.getKiller() == null) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;

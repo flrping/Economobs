@@ -1,12 +1,13 @@
 package dev.flrp.economobs.hooks.entity;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.util.MinMax;
 import dev.flrp.espresso.configuration.Configuration;
 
 import java.util.HashMap;
 
-public class InfernalMobsHook extends dev.flrp.espresso.hook.entity.InfernalMobsHook {
+public class InfernalMobsHook extends dev.flrp.espresso.hook.entity.InfernalMobsHook implements Builder {
 
     private final Economobs plugin;
     private final HashMap<String, MinMax> modifiers = new HashMap<>();
@@ -16,7 +17,8 @@ public class InfernalMobsHook extends dev.flrp.espresso.hook.entity.InfernalMobs
         build();
     }
 
-    private void build() {
+    @Override
+    public void build() {
         Configuration infernalMobsConfig = new Configuration(plugin, "hooks/InfernalMobs");
 
         if(infernalMobsConfig.getConfiguration().getConfigurationSection("modifiers") == null) {
@@ -35,6 +37,12 @@ public class InfernalMobsHook extends dev.flrp.espresso.hook.entity.InfernalMobs
             modifiers.put(key, new MinMax(min, max));
         }
 
+    }
+
+    @Override
+    public void reload() {
+        modifiers.clear();
+        build();
     }
 
     public HashMap<String, MinMax> getAdditions() {

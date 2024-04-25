@@ -1,11 +1,12 @@
 package dev.flrp.economobs.hooks.item;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.item.ItemsAdderItemProvider;
 
-public class ItemsAdderItemHook extends ItemsAdderItemProvider {
+public class ItemsAdderItemHook extends ItemsAdderItemProvider implements Builder {
 
     private final Economobs plugin;
 
@@ -23,6 +24,11 @@ public class ItemsAdderItemHook extends ItemsAdderItemProvider {
         Methods.buildHookMultiplierGroupsItems(itemsAdderConfig);
 
         itemsAdderConfig.save();
+    }
+
+    @Override
+    public void reload() {
+        build();
     }
 
 }

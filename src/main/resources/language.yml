@@ -1,9 +1,4 @@
-# Economobs v1 Placeholders, these are deprecated and will be removed in a future update.
-# {0} prints out money made
-# {1} prints out base amount
-# {2} prints out multiplier
-
-# New placeholders from v2 - OLD ONES ARE DEPRECATED AND ARE NOT SUPPORTED ANYMORE. THEY CAN BE REMOVED AT ANY TIME.
+# New placeholders from v2 - OLD PLACEHOLDERS ARE NOT SUPPORTED ANYMORE.
 # {base} prints out base amount.
 # {multiplier} prints out multiplier.
 # {mob} prints out mob name.

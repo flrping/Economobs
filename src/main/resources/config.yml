@@ -51,16 +51,24 @@ message:
 
 # Hook management.
 hooks:
-  # Enable MythicMobs support? Adds the ability to earn money from custom mobs.
-  MythicMobs: true
-  # Enable LevelledMobs support? Adds the ability to add money per level to the base amount (before applying multipliers).
-  LevelledMobs: true
-  # Enable InfernalMobs support? Adds the ability to add money per modifier to the base amount (before applying multipliers).
-  InfernalMobs: true
-  #Enable ItemsAdder support? Allows players to earn money from custom entities, and enabled multipliers for custom items and entities.
-  ItemsAdder: true
-  # Enable Sentinels support? Adds the ability for Sentinels to reward their owners.
-  Sentinel: true
+  entity:
+    # Enable MythicMobs support? Adds the ability to earn rewards from custom mobs, and enables multipliers for custom entities.
+    MythicMobs: true
+    # Enable LevelledMobs support? Adds the ability to add money per level to the base amount (before applying multipliers).
+    LevelledMobs: true
+    # Enable InfernalMobs support? Adds the ability to add money per modifier to the base amount (before applying multipliers).
+    InfernalMobs: true
+    # Enable ItemsAdder support? Allows players to earn rewards from custom mobs, and enables multipliers for custom entities.
+    ItemsAdder: true
+    # Enable Sentinels support? Adds the ability for Sentinels to reward their owners.
+    Sentinel: true
+  items:
+    # Enable Oraxen support? Adds the ability to have multipliers for custom items.
+    Oraxen: true
+    # Enable ItemsAdder support? Adds the ability to have multipliers for custom items.
+    ItemsAdder: true
+    # Enable MMOItems support? Adds the ability to have multipliers for custom items.
+    MMOItems: true
 
 # Multiplier handling.
 # Down below are configurable multiplier groups.

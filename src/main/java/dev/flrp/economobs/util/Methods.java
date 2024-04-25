@@ -121,7 +121,7 @@ public class Methods {
 
                 // Boolean checks
                 boolean hasTable = configuration.getConfiguration().contains("mobs." + mob + ".tables." + tableNumber + ".table")
-                        && instance.getRewardManager().getLootTables().containsKey(instance.getMobs().getConfiguration().getString("mobs." + mob + ".tables." + tableNumber + ".table"));
+                        && instance.getRewardManager().getLootTables().containsKey(configuration.getConfiguration().getString("mobs." + mob + ".tables." + tableNumber + ".table"));
                 boolean hasConditions = configuration.getConfiguration().contains("mobs." + mob + ".tables." + tableNumber + ".conditions");
                 boolean hasWeightOverride = configuration.getConfiguration().contains("mobs." + mob + ".tables." + tableNumber + ".weight");
 
