@@ -8,23 +8,26 @@ import dev.flrp.economobs.util.multiplier.MultiplierGroup;
 import dev.flrp.economobs.util.multiplier.MultiplierProfile;
 import dev.flrp.espresso.condition.BiomeCondition;
 import dev.flrp.espresso.condition.Condition;
-import dev.flrp.espresso.condition.WithCondition;
 import dev.flrp.espresso.condition.WithConditionExtended;
+import dev.flrp.espresso.condition.WorldCondition;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.table.LootContainer;
-import me.mattstudios.mf.annotations.*;
-import me.mattstudios.mf.base.CommandBase;
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.Command;
+import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.annotation.SubCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.UUID;
 
-@Command("economobs")
-@Alias("em")
-public class Commands extends CommandBase {
+@Command(value = "economobs", alias = {"em"})
+public class Commands extends BaseCommand {
 
     private final Economobs plugin;
 
@@ -52,36 +55,36 @@ public class Commands extends CommandBase {
 
     @SubCommand("multiplier")
     @Permission("economobs.admin")
-    public void multiplierCommand(final CommandSender sender, final String[] args) {
-        if(args.length < 5) {
+    public void multiplierCommand(final CommandSender sender, final List<String> args) {
+        if(args.size() < 5) {
             send(sender, "&cInvalid usage. See /economobs.");
             return;
         }
 
-        Player recipient = Bukkit.getPlayer(args[2]);
+        Player recipient = Bukkit.getPlayer(args.get(2));
         if(recipient == null) {
-            send(sender, "&4" + args[2] + " is not a valid player.");
+            send(sender, "&4" + args.get(2) + " is not a valid player.");
             return;
         }
 
         double multiplier = 1;
-        if(args.length == 6) {
+        if(args.size() == 6) {
             try {
-                multiplier = Double.parseDouble(args[5]);
+                multiplier = Double.parseDouble(args.get(5));
             } catch (NumberFormatException e) {
-                send(sender, "&4" + args[5] + " &cis not a valid number.");
+                send(sender, "&4" + args.get(5) + " &cis not a valid number.");
                 return;
             }
         }
 
-        if((multiplier == 1 && args[1].equals("add"))) {
+        if((multiplier == 1 && args.get(1).equals("add"))) {
             send(sender, "&cInvalid multiplier. Please add a value that modifies the base amount.");
             return;
         }
 
         MultiplierProfile multiplierProfile = plugin.getDatabaseManager().getMultiplierProfile(recipient.getUniqueId());
 
-        switch (args[3]) {
+        switch (args.get(3)) {
             case "entity":
                 handleEntityMultiplier(sender, args, multiplierProfile, multiplier, recipient);
                 break;
@@ -101,104 +104,104 @@ public class Commands extends CommandBase {
         send(sender, "&cInvalid usage. See /economobs.");
     }
 
-    private void handleCustomToolMultiplier(CommandSender sender, String[] args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
-        String customTool = args[4];
-        if (args[1].equals("add")) {
+    private void handleCustomToolMultiplier(CommandSender sender, List<String> args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
+        String customTool = args.get(4);
+        if (args.get(1).equals("add")) {
             multiplierProfile.addCustomToolMultiplier(customTool, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + customTool + ", " + multiplier + ").");
             return;
         }
-        if (args[1].equals("remove")) {
+        if (args.get(1).equals("remove")) {
             if(!multiplierProfile.getCustomTools().containsKey(customTool)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeCustomToolMultiplier(customTool);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + customTool + ").");
         }
     }
 
-    private void handleCustomEntityMultiplier(CommandSender sender, String[] args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
-        String customEntity = args[4];
-        if (args[1].equals("add")) {
+    private void handleCustomEntityMultiplier(CommandSender sender, List<String> args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
+        String customEntity = args.get(4);
+        if (args.get(1).equals("add")) {
             multiplierProfile.addCustomEntityMultiplier(customEntity, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + customEntity + ", " + multiplier + ").");
             return;
         }
-        if (args[1].equals("remove")) {
+        if (args.get(1).equals("remove")) {
             if(!multiplierProfile.getCustomEntities().containsKey(customEntity)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeCustomEntityMultiplier(customEntity);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + customEntity + ").");
         }
     }
 
-    private void handleWorldMultiplier(CommandSender sender, String[] args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
-        UUID world = Bukkit.getWorld(args[4]) != null ? Bukkit.getWorld(args[4]).getUID() : null;
+    private void handleWorldMultiplier(CommandSender sender, List<String> args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
+        UUID world = Bukkit.getWorld(args.get(4)) != null ? Bukkit.getWorld(args.get(4)).getUID() : null;
         if (world == null) {
-            send(sender, "&4" + args[4] + " &cis not a valid world.");
+            send(sender, "&4" + args.get(4) + " &cis not a valid world.");
             return;
         }
-        if (args[1].equals("add")) {
+        if (args.get(1).equals("add")) {
             multiplierProfile.addWorldMultiplier(world, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args.get(4) + ", " + multiplier + ").");
             return;
         }
-        if (args[1].equals("remove")) {
+        if (args.get(1).equals("remove")) {
             if(!multiplierProfile.getWorlds().containsKey(world)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeWorldMultiplier(world);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args.get(4) + ").");
         }
     }
 
-    private void handleToolMultiplier(CommandSender sender, String[] args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
-        Material material = Material.matchMaterial(args[4]);
+    private void handleToolMultiplier(CommandSender sender, List<String> args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
+        Material material = Material.matchMaterial(args.get(4));
         if (material == null) {
-            send(sender, "&4" + args[4] + " &cis not a valid material.");
+            send(sender, "&4" + args.get(4) + " &cis not a valid material.");
             return;
         }
-        if (args[1].equals("add")) {
+        if (args.get(1).equals("add")) {
             multiplierProfile.addToolMultiplier(material, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args.get(4) + ", " + multiplier + ").");
             return;
         }
-        if (args[1].equals("remove")) {
+        if (args.get(1).equals("remove")) {
             if(!multiplierProfile.getTools().containsKey(material)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeToolMultiplier(material);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args.get(4) + ").");
             return;
         }
         send(sender, "&cInvalid usage. See /economobs.");
     }
 
-    private void handleEntityMultiplier(CommandSender sender, String[] args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
+    private void handleEntityMultiplier(CommandSender sender, List<String> args, MultiplierProfile multiplierProfile, double multiplier, Player recipient) {
         EntityType entity;
         try {
-            entity = EntityType.valueOf(args[4].toUpperCase());
+            entity = EntityType.valueOf(args.get(4).toUpperCase());
         } catch (IllegalArgumentException e) {
-            send(sender, "&4" + args[4] + " &cis not a valid entity.");
+            send(sender, "&4" + args.get(4) + " &cis not a valid entity.");
             return;
         }
-        if (args[1].equals("add")) {
+        if (args.get(1).equals("add")) {
             multiplierProfile.addEntityMultiplier(entity, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ", " + multiplier + ").");
+            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + args.get(4) + ", " + multiplier + ").");
             return;
         }
-        if (args[1].equals("remove")) {
+        if (args.get(1).equals("remove")) {
             if(!multiplierProfile.getEntities().containsKey(entity)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeEntityMultiplier(entity);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args[4] + ").");
+            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + args.get(4) + ").");
             return;
         }
         send(sender, "&cInvalid usage. See /economobs.");
@@ -222,7 +225,6 @@ public class Commands extends CommandBase {
             default:
                 sender.sendMessage(Locale.parse("&cSpecify a valid target: player, mob, custom"));
         }
-
     }
 
     private void checkPlayer(final CommandSender sender, final String target) {
@@ -287,7 +289,17 @@ public class Commands extends CommandBase {
             sender.sendMessage(Locale.parse("&cInvalid entity: " + entityName));
             return;
         }
-        generateInfo(sender, entityType.name(), plugin.getRewardManager().getLootContainer(entityType));
+        LootContainer container;
+        if(plugin.getRewardManager().hasLootContainer(entityType)) {
+            container = plugin.getRewardManager().getLootContainer(entityType);
+        } else {
+            container = plugin.getRewardManager().getDefaultLootContainer();
+            if(container.getLootTables().isEmpty()) {
+                sender.sendMessage(Locale.parse("&cNo loot tables found for this entity."));
+                return;
+            }
+        }
+        generateInfo(sender, entityType.name(), container);
     }
 
     private void checkCustomMob(final CommandSender sender, final String target) {
@@ -296,12 +308,31 @@ public class Commands extends CommandBase {
             sender.sendMessage(Locale.parse("&cCustom entity not found: " + target));
             return;
         }
+        LootContainer container;
         switch (provider.getType()) {
             case ITEMS_ADDER:
-                generateInfo(sender, target, ((ItemsAdderEntityHook) provider).getLootContainer(target));
+                if(((ItemsAdderEntityHook) provider).hasLootContainer(target)) {
+                    container = ((ItemsAdderEntityHook) provider).getLootContainer(target);
+                } else {
+                    container = ((ItemsAdderEntityHook) provider).getDefaultLootContainer();
+                    if(container.getLootTables().isEmpty()) {
+                        sender.sendMessage(Locale.parse("&cNo loot tables found for this entity."));
+                        return;
+                    }
+                }
+                generateInfo(sender, target, container);
                 break;
             case MYTHIC_MOBS:
-                generateInfo(sender, target, ((MythicMobsEntityHook) provider).getLootContainer(target));
+                if(((MythicMobsEntityHook) provider).hasLootContainer(target)) {
+                    container = ((MythicMobsEntityHook) provider).getLootContainer(target);
+                } else {
+                    container = ((MythicMobsEntityHook) provider).getDefaultLootContainer();
+                    if(container.getLootTables().isEmpty()) {
+                        sender.sendMessage(Locale.parse("&cNo loot tables found for this entity."));
+                        return;
+                    }
+                }
+                generateInfo(sender, target, container);
                 break;
         }
     }
@@ -321,6 +352,14 @@ public class Commands extends CommandBase {
                     case BIOME:
                         sender.sendMessage(Locale.parse(" &7Biome:"));
                         ((BiomeCondition) condition).getBiomes().forEach(biome -> sender.sendMessage(Locale.parse(" &8 - &f" + biome.name())));
+                        break;
+                    case WORLD:
+                        sender.sendMessage(Locale.parse(" &7World:"));
+                        ((WorldCondition) condition).getWorlds().forEach(world -> sender.sendMessage(Locale.parse(" &8 - &f" + world)));
+                        break;
+                    case PERMISSION:
+                        sender.sendMessage(Locale.parse(" &7Permission:"));
+                        sender.sendMessage(Locale.parse(" &8 - &f" + ((dev.flrp.espresso.condition.PermissionCondition) condition).getPermission()));
                         break;
                 }
             }
@@ -349,8 +388,7 @@ public class Commands extends CommandBase {
         });
     }
 
-    @SubCommand("toggle")
-    @Alias("togglemessage")
+    @SubCommand(value = "toggle", alias = {"togglemessage"})
     public void toggleCommand(final CommandSender sender) {
         Player player = (Player) sender;
         sender.sendMessage(Locale.parse(Locale.PREFIX + Locale.ECONOMY_GIVEN));

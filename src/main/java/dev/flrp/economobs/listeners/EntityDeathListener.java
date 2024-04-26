@@ -51,12 +51,14 @@ public class EntityDeathListener implements StackerProvider {
         if(entity.getKiller() == null) return;
         if(entity instanceof Player) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(entity.getType()) || plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
+        if(!plugin.getRewardManager().hasLootContainer(entity.getType())) {
+            if(plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
+        }
 
         Player player = event.getEntity().getKiller();
+        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
         LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
                 ? plugin.getRewardManager().getLootContainer(entity.getType()) : plugin.getRewardManager().getDefaultLootContainer();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
         plugin.getRewardManager().handleLootReward(player, entity, lootContainer);
     }
 

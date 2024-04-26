@@ -5,10 +5,7 @@ import dev.flrp.economobs.api.events.MobRewardEvent;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.util.multiplier.MultiplierGroup;
 import dev.flrp.economobs.util.multiplier.MultiplierProfile;
-import dev.flrp.espresso.condition.BiomeCondition;
-import dev.flrp.espresso.condition.ByCondition;
-import dev.flrp.espresso.condition.Condition;
-import dev.flrp.espresso.condition.WithConditionExtended;
+import dev.flrp.espresso.condition.*;
 import dev.flrp.espresso.hook.item.ItemProvider;
 import dev.flrp.espresso.hook.item.ItemType;
 import dev.flrp.espresso.table.*;
@@ -30,7 +27,7 @@ import java.util.*;
 public class RewardManager {
 
     public final Economobs plugin;
-    List<String> allEntities = new ArrayList<>();
+    private final List<String> allEntities = new ArrayList<>();
 
     private final HashMap<String, LootTable> availableTables = new HashMap<>();
     private final HashMap<EntityType, LootContainer> lootList = new HashMap<>();
@@ -43,7 +40,7 @@ public class RewardManager {
         EnumSet.allOf(EntityType.class).forEach(type -> allEntities.add(type.name()));
         if(!plugin.getMobs().getConfiguration().isSet("mobs")) buildMobFile();
         buildRewardList();
-        buildRewardListForDefaultMobs();
+        if(plugin.getMobs().getConfiguration().getConfigurationSection("mobs") != null) buildRewardListForDefaultMobs();
         if(plugin.getMobs().getConfiguration().contains("default")) buildWildcardLootContainer();
     }
 
@@ -236,7 +233,6 @@ public class RewardManager {
     private void buildRewardListForDefaultMobs() {
 
         int modifiedTables = 0;
-
         Set<String> mobSet = plugin.getMobs().getConfiguration().getConfigurationSection("mobs").getKeys(false);
 
         // Loop through all the mobs in file
@@ -283,24 +279,31 @@ public class RewardManager {
         for(String tableNumber : tableSet) {
             LootTable lootTable = availableTables.get(plugin.getMobs().getConfiguration().getString("default.tables." + tableNumber + ".table"));
             if(lootTable == null) continue;
-            if(plugin.getMobs().getConfiguration().contains("default.tables." + tableNumber + ".conditions")) {
-                LootTable modifiedLootTable = lootTable.clone();
-                parseConditions(modifiedLootTable, plugin.getMobs().getConfiguration().getConfigurationSection("default.tables." + tableNumber));
-                lootContainer.addLootTable(modifiedLootTable);
-            } else {
-                lootContainer.addLootTable(lootTable);
-            }
-            if(plugin.getMobs().getConfiguration().contains("default.excludes")) {
-                for(String entity : plugin.getMobs().getConfiguration().getStringList("default.excludes")) {
-                    try {
-                        excludedEntities.add(EntityType.valueOf(entity.toUpperCase()));
-                    } catch (IllegalArgumentException e) {
-                        Locale.log("&cInvalid entity type (" + entity + ") for exclusion in default loot table. Skipping.");
 
-                    }
+            boolean hasConditions = plugin.getMobs().getConfiguration().contains("default.tables." + tableNumber + ".conditions");
+            boolean hasWeightOverride = plugin.getMobs().getConfiguration().contains("default.tables." + tableNumber + ".weight");
+
+            if(!hasConditions && !hasWeightOverride) {
+                lootContainer.addLootTable(lootTable);
+            } else {
+                LootTable modifiedLootTable = lootTable.clone();
+                if(hasConditions) parseConditions(modifiedLootTable, plugin.getMobs().getConfiguration().getConfigurationSection("default.tables." + tableNumber));
+                if(hasWeightOverride) modifiedLootTable.setWeight(plugin.getMobs().getConfiguration().getDouble("default.tables." + tableNumber + ".weight"));
+                lootContainer.addLootTable(modifiedLootTable);
+            }
+        }
+
+        if(plugin.getMobs().getConfiguration().contains("default.excludes")) {
+            for(String entity : plugin.getMobs().getConfiguration().getStringList("default.excludes")) {
+                try {
+                    excludedEntities.add(EntityType.valueOf(entity.toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    Locale.log("&cInvalid entity type (" + entity + ") for exclusion in default loot table. Skipping.");
+
                 }
             }
         }
+
         defaultLootContainer = lootContainer;
         Locale.log("Default loot created with &a" + lootContainer.getLootTables().size() + " &rtables.");
     }
@@ -319,14 +322,13 @@ public class RewardManager {
                         parseWithCondition(lootTable, tableSection, value, conditions);
                         break;
                     case "biome":
-                        if (parseBiomeCondition(lootTable, tableSection, value, conditions)) continue;
-                        break;
-                    case "by":
-                        if(parseByCondition(lootTable, tableSection, value, conditions)) continue;
+                        parseBiomeCondition(lootTable, tableSection, value, conditions);
                         break;
                     case "permission":
+                        parsePermissionCondition(lootTable, value, conditions);
                         break;
                     case "world":
+                        parseWorldCondition(lootTable, tableSection, value, conditions);
                         break;
                 }
                 lootTable.setConditions(conditions);
@@ -334,13 +336,13 @@ public class RewardManager {
         }
     }
 
-    private boolean parseBiomeCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
+    private void parseBiomeCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
         Biome biome;
         try {
             biome = Biome.valueOf(value);
         } catch (IllegalArgumentException e) {
             Locale.log("&cInvalid biome (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
-            return true;
+            return;
         }
         BiomeCondition biomeCondition;
         if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof BiomeCondition)) {
@@ -351,7 +353,6 @@ public class RewardManager {
             biomeCondition.addBiome(biome);
             conditions.add(biomeCondition);
         }
-        return false;
     }
 
     private void parseWithCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
@@ -384,24 +385,32 @@ public class RewardManager {
         }
     }
 
-    private boolean parseByCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
-        EntityType entityType;
-        try {
-            entityType = EntityType.valueOf(value);
-        } catch (IllegalArgumentException e) {
-            Locale.log("&cInvalid entity type (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
-            return true;
-        }
-        ByCondition byCondition;
-        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof ByCondition)) {
-            byCondition = (ByCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof ByCondition).findFirst().get();
-            byCondition.addEntity(entityType);
+    private void parsePermissionCondition(LootTable lootTable, String value, List<Condition> conditions) {
+        PermissionCondition permissionCondition;
+        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof PermissionCondition)) {
+            permissionCondition = (PermissionCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof PermissionCondition).findFirst().get();
+            permissionCondition.setPermission(value);
         } else {
-            byCondition = new ByCondition();
-            byCondition.addEntity(entityType);
-            conditions.add(byCondition);
+            permissionCondition = new PermissionCondition();
+            permissionCondition.setPermission(value);
+            conditions.add(permissionCondition);
         }
-        return false;
+    }
+
+    private void parseWorldCondition(LootTable lootTable, ConfigurationSection tableSection, String value, List<Condition> conditions) {
+        WorldCondition worldCondition;
+        if(Bukkit.getWorld(value) == null) {
+            Locale.log("&cInvalid world (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
+            return;
+        }
+        if(lootTable.getConditions().stream().anyMatch(condition -> condition instanceof WorldCondition)) {
+            worldCondition = (WorldCondition) lootTable.getConditions().stream().filter(condition -> condition instanceof WorldCondition).findFirst().get();
+            worldCondition.addWorld(value);
+        } else {
+            worldCondition = new WorldCondition();
+            worldCondition.addWorld(value);
+            conditions.add(worldCondition);
+        }
     }
 
     private boolean meetsConditions(Player player, LivingEntity entity, LootTable lootTable) {
@@ -421,11 +430,14 @@ public class RewardManager {
                 }
                 if(!((WithConditionExtended) condition).check(type, itemName)) return false;
             }
-            if(condition instanceof ByCondition) {
-                if(!((ByCondition) condition).getEntities().contains(entity.getType())) return false;
-            }
             if(condition instanceof BiomeCondition) {
-                if(!((BiomeCondition) condition).getBiomes().contains(entity.getLocation().getBlock().getBiome())) return false;
+                if(!((BiomeCondition) condition).check(entity.getLocation().getBlock().getBiome())) return false;
+            }
+            if(condition instanceof PermissionCondition) {
+                if(!((PermissionCondition) condition).check(player)) return false;
+            }
+            if(condition instanceof WorldCondition) {
+                if(!((WorldCondition) condition).check(entity.getWorld().getName())) return false;
             }
         }
         return true;

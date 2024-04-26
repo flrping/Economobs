@@ -4,6 +4,7 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.SentinelHook;
 import dev.flrp.economobs.hooks.entity.ItemsAdderEntityHook;
 import dev.flrp.espresso.hook.entity.custom.EntityType;
+import dev.flrp.espresso.table.LootContainer;
 import dev.lone.itemsadder.api.Events.CustomEntityDeathEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -29,11 +30,15 @@ public class ItemsAdderListener implements Listener {
 
         ItemsAdderEntityHook itemsAdderHook = (ItemsAdderEntityHook) plugin.getHookManager().getEntityProvider(EntityType.ITEMS_ADDER);
         String entityName = itemsAdderHook.getCustomEntityName((LivingEntity) entity);
-        if(!itemsAdderHook.hasLootContainer(entityName)) return;
+        if(!itemsAdderHook.hasLootContainer(entityName)) {
+            if(itemsAdderHook.getExcludedEntities().contains(entityName)) return;
+        }
 
         Player player = (Player) event.getKiller();
         if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
-        plugin.getRewardManager().handleCustomEntityLootReward(player, (LivingEntity) entity, itemsAdderHook.getLootContainer(entityName), entityName);
+        LootContainer lootContainer = itemsAdderHook.hasLootContainer(entityName)
+                ? itemsAdderHook.getLootContainer(entityName) : itemsAdderHook.getDefaultLootContainer();
+        plugin.getRewardManager().handleCustomEntityLootReward(player, (LivingEntity) entity, lootContainer, entityName);
     }
 
 }

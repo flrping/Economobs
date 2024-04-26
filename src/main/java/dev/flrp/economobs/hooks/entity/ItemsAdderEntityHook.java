@@ -8,12 +8,17 @@ import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.ItemsAdderEntityProvider;
 import dev.flrp.espresso.table.LootContainer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Builder {
 
     private final Economobs plugin;
     private final HashMap<String, LootContainer> itemsAdderRewards = new HashMap<>();
+
+    private LootContainer defaultLootContainer = new LootContainer();
+    private final List<String> excludedEntities = new ArrayList<>();
 
     public ItemsAdderEntityHook(Economobs plugin) {
         super();
@@ -30,6 +35,14 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Bu
         return itemsAdderRewards.containsKey(entityName);
     }
 
+    public LootContainer getDefaultLootContainer() {
+        return defaultLootContainer;
+    }
+
+    public List<String> getExcludedEntities() {
+        return excludedEntities;
+    }
+
     @Override
     public void build() {
         Configuration itemsAdderFile = new Configuration(plugin, "hooks/ItemsAdder");
@@ -39,6 +52,7 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Bu
         Methods.buildHookMobs(itemsAdderFile);
         Methods.buildHookMultiplierGroupsMobs(itemsAdderFile);
         Methods.buildRewardList(itemsAdderFile, itemsAdderRewards, "ItemsAdder");
+        Methods.buildDefaultLootContainer(itemsAdderFile, defaultLootContainer, excludedEntities);
 
         itemsAdderFile.save();
     }
@@ -46,6 +60,8 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Bu
     @Override
     public void reload() {
         itemsAdderRewards.clear();
+        excludedEntities.clear();
+        defaultLootContainer = new LootContainer();
         build();
     }
 

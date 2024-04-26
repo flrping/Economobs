@@ -12,8 +12,9 @@ import dev.flrp.economobs.util.UpdateChecker;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.item.ItemProvider;
-import me.mattstudios.mf.base.CommandManager;
+import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import org.bstats.bukkit.Metrics;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -86,8 +87,8 @@ public final class Economobs extends JavaPlugin {
         databaseManager = new DatabaseManager(this);
 
         // Commands
-        CommandManager commandManager = new CommandManager(this);
-        commandManager.register(new Commands(this));
+        BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);
+        commandManager.registerCommand(new Commands(this));
 
         Locale.log("&aDone!");
     }

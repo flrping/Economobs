@@ -4,6 +4,7 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hooks.SentinelHook;
 import dev.flrp.economobs.hooks.entity.MythicMobsEntityHook;
 import dev.flrp.espresso.hook.entity.custom.EntityType;
+import dev.flrp.espresso.table.LootContainer;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -28,11 +29,15 @@ public class MythicMobsListener implements Listener {
 
         MythicMobsEntityHook mythicMobsHook = (MythicMobsEntityHook) plugin.getHookManager().getEntityProvider(EntityType.MYTHIC_MOBS);
         String entityName = mythicMobsHook.getCustomEntityName(entity);
-        if(!mythicMobsHook.hasLootContainer(entityName)) return;
+        if(!mythicMobsHook.hasLootContainer(entityName)) {
+            if(mythicMobsHook.getExcludedEntities().contains(entityName)) return;
+        }
 
         Player player = (Player) event.getKiller();
         if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
-        plugin.getRewardManager().handleCustomEntityLootReward(player, entity, mythicMobsHook.getLootContainer(entityName), entityName);
+        LootContainer lootContainer = mythicMobsHook.hasLootContainer(entityName)
+                ? mythicMobsHook.getLootContainer(entityName) : mythicMobsHook.getDefaultLootContainer();
+        plugin.getRewardManager().handleCustomEntityLootReward(player, entity, lootContainer, entityName);
     }
 
 }

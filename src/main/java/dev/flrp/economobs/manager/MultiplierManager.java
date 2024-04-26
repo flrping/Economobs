@@ -18,10 +18,12 @@ public class MultiplierManager {
 
     public MultiplierManager(Economobs plugin) {
         this.plugin = plugin;
-        for(String identifier : plugin.getConfig().getConfigurationSection("multipliers").getKeys(false)) {
-            groups.put(identifier, new MultiplierGroup(identifier));
+        if(plugin.getConfig().getConfigurationSection("multipliers") != null) {
+            for(String identifier : plugin.getConfig().getConfigurationSection("multipliers").getKeys(false)) {
+                groups.put(identifier, new MultiplierGroup(identifier));
+            }
+            Locale.log("Loaded &a" + groups.size() + " &rmultiplier groups.");
         }
-        Locale.log("Loaded &a" + groups.size() + " &rmultiplier groups.");
     }
 
     public MultiplierProfile getMultiplierProfile(UUID uuid) {

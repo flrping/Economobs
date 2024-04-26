@@ -9,10 +9,7 @@ import dev.flrp.espresso.table.LootTable;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 public class Methods {
 
@@ -46,6 +43,8 @@ public class Methods {
     }
 
     public static void buildHookMultiplierGroupsMobs(Configuration configuration) {
+        if(configuration.getConfiguration().getConfigurationSection("multipliers") == null) return;
+
         Set<String> multiplierSet = configuration.getConfiguration().getConfigurationSection("multipliers").getKeys(false);
         for (String multiplier : multiplierSet) {
             // Configuring an existing or new group.
@@ -76,6 +75,8 @@ public class Methods {
     }
 
     public static void buildHookMultiplierGroupsItems(Configuration configuration) {
+        if(configuration.getConfiguration().getConfigurationSection("multipliers") == null) return;
+
         Set<String> multiplierSet = configuration.getConfiguration().getConfigurationSection("multipliers").getKeys(false);
         for (String multiplier : multiplierSet) {
             // Configuring an existing or new group.
@@ -106,8 +107,9 @@ public class Methods {
     }
 
     public static void buildRewardList(Configuration configuration, HashMap<String, LootContainer> rewards, String name) {
-        int modifiedTables = 0;
+        if(configuration.getConfiguration().getConfigurationSection("mobs") == null) return;
 
+        int modifiedTables = 0;
         Set<String> mobSet = configuration.getConfiguration().getConfigurationSection("mobs").getKeys(false);
 
         // Loop through all the mobs in file
@@ -145,6 +147,34 @@ public class Methods {
 
         Locale.log("Loaded &a" + rewards.size() + " &rloot containers for " + name + " entities.");
         Locale.log("Loaded &a" + modifiedTables + " &rmodified loot tables.");
+    }
+
+    public static void buildDefaultLootContainer(Configuration configuration, LootContainer lootContainer, List<String> excludedEntities) {
+        if(configuration.getConfiguration().getConfigurationSection("default") == null) return;
+
+        Set<String> tableSet = configuration.getConfiguration().getConfigurationSection("default.tables").getKeys(false);
+        for(String tableNumber : tableSet) {
+            LootTable lootTable = instance.getRewardManager().getLootTables().get(configuration.getConfiguration().getString("default.tables." + tableNumber + ".table"));
+            if(lootTable == null) continue;
+
+            boolean hasConditions = configuration.getConfiguration().contains("default.tables." + tableNumber + ".conditions");
+            boolean hasWeightOverride = configuration.getConfiguration().contains("default.tables." + tableNumber + ".weight");
+
+            if(!hasConditions && !hasWeightOverride) {
+                lootContainer.addLootTable(lootTable);
+            } else {
+                LootTable modifiedLootTable = lootTable.clone();
+                if(hasConditions) instance.getRewardManager().parseConditions(modifiedLootTable, configuration.getConfiguration().getConfigurationSection("default.tables." + tableNumber));
+                if(hasWeightOverride) modifiedLootTable.setWeight(configuration.getConfiguration().getDouble("default.tables." + tableNumber + ".weight"));
+                lootContainer.addLootTable(modifiedLootTable);
+            }
+        }
+
+        if(configuration.getConfiguration().contains("default.excludes")) {
+            excludedEntities.addAll(configuration.getConfiguration().getStringList("default.excluded"));
+        }
+
+        Locale.log("Default loot created with &a" + lootContainer.getLootTables().size() + " &rtables.");
     }
 
 }
