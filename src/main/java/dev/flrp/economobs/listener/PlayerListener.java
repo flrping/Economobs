@@ -1,7 +1,7 @@
-package dev.flrp.economobs.listeners;
+package dev.flrp.economobs.listener;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.table.LootContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;

@@ -1,4 +1,4 @@
-package dev.flrp.economobs.hooks.item;
+package dev.flrp.economobs.hook.item;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Builder;

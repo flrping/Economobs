@@ -1,8 +1,8 @@
-package dev.flrp.economobs.listeners;
+package dev.flrp.economobs.listener;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hooks.SentinelHook;
-import dev.flrp.economobs.hooks.entity.MythicMobsEntityHook;
+import dev.flrp.economobs.hook.SentinelHook;
+import dev.flrp.economobs.hook.entity.MythicMobsEntityHook;
 import dev.flrp.espresso.hook.entity.custom.EntityType;
 import dev.flrp.espresso.table.LootContainer;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
@@ -37,7 +37,7 @@ public class MythicMobsListener implements Listener {
         if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
         LootContainer lootContainer = mythicMobsHook.hasLootContainer(entityName)
                 ? mythicMobsHook.getLootContainer(entityName) : mythicMobsHook.getDefaultLootContainer();
-        plugin.getRewardManager().handleCustomEntityLootReward(player, entity, lootContainer, entityName);
+        plugin.getRewardManager().handleLootReward(player, entity, lootContainer, 1, entityName);
     }
 
 }

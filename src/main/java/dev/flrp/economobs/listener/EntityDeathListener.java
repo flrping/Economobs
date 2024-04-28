@@ -1,8 +1,8 @@
-package dev.flrp.economobs.listeners;
+package dev.flrp.economobs.listener;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.StackerProvider;
 import dev.flrp.espresso.hook.stacker.StackerType;

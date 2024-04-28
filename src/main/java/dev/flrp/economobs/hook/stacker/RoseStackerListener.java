@@ -1,27 +1,27 @@
-package dev.flrp.economobs.hooks.stacker;
+package dev.flrp.economobs.hook.stacker;
 
-import com.craftaro.ultimatestacker.api.events.entity.EntityStackKillEvent;
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hooks.SentinelHook;
+import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
-import dev.flrp.espresso.hook.stacker.UltimateStackerStackerProvider;
+import dev.flrp.espresso.hook.stacker.RoseStackerStackerProvider;
+import dev.rosewood.rosestacker.event.EntityUnstackEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 
-public class UltimateStackerListener extends UltimateStackerStackerProvider {
+public class RoseStackerListener extends RoseStackerStackerProvider {
 
     private final Economobs plugin;
 
-    public UltimateStackerListener(Economobs plugin) {
+    public RoseStackerListener(Economobs plugin) {
         super(plugin);
         this.plugin = plugin;
     }
 
     @EventHandler
-    public void onStackKill(EntityStackKillEvent event) {
-        LivingEntity entity = event.getEntity();
+    public void onStackKill(EntityUnstackEvent event) {
+        LivingEntity entity = event.getStack().getEntity();
 
         if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
             for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
@@ -31,10 +31,11 @@ public class UltimateStackerListener extends UltimateStackerStackerProvider {
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
         if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
 
-        Player player = entity.getKiller();
+        int before = event.getStack().getStackSize();
+        int after = event.getResult().getStackSize();
+        Player player = event.getStack().getEntity().getKiller();
         if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
-        int stackSize = event.isInstantKill() ? event.getStackSize() : event.getStackSize() - event.getNewStackSize();
-        plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), stackSize);
+        plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), before - after, entity.getType().name());
     }
 
 }

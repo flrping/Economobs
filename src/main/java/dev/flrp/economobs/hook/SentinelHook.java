@@ -1,4 +1,4 @@
-package dev.flrp.economobs.hooks;
+package dev.flrp.economobs.hook;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;

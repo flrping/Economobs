@@ -3,11 +3,11 @@ package dev.flrp.economobs.module;
 import com.google.inject.AbstractModule;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hooks.stacker.RoseStackerListener;
-import dev.flrp.economobs.hooks.stacker.StackMobListener;
-import dev.flrp.economobs.hooks.stacker.UltimateStackerListener;
-import dev.flrp.economobs.hooks.stacker.WildStackerListener;
-import dev.flrp.economobs.listeners.EntityDeathListener;
+import dev.flrp.economobs.hook.stacker.RoseStackerListener;
+import dev.flrp.economobs.hook.stacker.StackMobListener;
+import dev.flrp.economobs.hook.stacker.UltimateStackerListener;
+import dev.flrp.economobs.hook.stacker.WildStackerListener;
+import dev.flrp.economobs.listener.EntityDeathListener;
 import dev.flrp.espresso.hook.stacker.StackerProvider;
 import dev.flrp.espresso.hook.stacker.StackerType;
 

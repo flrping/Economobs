@@ -39,9 +39,9 @@ public class RewardManager {
         this.plugin = plugin;
         EnumSet.allOf(EntityType.class).forEach(type -> allEntities.add(type.name()));
         if(!plugin.getMobs().getConfiguration().isSet("mobs")) buildMobFile();
-        buildRewardList();
-        if(plugin.getMobs().getConfiguration().getConfigurationSection("mobs") != null) buildRewardListForDefaultMobs();
-        if(plugin.getMobs().getConfiguration().contains("default")) buildWildcardLootContainer();
+        buildLootTables();
+        if(plugin.getMobs().getConfiguration().getConfigurationSection("mobs") != null) buildLootContainers();
+        if(plugin.getMobs().getConfiguration().contains("default")) buildDefaultLootContainer();
     }
 
     // Lootable Getters
@@ -82,10 +82,6 @@ public class RewardManager {
     }
 
     // Multiplier Methods
-    private double calculateMultiplier(Player player, LivingEntity entity, MultiplierProfile profile) {
-        return calculateMultiplier(player, entity, profile, entity.getType().name());
-    }
-
     private double calculateMultiplier(Player player, LivingEntity entity, MultiplierProfile profile, String entityName) {
         double amount = 1;
         amount *= getWorldMultiplier(profile, player.getWorld().getUID());
@@ -174,7 +170,7 @@ public class RewardManager {
         plugin.getMobs().save();
     }
 
-    private void buildRewardList() {
+    private void buildLootTables() {
 
         FileConfiguration config = plugin.getLootTables().getConfiguration();
 
@@ -193,7 +189,6 @@ public class RewardManager {
 
                 // Some helpful variables
                 String section = "tables." + table + ".drops." + lootable;
-                double weight = config.getDouble(section + ".weight");
 
                 // Finding loot type.
                 LootType lootType = LootType.getByName(config.getString(section + ".type"));
@@ -230,7 +225,7 @@ public class RewardManager {
         Locale.log("Loaded &a" + availableTables.size() + " &rloot tables.");
     }
 
-    private void buildRewardListForDefaultMobs() {
+    private void buildLootContainers() {
 
         int modifiedTables = 0;
         Set<String> mobSet = plugin.getMobs().getConfiguration().getConfigurationSection("mobs").getKeys(false);
@@ -273,7 +268,7 @@ public class RewardManager {
         Locale.log("Loaded &a" + modifiedTables + " &rmodified loot tables.");
     }
 
-    private void buildWildcardLootContainer() {
+    private void buildDefaultLootContainer() {
         LootContainer lootContainer = new LootContainer();
         Set<String> tableSet = plugin.getMobs().getConfiguration().getConfigurationSection("default.tables").getKeys(false);
         for(String tableNumber : tableSet) {
@@ -314,20 +309,19 @@ public class RewardManager {
         List<Condition> conditions = new ArrayList<>();
         for(String entry : conditionSet) {
             if (entry.startsWith("[")) {
-                String conditionString = entry.substring(1, entry.indexOf("]"));
+                ConditionType conditionType = ConditionType.getByName(entry.substring(1, entry.indexOf("]")));
                 String value = entry.substring(entry.indexOf("]") + 2);
-                switch (conditionString) {
-                    case "with":
-                        // Get the material from the value.
+                switch (conditionType) {
+                    case WITH:
                         parseWithCondition(lootTable, tableSection, value, conditions);
                         break;
-                    case "biome":
+                    case BIOME:
                         parseBiomeCondition(lootTable, tableSection, value, conditions);
                         break;
-                    case "permission":
+                    case PERMISSION:
                         parsePermissionCondition(lootTable, value, conditions);
                         break;
-                    case "world":
+                    case WORLD:
                         parseWorldCondition(lootTable, tableSection, value, conditions);
                         break;
                 }
@@ -445,49 +439,20 @@ public class RewardManager {
 
     // Handlers
     public void handleLootReward(Player player, LivingEntity entity, LootContainer lootContainer) {
-        handleLootReward(player, entity, lootContainer, 1);
+        handleLootReward(player, entity, lootContainer, 1, entity.getType().name());
     }
 
-    public void handleLootReward(Player player, LivingEntity entity, LootContainer lootContainer, int stack) {
+    public void handleLootReward(Player player, LivingEntity entity, LootContainer lootContainer, int stack, String entityName) {
         if (plugin.getConfig().getBoolean("rewards.limit.enabled") && stack > plugin.getConfig().getInt("rewards.limit.amount")) {
             stack = plugin.getConfig().getInt("rewards.limit.amount");
         }
 
         for (int i = 0; i < stack; i++) {
-            LootTable lootTable = lootContainer.rollLootTable();
-            if (lootTable == null || !meetsConditions(player, entity, lootTable)) {
-                return;
-            }
-
-            Lootable loot = lootTable.roll();
-            if (loot == null) {
-                return;
-            }
-
-            LootResult result = loot.generateResult();
-            result.setLootTable(lootTable);
-
-            switch (loot.getType()) {
-                case ECONOMY:
-                    handleEconomyReward(player, entity, (LootableEconomy) loot, result);
-                    break;
-                case COMMAND:
-                    handleCommandReward(player, entity, (LootableCommand) loot, result);
-                    break;
-                case POTION:
-                    handlePotionReward(player, entity, (LootablePotionEffect) loot, result);
-                    break;
-                case CUSTOM_ITEM:
-                    handleCustomItemReward(player, entity, (LootableCustomItem) loot, result);
-                    break;
-                case ITEM:
-                    handleItemReward(player, entity, (LootableItem) loot, result);
-                    break;
-            }
+            handleSingleLootReward(player, entity, lootContainer, entityName);
         }
     }
 
-    public void handleCustomEntityLootReward(Player player, LivingEntity entity, LootContainer lootContainer, String entityName) {
+    private void handleSingleLootReward(Player player, LivingEntity entity, LootContainer lootContainer, String entityName) {
         LootTable lootTable = lootContainer.rollLootTable();
         if (lootTable == null || !meetsConditions(player, entity, lootTable)) {
             return;
@@ -520,10 +485,6 @@ public class RewardManager {
         }
     }
 
-    private void handleEconomyReward(Player player, LivingEntity entity, LootableEconomy loot, LootResult result) {
-        handleEconomyReward(player, entity, loot, result, entity.getType().name());
-    }
-
     private void handleEconomyReward(Player player, LivingEntity entity, LootableEconomy loot, LootResult result, String entityName) {
         MultiplierProfile profile = plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId());
         double multiplier = calculateMultiplier(player, entity, profile, entityName);
@@ -552,10 +513,6 @@ public class RewardManager {
         plugin.getMessageManager().sendMessage(player, entity, result, multiplier, amount, entityName);
     }
 
-    private void handleCommandReward(Player player, LivingEntity entity, LootableCommand loot, LootResult result) {
-        handleCommandReward(player, entity, loot, result, entity.getType().name());
-    }
-
     private void handleCommandReward(Player player, LivingEntity entity, LootableCommand loot, LootResult result, String entityName) {
         MobRewardEvent event = new MobRewardEvent(player, result);
         Bukkit.getPluginManager().callEvent(event);
@@ -567,10 +524,6 @@ public class RewardManager {
         }
     }
 
-    private void handlePotionReward(Player player, LivingEntity entity, LootablePotionEffect loot, LootResult result) {
-        handlePotionReward(player, entity, loot, result, entity.getType().name());
-    }
-
     private void handlePotionReward(Player player, LivingEntity entity, LootablePotionEffect loot, LootResult result, String entityName) {
         MobRewardEvent event = new MobRewardEvent(player, result);
         Bukkit.getPluginManager().callEvent(event);
@@ -580,10 +533,6 @@ public class RewardManager {
         plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
-    private void handleCustomItemReward(Player player, LivingEntity entity, LootableCustomItem loot, LootResult result) {
-        handleCustomItemReward(player, entity, loot, result, entity.getType().name());
-    }
-
     private void handleCustomItemReward(Player player, LivingEntity entity, LootableCustomItem loot, LootResult result, String entityName) {
         MobRewardEvent event = new MobRewardEvent(player, result);
         Bukkit.getPluginManager().callEvent(event);
@@ -591,10 +540,6 @@ public class RewardManager {
 
         plugin.getHookManager().getItemProvider(loot.getItemType()).giveItem(player, loot.getCustomItemName(), (int) result.getAmount());
         plugin.getMessageManager().sendMessage(player, entity, result, entityName);
-    }
-
-    private void handleItemReward(Player player, LivingEntity entity, LootableItem loot, LootResult result) {
-        handleItemReward(player, entity, loot, result, entity.getType().name());
     }
 
     private void handleItemReward(Player player, LivingEntity entity, LootableItem loot, LootResult result, String entityName) {

@@ -2,10 +2,10 @@ package dev.flrp.economobs;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import dev.flrp.economobs.commands.Commands;
+import dev.flrp.economobs.command.Commands;
 import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.listeners.PlayerListener;
+import dev.flrp.economobs.listener.PlayerListener;
 import dev.flrp.economobs.manager.*;
 import dev.flrp.economobs.module.*;
 import dev.flrp.economobs.util.UpdateChecker;
