@@ -1,0 +1,101 @@
+tables:
+  money_table:
+    weight: 100
+    drops:
+      1:
+        weight: 60
+        type: ECONOMY
+        from: VAULT
+        min: 10
+        max: 20
+      2:
+        weight: 30
+        type: ECONOMY
+        from: VAULT
+        min: 20
+        max: 30
+      3:
+        weight: 10
+        type: ECONOMY
+        from: VAULT
+        min: 50
+        max: 80
+  item_table:
+    weight: 100
+    drops:
+      1:
+        weight: 500
+        type: ITEM
+        min: 1
+        max: 1
+        material: DIAMOND
+      2:
+        weight: 50
+        type: ITEM
+        material: DIAMOND_PICKAXE
+        min: 1
+        max: 1
+        name: '&aDiamond Pickaxe'
+        lore:
+          - '&7This is a diamond pickaxe'
+          - '&7that you got from killing a mob.'
+      3:
+        weight: 10
+        type: ITEM
+        material: DIAMOND_PICKAXE
+        name: '&aEnchanted Diamond Pickaxe'
+        min: 1
+        max: 1
+        enchantments:
+          - unbreaking:3
+          - efficiency:3
+          - fortune:3
+        lore:
+          - '&7This is an enchanted diamond pickaxe'
+          - '&7that you got from killing a mob.'
+  full_table:
+    weight: 100
+    drops:
+      '1':
+        weight: 100
+        type: ECONOMY
+        from: VAULT
+        min: 10
+        max: 30
+      '2':
+        weight: 10
+        type: ITEM
+        min: 1
+        max: 1
+        material: DIAMOND
+      '3':
+        weight: 1
+        type: ITEM
+        material: DIAMOND_PICKAXE
+        min: 1
+        max: 1
+        name: '&aDiamond Pickaxe'
+        lore:
+          - '&7This is a diamond pickaxe'
+          - '&7that you got from killing a mob.'
+      '4':
+        weight: 1
+        type: CUSTOM_ITEM
+        from: ITEMS_ADDER
+        item: 'GOLD_FRAGMENT'
+        min: 3
+        max: 5
+      '5':
+        weight: 5
+        type: POTION
+        effect: SPEED
+        amplifier: 1
+        min: 80
+        max: 120
+      '6':
+        weight: 10
+        type: COMMAND
+        min: 1
+        max: 1
+        command: 'give {player} diamond 1'
+        message: '&7You have been given a diamond.'
