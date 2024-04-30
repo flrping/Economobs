@@ -2,6 +2,7 @@ package dev.flrp.economobs.hook.entity;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Builder;
+import dev.flrp.economobs.listener.MythicMobsListener;
 import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.MythicMobsEntityProvider;
@@ -24,7 +25,7 @@ public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Li
         super();
         this.plugin = plugin;
         build();
-        plugin.getServer().getPluginManager().registerEvents(new MythicMobsEntityHook(plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new MythicMobsListener(plugin), plugin);
     }
 
     public LootContainer getLootContainer(String entityName) {
