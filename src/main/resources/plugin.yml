@@ -4,13 +4,33 @@ main: dev.flrp.economobs.Economobs
 api-version: 1.13
 author: flrp
 depend: [Vault]
-softdepend: [WildStacker, StackMob, MythicMobs, LevelledMobs, InfernalMobs, Multiverse-Core, ItemsAdder, TokenManager, PlayerPoints, RoseStacker, UltimateStacker, Sentinel]
+softdepend: [WildStacker, StackMob, MythicMobs, LevelledMobs, InfernalMobs, Multiverse-Core, ItemsAdder, TokenManager, PlayerPoints, RoseStacker, UltimateStacker, Sentinel, PlaceholderAPI]
 commands:
-  reload:
-    default:
-    description: Reloads the plugin.
-    usage: /economobs reload
+  help:
+    description: Displays a help message.
+    usage: /economobs help
 permissions:
+  economobs.toggle:
+    description: Gives permission for toggling messages.
+    default: true
+  economobs.profile:
+    description: Gives permission for checking a players profile.
+    default: op
+  economobs.check:
+    description: Gives permission for checking an entities info.
+    default: op
+  economobs.multiplier:
+    description: Gives permission for setting a multiplier.
+    default: op
+  economobs.reload:
+    description: Gives permission for reloading the plugin.
+    default: op
   economobs.admin:
     description: Gives permission for all admin-like commands.
     default: op
+    children:
+        economobs.toggle: true
+        economobs.profile: true
+        economobs.check: true
+        economobs.multiplier: true
+        economobs.reload: true

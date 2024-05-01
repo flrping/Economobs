@@ -62,7 +62,7 @@ hooks:
     ItemsAdder: true
     # Enable Sentinels support? Adds the ability for Sentinels to reward their owners.
     Sentinel: true
-  items:
+  item:
     # Enable Oraxen support? Adds the ability to have multipliers for custom items.
     Oraxen: true
     # Enable ItemsAdder support? Adds the ability to have multipliers for custom items.

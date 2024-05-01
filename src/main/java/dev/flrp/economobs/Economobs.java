@@ -8,11 +8,14 @@ import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.listener.PlayerListener;
 import dev.flrp.economobs.manager.*;
 import dev.flrp.economobs.module.*;
+import dev.flrp.economobs.placeholder.EconomobsExpansion;
 import dev.flrp.economobs.util.UpdateChecker;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.item.ItemProvider;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.core.message.MessageKey;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -89,6 +92,13 @@ public final class Economobs extends JavaPlugin {
         // Commands
         BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);
         commandManager.registerCommand(new Commands(this));
+        commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> sender.sendMessage(Locale.parse(Locale.PREFIX + Locale.COMMAND_DENIED)));
+        commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage(Locale.parse(Locale.PREFIX + "&cInvalid usage. See /economobs.")));
+
+        // Placeholders
+        if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            new EconomobsExpansion(this).register();
+        }
 
         Locale.log("&aDone!");
     }
