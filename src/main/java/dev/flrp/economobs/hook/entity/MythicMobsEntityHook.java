@@ -50,7 +50,7 @@ public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Li
         mythicMobsFile.load();
 
         Methods.buildHookMultipliersMobs(mythicMobsFile);
-        Methods.buildHookMobs(mythicMobsFile);
+        Methods.buildHookMobs(mythicMobsFile, getCustomEntityNames());
         Methods.buildHookMultiplierGroupsMobs(mythicMobsFile);
         Methods.buildRewardList(mythicMobsFile, mythicMobsRewards, "MythicMobs");
         Methods.buildDefaultLootContainer(mythicMobsFile, defaultLootContainer, excludedEntities);

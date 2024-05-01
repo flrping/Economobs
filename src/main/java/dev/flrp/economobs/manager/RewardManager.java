@@ -510,7 +510,8 @@ public class RewardManager {
         if(event.isCancelled()) return;
 
         plugin.getHookManager().getEconomyProvider(loot.getEconomyType()).deposit(player, amount);
-        plugin.getMessageManager().sendMessage(player, entity, result, multiplier, amount, entityName);
+        if(!plugin.getToggleList().contains(player.getUniqueId()))
+            plugin.getMessageManager().sendMessage(player, entity, result, multiplier, amount, entityName);
     }
 
     private void handleCommandReward(Player player, LivingEntity entity, LootableCommand loot, LootResult result, String entityName) {
@@ -520,8 +521,9 @@ public class RewardManager {
 
         for (int j = 0; j < result.getAmount(); j++) {
             Bukkit.dispatchCommand(Bukkit.getConsoleSender(), loot.getCommand().replace("{player}", player.getName()));
-            plugin.getMessageManager().sendMessage(player, entity, result, entityName);
         }
+        if(!plugin.getToggleList().contains(player.getUniqueId()))
+            plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
     private void handlePotionReward(Player player, LivingEntity entity, LootablePotionEffect loot, LootResult result, String entityName) {
@@ -530,7 +532,8 @@ public class RewardManager {
         if(event.isCancelled()) return;
 
         player.addPotionEffect(new PotionEffect(loot.getEffectType(), (int) (result.getAmount() * 20), loot.getAmplifier()));
-        plugin.getMessageManager().sendMessage(player, entity, result, entityName);
+        if(!plugin.getToggleList().contains(player.getUniqueId()))
+            plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
     private void handleCustomItemReward(Player player, LivingEntity entity, LootableCustomItem loot, LootResult result, String entityName) {
@@ -539,7 +542,8 @@ public class RewardManager {
         if(event.isCancelled()) return;
 
         plugin.getHookManager().getItemProvider(loot.getItemType()).giveItem(player, loot.getCustomItemName(), (int) result.getAmount());
-        plugin.getMessageManager().sendMessage(player, entity, result, entityName);
+        if(!plugin.getToggleList().contains(player.getUniqueId()))
+            plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
     private void handleItemReward(Player player, LivingEntity entity, LootableItem loot, LootResult result, String entityName) {
@@ -550,7 +554,8 @@ public class RewardManager {
         ItemStack item = loot.getItemStack();
         item.setAmount((int) result.getAmount());
         player.getInventory().addItem(item);
-        plugin.getMessageManager().sendMessage(player, entity, result, entityName);
+        if(!plugin.getToggleList().contains(player.getUniqueId()))
+            plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
 
 }

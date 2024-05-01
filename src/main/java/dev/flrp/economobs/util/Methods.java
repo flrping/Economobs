@@ -42,6 +42,20 @@ public class Methods {
         }
     }
 
+    public static void buildHookMobs(Configuration configuration, List<String> entities) {
+        if(configuration.getConfiguration().getConfigurationSection("mobs") == null) {
+            if(entities.isEmpty()) {
+                configuration.getConfiguration().createSection("mobs.magma_zombie.tables.1");
+                configuration.getConfiguration().set("mobs.magma_zombie.tables.1.table", "money_table");
+                return;
+            }
+            for(String entity : entities) {
+                configuration.getConfiguration().createSection("mobs." + entity + ".tables.1");
+                configuration.getConfiguration().set("mobs." + entity + ".tables.1.table", "money_table");
+            }
+        }
+    }
+
     public static void buildHookMultiplierGroupsMobs(Configuration configuration) {
         if(configuration.getConfiguration().getConfigurationSection("multipliers") == null) return;
 
