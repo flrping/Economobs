@@ -49,7 +49,7 @@ public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Bu
         itemsAdderFile.load();
 
         Methods.buildHookMultipliersMobs(itemsAdderFile);
-        Methods.buildHookMobs(itemsAdderFile);
+        Methods.buildHookMobs(itemsAdderFile, getCustomEntityNames());
         Methods.buildHookMultiplierGroupsMobs(itemsAdderFile);
         Methods.buildRewardList(itemsAdderFile, itemsAdderRewards, "ItemsAdder");
         Methods.buildDefaultLootContainer(itemsAdderFile, defaultLootContainer, excludedEntities);

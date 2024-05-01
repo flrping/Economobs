@@ -6,16 +6,20 @@ import dev.flrp.espresso.message.MessageType;
 import dev.flrp.espresso.message.settings.HologramSetting;
 import dev.flrp.espresso.message.settings.TitleSetting;
 import dev.flrp.espresso.table.*;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class MessageManager {
+
+    private final Economobs plugin;
 
     private final MessageType messageType;
     private HologramSetting hologramSetting = null;
     private TitleSetting titleSetting = null;
 
     public MessageManager(Economobs plugin) {
+        this.plugin = plugin;
         messageType = plugin.getConfig().contains("message.message-type") ? MessageType.valueOf(plugin.getConfig().getString("message.message-type")) : MessageType.CHAT;
         switch (messageType) {
             case HOLOGRAM:
@@ -45,7 +49,12 @@ public class MessageManager {
 
     public void sendMessage(Player player, LivingEntity entity, LootResult result, double multiplier, double amount, String entityName) {
         Lootable loot = result.getLootable();
-        Message message = Message.of(loot.getMessage());
+        Message message;
+        if(plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+            message = Message.of(PlaceholderAPI.setPlaceholders(player, loot.getMessage()));
+        } else {
+            message = Message.of(loot.getMessage());
+        }
         configureMessageType(message);
 
         if (loot.getType() == LootType.ITEM) {
