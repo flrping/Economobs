@@ -1,6 +1,8 @@
 package dev.flrp.economobs.placeholder;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.util.multiplier.MultiplierGroup;
+import dev.flrp.economobs.util.multiplier.MultiplierProfile;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -39,53 +41,87 @@ public class EconomobsExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onPlaceholderRequest(Player player, @NotNull String subject) {
+    public String onPlaceholderRequest(Player player, @NotNull String placeholder) {
         if(plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId()) == null) {
             return "1.0";
         }
-        String[] params = subject.split("_");
+        String[] params = placeholder.split("_");
+        StringBuilder value = new StringBuilder(params[2]);
+        MultiplierProfile profile = plugin.getDatabaseManager().getMultiplierProfile(player.getUniqueId());
+        MultiplierGroup group = plugin.getMultiplierManager().getMultiplierGroup(player.getUniqueId());
+        if(params.length > 3) {
+            for(int i = 3; i < params.length; i++) {
+                value.append("_").append(params[i]);
+            }
+        }
         switch (params[1]) {
             case "entity":
-                return requestEntityPlaceholder(player, params[2]);
+                return requestEntityPlaceholder(value.toString(), profile, group);
             case "tool":
-                return requestToolPlaceholder(player, params[2]);
+                return requestToolPlaceholder(value.toString(), profile, group);
             case "world":
-                return requestWorldPlaceholder(player, params[2]);
+                return requestWorldPlaceholder(value.toString(), profile, group);
             default:
                 return "";
         }
     }
 
-    private String requestEntityPlaceholder(Player player, String subject) {
+    private String requestEntityPlaceholder(String value, MultiplierProfile profile, MultiplierGroup group) {
         EntityType entityType = null;
         try {
-            entityType = EntityType.valueOf(subject.toUpperCase());
+            entityType = EntityType.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException ignored) {}
         if(entityType != null) {
-            return String.valueOf(plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId()).getEntities().getOrDefault(entityType, 1.0));
+            if(profile.getEntities().containsKey(entityType)) {
+                return String.valueOf(profile.getEntities().get(entityType));
+            } else
+            if(group != null && group.getEntities().containsKey(entityType)) {
+                return String.valueOf(group.getEntities().get(entityType));
+            }
         } else {
-            return String.valueOf(plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId()).getCustomEntities().getOrDefault(subject, 1.0));
+            if(profile.getCustomEntities().containsKey(value)) {
+                return String.valueOf(profile.getCustomEntities().get(value));
+            } else
+            if(group != null && group.getCustomEntities().containsKey(value)) {
+                return String.valueOf(group.getCustomEntities().get(value));
+            }
         }
+        return "1.0";
     }
 
-    private String requestToolPlaceholder(Player player, String subject) {
+    private String requestToolPlaceholder(String value, MultiplierProfile profile, MultiplierGroup group) {
         Material material = null;
         try {
-            material = Material.valueOf(subject.toUpperCase());
+            material = Material.valueOf(value.toUpperCase());
         } catch (IllegalArgumentException ignored) {}
         if(material != null) {
-            return String.valueOf(plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId()).getTools().getOrDefault(material, 1.0));
+            if(profile.getTools().containsKey(material)) {
+                return String.valueOf(profile.getTools().get(material));
+            } else
+            if(group != null && group.getTools().containsKey(material)) {
+                return String.valueOf(group.getTools().get(material));
+            }
         } else {
-            return String.valueOf(plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId()).getCustomTools().getOrDefault(subject, 1.0));
+            if(profile.getCustomTools().containsKey(value)) {
+                return String.valueOf(profile.getCustomTools().get(value));
+            } else
+            if(group != null && group.getCustomTools().containsKey(value)) {
+                return String.valueOf(group.getCustomTools().get(value));
+            }
         }
+        return "1.0";
     }
 
-    private String requestWorldPlaceholder(Player player, String subject) {
-        try {
-            if(Bukkit.getWorld(UUID.fromString(subject)) != null) {
-                return String.valueOf(plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId()).getWorlds().getOrDefault(UUID.fromString(subject), 1.0));
+    private String requestWorldPlaceholder(String value, MultiplierProfile profile, MultiplierGroup group) {
+        if(Bukkit.getWorld(value) != null) {
+            UUID world = Bukkit.getWorld(value).getUID();
+            if(profile.getWorlds().containsKey(world)) {
+                return String.valueOf(profile.getWorlds().get(world));
+            } else
+            if(group != null && group.getWorlds().containsKey(world)) {
+                return String.valueOf(group.getWorlds().get(world));
             }
-        } catch (IllegalArgumentException ignored) {}
+        }
         return "1.0";
     }
 

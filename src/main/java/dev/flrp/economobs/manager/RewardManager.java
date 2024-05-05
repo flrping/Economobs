@@ -358,6 +358,7 @@ public class RewardManager {
                 Locale.log("&cInvalid Hook (" + value + ") for condition in #" + tableSection.getName() + " loot table. Skipping.");
                 return;
             }
+            value = value.split(":")[1];
         } else {
             itemType = ItemType.NONE;
             try {

@@ -11,6 +11,7 @@ import dev.flrp.espresso.condition.Condition;
 import dev.flrp.espresso.condition.WithConditionExtended;
 import dev.flrp.espresso.condition.WorldCondition;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
+import dev.flrp.espresso.hook.item.ItemType;
 import dev.flrp.espresso.table.LootContainer;
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
 import dev.triumphteam.cmd.core.BaseCommand;
@@ -362,11 +363,10 @@ public class Commands extends BaseCommand {
     private void generateWithInfo(CommandSender sender, WithConditionExtended condition) {
         sender.sendMessage(Locale.parse(" &7With:"));
         condition.getMaterials().forEach((key, value) -> {
-            if(value.toString().contains(":")) {
-                String item = value.toString().split(":")[1].replace("]", "");
+            String item = value.toString().replace("[", "").replace("]", "");
+            if(key != ItemType.NONE) {
                 sender.sendMessage(Locale.parse(" &8 - &f" + item + " &7&o(" + key.name() + ")"));
             } else {
-                String item = value.toString().replace("[", "").replace("]", "");
                 sender.sendMessage(Locale.parse(" &8 - &f" + item));
             }
         });
