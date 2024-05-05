@@ -26,6 +26,7 @@ public class ItemsAdderListener implements Listener {
         Entity entity = event.getEntity();
 
         if(event.getKiller() == null) return;
+        if(!(event.getKiller() instanceof Player)) return;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
 
         ItemsAdderEntityHook itemsAdderHook = (ItemsAdderEntityHook) plugin.getHookManager().getEntityProvider(EntityType.ITEMS_ADDER);
