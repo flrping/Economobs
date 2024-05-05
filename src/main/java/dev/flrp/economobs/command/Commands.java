@@ -57,14 +57,31 @@ public class Commands extends BaseCommand {
 
     @SubCommand("multiplier")
     @Permission("economobs.multiplier")
-    public void multiplierCommand(final CommandSender sender, String action, String player, String type, String context, double multiplier) {
+    public void multiplierCommand(final CommandSender sender, List<String> args) {
+
+        String action = args.get(0);
+        String player = args.get(1);
+        String type = args.get(2);
+        String context = args.get(3);
+        double multiplier = 1;
+
         Player recipient = Bukkit.getPlayer(player);
         if(recipient == null) {
             send(sender, "&4" + player + " is not a valid player.");
             return;
         }
 
-        if(multiplier == 1) {
+        if(args.size() == 5) {
+            try {
+                multiplier = Double.parseDouble(args.get(4));
+            } catch (NumberFormatException e) {
+                send(sender, "&4" + args.get(4) + " &cis not a valid number.");
+                return;
+            }
+
+        }
+
+        if((multiplier == 1 && action.equals("add"))) {
             send(sender, "&cInvalid multiplier. Please add a value that modifies the base amount.");
             return;
         }
