@@ -6,7 +6,7 @@
 
     <groupId>dev.flrp</groupId>
     <artifactId>Economobs</artifactId>
-    <version>2.1.1</version>
+    <version>2.1.2</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
@@ -44,6 +44,10 @@
                         <relocation>
                             <pattern>dev.flrp.espresso</pattern>
                             <shadedPattern>dev.flrp.economobs.util.espresso</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.google.inject</pattern>
+                            <shadedPattern>dev.flrp.economobs.util.guice</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
