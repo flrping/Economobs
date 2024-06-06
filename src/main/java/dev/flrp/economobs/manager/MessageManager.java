@@ -75,12 +75,11 @@ public class MessageManager {
         message.register("{base}", handleNumber(result.getAmount()));
         message.register("{multiplier}", handleNumber(multiplier));
         message.register("{amount}", handleNumber(amount));
+        message.register("{amount_rounded}", String.valueOf((int) amount));
         message.register("{mob}", capitalizeAndRemoveUnderscores(entityName));
         message.register("{weight}", String.valueOf(loot.getWeight()));
         message.register("{loot}", loot.getIdentifier());
-        // message.register("{loot_chance}", )
         message.register("{loot_table}", result.getLootTable().getIdentifier());
-        // message.register("{loot_table_chance}", );
 
         if (messageType == MessageType.HOLOGRAM) {
             message.at(entity);

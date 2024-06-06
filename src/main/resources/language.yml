@@ -12,7 +12,6 @@
 
 # {loot} prints out the loot identifier.
 # {loot_table} prints out the loot table identifier.
-# {loot_prefix} prints out the loot prefix.
 
 prefix: "&8[&aEconomobs&8] "
 command-denied: "&cYou do not have permission to run this command"

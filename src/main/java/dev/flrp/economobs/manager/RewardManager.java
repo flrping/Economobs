@@ -489,7 +489,9 @@ public class RewardManager {
     private void handleEconomyReward(Player player, LivingEntity entity, LootableEconomy loot, LootResult result, String entityName) {
         MultiplierProfile profile = plugin.getMultiplierManager().getMultiplierProfile(player.getUniqueId());
         double multiplier = calculateMultiplier(player, entity, profile, entityName);
-        double base = result.getAmount();
+        double min = loot.getMin();
+        double max = loot.getMax();
+        double base = min + (max - min) * Math.random();
 
         if(plugin.getHookManager().getLevelledMobs() != null && plugin.getHookManager().getLevelledMobs().hasLevel(entity)) {
             base += ((plugin.getHookManager().getLevelledMobs().getLevel(entity) - 1)
