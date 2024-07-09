@@ -63,7 +63,7 @@ public class MessageManager {
                     capitalizeAndRemoveUnderscores(((LootableItem) loot).getItemStack().getType().name());
             message.register("{item}", name);
         } else if (loot.getType() == LootType.CUSTOM_ITEM) {
-            message.register("{item}", ((LootableCustomItem) loot).getCustomItemName());
+            message.register("{item}", capitalizeAndRemoveUnderscores(((LootableCustomItem) loot).getCustomItemName()));
         } else if (loot.getType() == LootType.POTION) {
             message.register("{effect}", capitalizeAndRemoveUnderscores(((LootablePotionEffect) loot).getEffectType().getName()));
             message.register("{amplifier}", String.valueOf(((LootablePotionEffect) loot).getAmplifier() + 1));
