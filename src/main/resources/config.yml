@@ -4,6 +4,9 @@ config-version: 6
 # Allow the plugin to check for updates?
 check-for-updates: true
 
+# Let the given rewards drop on the ground? Only works for item rewards.
+drop-on-ground: false
+
 # Allow players to be killed for money?
 # This system currently doesn't contain any countermeasures for repeat kills.
 reward-pvp: false

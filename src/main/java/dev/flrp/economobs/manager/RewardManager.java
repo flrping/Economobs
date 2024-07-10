@@ -544,7 +544,13 @@ public class RewardManager {
         Bukkit.getPluginManager().callEvent(event);
         if(event.isCancelled()) return;
 
-        plugin.getHookManager().getItemProvider(loot.getItemType()).giveItem(player, loot.getCustomItemName(), (int) result.getAmount());
+        if(plugin.getConfig().contains("drop-on-ground") && plugin.getConfig().getBoolean("drop-on-ground")) {
+            ItemStack item = plugin.getHookManager().getItemProvider(loot.getItemType()).getItemStack(loot.getCustomItemName());
+            item.setAmount((int) result.getAmount());
+            entity.getWorld().dropItemNaturally(entity.getLocation(), item);
+        } else {
+            plugin.getHookManager().getItemProvider(loot.getItemType()).giveItem(player, loot.getCustomItemName(), (int) result.getAmount());
+        }
         if(!plugin.getToggleList().contains(player.getUniqueId()))
             plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
@@ -556,7 +562,11 @@ public class RewardManager {
 
         ItemStack item = loot.getItemStack();
         item.setAmount((int) result.getAmount());
-        player.getInventory().addItem(item);
+        if(plugin.getConfig().contains("drop-on-ground") && plugin.getConfig().getBoolean("drop-on-ground")) {
+            entity.getWorld().dropItemNaturally(entity.getLocation(), item);
+        } else {
+            player.getInventory().addItem(item);
+        }
         if(!plugin.getToggleList().contains(player.getUniqueId()))
             plugin.getMessageManager().sendMessage(player, entity, result, entityName);
     }
