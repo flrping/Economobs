@@ -9,18 +9,6 @@ permissions:
   economobs.toggle:
     description: Gives permission for toggling messages.
     default: true
-  economobs.profile:
-    description: Gives permission for checking a players profile.
-    default: op
-  economobs.check:
-    description: Gives permission for checking an entities info.
-    default: op
-  economobs.multiplier:
-    description: Gives permission for setting a multiplier.
-    default: op
-  economobs.reload:
-    description: Gives permission for reloading the plugin.
-    default: op
   economobs.admin:
     description: Gives permission for all admin-like commands.
     default: op
