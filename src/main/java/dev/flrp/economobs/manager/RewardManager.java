@@ -3,6 +3,7 @@ package dev.flrp.economobs.manager;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.api.events.MobRewardEvent;
 import dev.flrp.economobs.configuration.Locale;
+import dev.flrp.economobs.util.Methods;
 import dev.flrp.economobs.util.multiplier.MultiplierGroup;
 import dev.flrp.economobs.util.multiplier.MultiplierProfile;
 import dev.flrp.espresso.condition.*;
@@ -93,15 +94,15 @@ public class RewardManager {
         boolean isCustomTool = false;
         if(!plugin.getHookManager().getItemProviders().isEmpty()) {
             for(ItemProvider provider : plugin.getHookManager().getItemProviders()) {
-                if(provider.isCustomItem(player.getInventory().getItemInMainHand())) {
-                    amount *= getCustomToolMultiplier(profile, provider.getCustomItemName(player.getInventory().getItemInMainHand()));
+                if(provider.isCustomItem(Methods.itemInHand(player))) {
+                    amount *= getCustomToolMultiplier(profile, provider.getCustomItemName(Methods.itemInHand(player)));
                     isCustomTool = true;
                     break;
                 }
             }
         }
         if(!isCustomTool) {
-            amount *= getToolMultiplier(profile, player.getInventory().getItemInMainHand().getType());
+            amount *= getToolMultiplier(profile, Methods.itemInHand(player).getType());
         }
         return amount;
     }
@@ -413,7 +414,7 @@ public class RewardManager {
         for(Condition condition : lootTable.getConditions()) {
             if(condition instanceof WithConditionExtended) {
                 ItemType type = ItemType.NONE;
-                ItemStack item = player.getInventory().getItemInMainHand();
+                ItemStack item = Methods.itemInHand(player);
                 String itemName = item.getType().toString();
                 if(!plugin.getHookManager().getItemProviders().isEmpty()) {
                     for (ItemProvider provider : plugin.getHookManager().getItemProviders()) {

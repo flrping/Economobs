@@ -59,6 +59,11 @@ public class Commands extends BaseCommand {
     @Permission("economobs.multiplier")
     public void multiplierCommand(final CommandSender sender, List<String> args) {
 
+        if(args.size() < 4) {
+            send(sender, "&cUsage: /economobs multiplier <add/remove> <player> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier>");
+            return;
+        }
+
         String action = args.get(0);
         String player = args.get(1);
         String type = args.get(2);
