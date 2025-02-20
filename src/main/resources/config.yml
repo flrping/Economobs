@@ -17,6 +17,14 @@ stacker: NONE
 
 # Reward handling.
 rewards:
+  economy:
+    # If enabled, economy loot with ranges will allow decimals. If disabled, they will be rounded.
+    allow-decimals: true
+    # Modes: CEIL, FLOOR, NEAREST
+    # CEIL - Rounds up to the nearest whole number.
+    # FLOOR - Rounds down to the nearest whole number.
+    # NEAREST - Rounds to the nearest whole number.
+    round-mode: NEAREST
   limit:
     # Should rewards be limited? This is to aid with stackers.
     enabled: true

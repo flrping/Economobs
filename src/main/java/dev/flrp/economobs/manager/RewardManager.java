@@ -505,6 +505,23 @@ public class RewardManager {
                 }
             }
         }
+
+        boolean allowDecimals = plugin.getConfig().getBoolean("rewards.economy.allow-decimals", true);
+        String roundMode = plugin.getConfig().getString("rewards.economy.round-mode", "NEAREST").toUpperCase();
+        if (!allowDecimals) {
+            switch (roundMode) {
+                case "CEIL":
+                    base = Math.ceil(base);
+                    break;
+                case "FLOOR":
+                    base = Math.floor(base);
+                    break;
+                case "NEAREST":
+                default:
+                    base = Math.round(base);
+                    break;
+            }
+        }
         result.setAmount(base);
 
         double amount = base * multiplier;
