@@ -72,6 +72,8 @@ hooks:
     ItemsAdder: true
     # Enable MMOItems support? Adds the ability to have multipliers for custom items.
     MMOItems: true
+    # Enable Nexo support? Adds the ability to have multipliers for custom items.
+    Nexo: true
 
 # Multiplier handling.
 # Down below are configurable multiplier groups.
