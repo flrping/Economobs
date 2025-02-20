@@ -1,7 +1,6 @@
 package dev.flrp.economobs.hook.stacker;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.RoseStackerStackerProvider;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
@@ -34,7 +33,10 @@ public class RoseStackerListener extends RoseStackerStackerProvider {
         int before = event.getStack().getStackSize();
         int after = event.getResult().getStackSize();
         Player player = event.getStack().getEntity().getKiller();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
+        if(plugin.getHookManager().getSentinel() != null) {
+            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
+            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
+        }
         plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), before - after, entity.getType().name());
     }
 

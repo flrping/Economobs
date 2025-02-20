@@ -1,7 +1,6 @@
 package dev.flrp.economobs.listener;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.economobs.hook.entity.ItemsAdderEntityHook;
 import dev.flrp.espresso.hook.entity.custom.EntityType;
 import dev.flrp.espresso.table.LootContainer;
@@ -36,10 +35,14 @@ public class ItemsAdderListener implements Listener {
         }
 
         Player player = (Player) event.getKiller();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
-        LootContainer lootContainer = itemsAdderHook.hasLootContainer(entityName)
-                ? itemsAdderHook.getLootContainer(entityName) : itemsAdderHook.getDefaultLootContainer();
-        plugin.getRewardManager().handleLootReward(player, (LivingEntity) entity, lootContainer, 1, entityName);
+        if(plugin.getHookManager().getSentinel() != null) {
+            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
+            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
+        }
+
+        LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
+                ? plugin.getRewardManager().getLootContainer(entity.getType()) : plugin.getRewardManager().getDefaultLootContainer();
+        plugin.getRewardManager().handleLootReward(player, (LivingEntity) entity, lootContainer);
     }
 
 }

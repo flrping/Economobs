@@ -2,7 +2,6 @@ package dev.flrp.economobs.listener;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.StackerProvider;
 import dev.flrp.espresso.hook.stacker.StackerType;
@@ -56,7 +55,11 @@ public class EntityDeathListener implements StackerProvider {
         }
 
         Player player = event.getEntity().getKiller();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
+        if(plugin.getHookManager().getSentinel() != null) {
+            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
+            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
+        }
+
         LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
                 ? plugin.getRewardManager().getLootContainer(entity.getType()) : plugin.getRewardManager().getDefaultLootContainer();
         plugin.getRewardManager().handleLootReward(player, entity, lootContainer);

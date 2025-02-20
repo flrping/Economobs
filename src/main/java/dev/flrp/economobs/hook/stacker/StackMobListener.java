@@ -1,9 +1,9 @@
 package dev.flrp.economobs.hook.stacker;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.StackMobStackerProvider;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -31,7 +31,12 @@ public class StackMobListener extends StackMobStackerProvider {
         if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
 
         Player player = entity.getKiller();
-        if(SentinelHook.isNPC(player)) player = plugin.getServer().getPlayer(SentinelHook.getNPCOwner(player));
+
+        if(plugin.getHookManager().getSentinel() != null) {
+            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
+            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
+        }
+
         int stackSize = event.getDeathStep();
         plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), stackSize, entity.getType().name());
     }

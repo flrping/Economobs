@@ -2,7 +2,6 @@ package dev.flrp.economobs.hook.stacker;
 
 import com.bgsoftware.wildstacker.api.events.EntityUnstackEvent;
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.WildStackerStackerProvider;
 import org.bukkit.Bukkit;
@@ -33,7 +32,12 @@ public class WildStackerListener extends WildStackerStackerProvider {
         Player player = (Player) source;
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
         if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
+
+        if(plugin.getHookManager().getSentinel() != null) {
+            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
+            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
+        }
+
         plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), event.getAmount(), entity.getType().name());
     }
 

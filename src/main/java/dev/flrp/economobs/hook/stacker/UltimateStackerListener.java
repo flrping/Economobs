@@ -2,7 +2,6 @@ package dev.flrp.economobs.hook.stacker;
 
 import com.craftaro.ultimatestacker.api.events.entity.EntityStackKillEvent;
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.UltimateStackerStackerProvider;
 import org.bukkit.Bukkit;
@@ -32,7 +31,12 @@ public class UltimateStackerListener extends UltimateStackerStackerProvider {
         if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
 
         Player player = entity.getKiller();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
+
+        if(plugin.getHookManager().getSentinel() != null) {
+            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
+            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
+        }
+
         int stackSize = event.isInstantKill() ? event.getStackSize() : event.getStackSize() - event.getNewStackSize();
         plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), stackSize, entity.getType().name());
     }
