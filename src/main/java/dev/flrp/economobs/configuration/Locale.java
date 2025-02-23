@@ -3,7 +3,6 @@ package dev.flrp.economobs.configuration;
 import dev.flrp.economobs.Economobs;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
