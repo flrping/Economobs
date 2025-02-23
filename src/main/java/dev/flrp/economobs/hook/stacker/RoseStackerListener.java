@@ -3,8 +3,8 @@ package dev.flrp.economobs.hook.stacker;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.RoseStackerStackerProvider;
+import dev.flrp.espresso.table.LootContainer;
 import dev.rosewood.rosestacker.event.EntityUnstackEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,18 +26,19 @@ public class RoseStackerListener extends RoseStackerStackerProvider {
             for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
         }
 
-        if(entity.getKiller() == null) return;
+        Player killer = entity.getKiller();
+        if (killer == null) return;
+
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
+        if (!plugin.getRewardManager().hasLootContainer(entity.getType()) && plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
 
         int before = event.getStack().getStackSize();
         int after = event.getResult().getStackSize();
-        Player player = event.getStack().getEntity().getKiller();
-        if(plugin.getHookManager().getSentinel() != null) {
-            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
-            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
-        }
-        plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), before - after, entity.getType().name());
+        LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
+                ? plugin.getRewardManager().getLootContainer(entity.getType())
+                : plugin.getRewardManager().getDefaultLootContainer();
+
+        plugin.getRewardManager().handleLootReward(killer, entity, lootContainer, before - after, entity.getType().name());
     }
 
 }

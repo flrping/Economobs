@@ -445,6 +445,21 @@ public class RewardManager {
     }
 
     public void handleLootReward(Player player, LivingEntity entity, LootContainer lootContainer, int stack, String entityName) {
+        if (plugin.getHookManager().getSentinel() != null) {
+            boolean isSentinelHookEnabled = plugin.getConfig().getBoolean("hooks.entity.Sentinel", false);
+            if (isSentinelHookEnabled) {
+                if (plugin.getHookManager().getSentinel().isNPC(player)) {
+                    UUID ownerUUID = plugin.getHookManager().getSentinel().getNPCOwner(player);
+                    if (ownerUUID == null) return;
+                    Player owner = Bukkit.getPlayer(ownerUUID);
+                    if (owner == null) return;
+                    player = owner;
+                }
+            } else {
+                if (plugin.getHookManager().getSentinel().isNPC(player)) return;
+            }
+        }
+
         if (plugin.getConfig().getBoolean("rewards.limit.enabled") && stack > plugin.getConfig().getInt("rewards.limit.amount")) {
             stack = plugin.getConfig().getInt("rewards.limit.amount");
         }

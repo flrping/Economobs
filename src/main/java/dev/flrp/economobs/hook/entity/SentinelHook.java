@@ -4,7 +4,9 @@ import dev.flrp.economobs.Economobs;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.trait.trait.Owner;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -21,14 +23,20 @@ public class SentinelHook {
     }
 
     public boolean isNPC(UUID uuid) {
-        return CitizensAPI.getNPCRegistry().isNPC(Bukkit.getEntity(uuid));
+        Entity entity = Bukkit.getEntity(uuid);
+        if (entity == null) return false;
+        return CitizensAPI.getNPCRegistry().isNPC(entity) || entity.hasMetadata("NPC");
     }
 
+    @Nullable
     public UUID getNPCOwner(LivingEntity entity) {
+        if (!isNPC(entity)) return null;
         return CitizensAPI.getNPCRegistry().getNPC(entity).getTraitNullable(Owner.class).getOwnerId();
     }
 
+    @Nullable
     public UUID getNPCOwner(UUID uuid) {
+        if (!isNPC(uuid)) return null;
         return CitizensAPI.getNPCRegistry().getNPC(Bukkit.getEntity(uuid)).getTraitNullable(Owner.class).getOwnerId();
     }
 

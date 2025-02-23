@@ -3,7 +3,7 @@ package dev.flrp.economobs.hook.stacker;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.StackMobStackerProvider;
-import org.bukkit.Bukkit;
+import dev.flrp.espresso.table.LootContainer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,19 +26,17 @@ public class StackMobListener extends StackMobStackerProvider {
             for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
         }
 
-        if(entity.getKiller() == null) return;
+        Player killer = entity.getKiller();
+        if (killer == null) return;
+
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
-
-        Player player = entity.getKiller();
-
-        if(plugin.getHookManager().getSentinel() != null) {
-            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
-            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
-        }
+        if (!plugin.getRewardManager().hasLootContainer(entity.getType()) && plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
 
         int stackSize = event.getDeathStep();
-        plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), stackSize, entity.getType().name());
+        LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
+                ? plugin.getRewardManager().getLootContainer(entity.getType())
+                : plugin.getRewardManager().getDefaultLootContainer();
+        plugin.getRewardManager().handleLootReward(killer, entity, lootContainer, stackSize, entity.getType().name());
     }
 
 }

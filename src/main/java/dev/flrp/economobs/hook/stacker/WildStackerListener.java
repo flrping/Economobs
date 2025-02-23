@@ -4,7 +4,7 @@ import com.bgsoftware.wildstacker.api.events.EntityUnstackEvent;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.stacker.WildStackerStackerProvider;
-import org.bukkit.Bukkit;
+import dev.flrp.espresso.table.LootContainer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -29,16 +29,16 @@ public class WildStackerListener extends WildStackerStackerProvider {
         }
 
         if(!(source instanceof Player)) return;
-        Player player = (Player) source;
+        Player killer = (Player) source;
+
         if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(entity.getType())) return;
+        if (!plugin.getRewardManager().hasLootContainer(entity.getType()) && plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
 
-        if(plugin.getHookManager().getSentinel() != null) {
-            if(!plugin.getConfig().getBoolean("hooks.entity.Sentinel", false)) return;
-            if(plugin.getHookManager().getSentinel().isNPC(player)) player = Bukkit.getPlayer(plugin.getHookManager().getSentinel().getNPCOwner(player));
-        }
+        LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
+                ? plugin.getRewardManager().getLootContainer(entity.getType())
+                : plugin.getRewardManager().getDefaultLootContainer();
 
-        plugin.getRewardManager().handleLootReward(player, entity, plugin.getRewardManager().getLootContainer(entity.getType()), event.getAmount(), entity.getType().name());
+        plugin.getRewardManager().handleLootReward(killer, entity, lootContainer, event.getAmount(), entity.getType().name());
     }
 
 }
