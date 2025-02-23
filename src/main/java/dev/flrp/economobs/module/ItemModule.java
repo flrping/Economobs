@@ -5,6 +5,7 @@ import com.google.inject.multibindings.Multibinder;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.hook.item.ItemsAdderItemHook;
 import dev.flrp.economobs.hook.item.MMOItemsItemHook;
+import dev.flrp.economobs.hook.item.NexoItemHook;
 import dev.flrp.economobs.hook.item.OraxenItemHook;
 import dev.flrp.espresso.hook.item.ItemProvider;
 import dev.flrp.espresso.hook.item.ItemsAdderItemProvider;
@@ -41,6 +42,12 @@ public class ItemModule extends AbstractModule {
             OraxenItemHook oraxenItemHook = new OraxenItemHook(plugin);
             itemProviderMultibinder.addBinding().toInstance(oraxenItemHook);
             bind(OraxenItemProvider.class).toInstance(oraxenItemHook);
+        }
+        if(Bukkit.getPluginManager().isPluginEnabled("Nexo") && plugin.getConfig().getBoolean("hooks.item.Nexo")) {
+            plugin.getLogger().info("Hooking into Nexo.");
+            NexoItemHook nexoItemHook = new NexoItemHook(plugin);
+            itemProviderMultibinder.addBinding().toInstance(nexoItemHook);
+            bind(NexoItemHook.class).toInstance(nexoItemHook);
         }
     }
 

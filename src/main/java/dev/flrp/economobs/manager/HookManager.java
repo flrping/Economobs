@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
+import dev.flrp.economobs.hook.entity.SentinelHook;
 import dev.flrp.economobs.hook.entity.InfernalMobsHook;
 import dev.flrp.economobs.hook.entity.LevelledMobsHook;
 import dev.flrp.espresso.hook.economy.EconomyProvider;
@@ -30,6 +31,7 @@ public class HookManager {
 
     private LevelledMobsHook levelledMobsHook;
     private InfernalMobsHook infernalMobsHook;
+    private SentinelHook sentinelHook;
 
     @Inject
     public HookManager(Economobs plugin, Set<EconomyProvider> economyProvider, StackerProvider stackerProvider, Set<EntityProvider> entityProviders, Set<ItemProvider> itemProviders, @Nullable HologramProvider hologramProvider) {
@@ -46,6 +48,10 @@ public class HookManager {
         if(Bukkit.getServer().getPluginManager().isPluginEnabled("LevelledMobs") && plugin.getConfig().getBoolean("hooks.entity.LevelledMobs")) {
             levelledMobsHook = new LevelledMobsHook(plugin);
             Locale.log("Hooking into LevelledMobs.");
+        }
+        if(Bukkit.getServer().getPluginManager().isPluginEnabled("Sentinel")) {
+            sentinelHook = new SentinelHook(plugin);
+            Locale.log("Hooking into Sentinel. NPC support enabled.");
         }
     }
 
@@ -112,6 +118,10 @@ public class HookManager {
 
     public InfernalMobsHook getInfernalMobs() {
         return infernalMobsHook;
+    }
+
+    public SentinelHook getSentinel() {
+        return sentinelHook;
     }
 
 }

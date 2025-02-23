@@ -445,6 +445,21 @@ public class RewardManager {
     }
 
     public void handleLootReward(Player player, LivingEntity entity, LootContainer lootContainer, int stack, String entityName) {
+        if (plugin.getHookManager().getSentinel() != null) {
+            boolean isSentinelHookEnabled = plugin.getConfig().getBoolean("hooks.entity.Sentinel", false);
+            if (isSentinelHookEnabled) {
+                if (plugin.getHookManager().getSentinel().isNPC(player)) {
+                    UUID ownerUUID = plugin.getHookManager().getSentinel().getNPCOwner(player);
+                    if (ownerUUID == null) return;
+                    Player owner = Bukkit.getPlayer(ownerUUID);
+                    if (owner == null) return;
+                    player = owner;
+                }
+            } else {
+                if (plugin.getHookManager().getSentinel().isNPC(player)) return;
+            }
+        }
+
         if (plugin.getConfig().getBoolean("rewards.limit.enabled") && stack > plugin.getConfig().getInt("rewards.limit.amount")) {
             stack = plugin.getConfig().getInt("rewards.limit.amount");
         }
@@ -503,6 +518,23 @@ public class RewardManager {
                 for(String modifier : value.asString().split(",")) {
                     base += plugin.getHookManager().getInfernalMobs().getAdditions().get(modifier).calculateNumber(true);
                 }
+            }
+        }
+
+        boolean allowDecimals = plugin.getConfig().getBoolean("rewards.economy.allow-decimals", true);
+        String roundMode = plugin.getConfig().getString("rewards.economy.round-mode", "NEAREST").toUpperCase();
+        if (!allowDecimals) {
+            switch (roundMode) {
+                case "CEIL":
+                    base = Math.ceil(base);
+                    break;
+                case "FLOOR":
+                    base = Math.floor(base);
+                    break;
+                case "NEAREST":
+                default:
+                    base = Math.round(base);
+                    break;
             }
         }
         result.setAmount(base);

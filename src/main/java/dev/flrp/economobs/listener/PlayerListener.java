@@ -1,9 +1,7 @@
 package dev.flrp.economobs.listener;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.hook.SentinelHook;
 import dev.flrp.espresso.table.LootContainer;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,21 +18,20 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if(!plugin.getConfig().getBoolean("reward-pvp")) return;
+        if(!plugin.getConfig().getBoolean("reward-pvp", false)) return;
 
-        LivingEntity entity = event.getEntity();
+        LivingEntity killed = event.getEntity();
+        Player killer = event.getEntity().getKiller();
 
-        if(entity.getKiller() == null) return;
-        if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(entity.getType())) {
-            if(plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
-        }
+        if(killer == null) return;
+        if(plugin.getConfig().getStringList("world-blacklist").contains(killed.getWorld().getName())) return;
+        if(!plugin.getRewardManager().hasLootContainer(killed.getType()) && plugin.getRewardManager().getExcludedEntities().contains(killed.getType())) return;
 
-        Player player = event.getEntity().getKiller();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
-        LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
-                ? plugin.getRewardManager().getLootContainer(entity.getType()) : plugin.getRewardManager().getDefaultLootContainer();
-        plugin.getRewardManager().handleLootReward(player, entity, lootContainer);
+        LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(killed.getType())
+                ? plugin.getRewardManager().getLootContainer(killed.getType())
+                : plugin.getRewardManager().getDefaultLootContainer();
+
+        plugin.getRewardManager().handleLootReward(killer, killed, lootContainer);
     }
 
 }

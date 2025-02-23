@@ -1,17 +1,15 @@
 package dev.flrp.economobs.listener;
 
-import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hook.SentinelHook;
-import dev.flrp.espresso.hook.entity.custom.EntityProvider;
-import dev.flrp.espresso.hook.stacker.StackerProvider;
-import dev.flrp.espresso.hook.stacker.StackerType;
-import dev.flrp.espresso.table.LootContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDeathEvent;
+import dev.flrp.economobs.Economobs;
+import dev.flrp.espresso.hook.entity.custom.EntityProvider;
+import dev.flrp.espresso.hook.stacker.StackerProvider;
+import dev.flrp.espresso.hook.stacker.StackerType;
+import dev.flrp.espresso.table.LootContainer;
 
 public class EntityDeathListener implements StackerProvider {
 
@@ -28,7 +26,6 @@ public class EntityDeathListener implements StackerProvider {
 
     public void registerEvents() {
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        Locale.log("Using default listener.");
     }
 
     public void unregisterEvents() {
@@ -48,18 +45,17 @@ public class EntityDeathListener implements StackerProvider {
             for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
         }
 
-        if(entity.getKiller() == null) return;
-        if(entity instanceof Player) return;
-        if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(entity.getType())) {
-            if(plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
-        }
+        Player killer = entity.getKiller();
+        if (killer == null || entity instanceof Player) return;
 
-        Player player = event.getEntity().getKiller();
-        if(SentinelHook.isNPC(player)) player = Bukkit.getPlayer(SentinelHook.getNPCOwner(player));
+        if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
+        if (!plugin.getRewardManager().hasLootContainer(entity.getType()) && plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
+
         LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(entity.getType())
-                ? plugin.getRewardManager().getLootContainer(entity.getType()) : plugin.getRewardManager().getDefaultLootContainer();
-        plugin.getRewardManager().handleLootReward(player, entity, lootContainer);
+                ? plugin.getRewardManager().getLootContainer(entity.getType())
+                : plugin.getRewardManager().getDefaultLootContainer();
+
+        plugin.getRewardManager().handleLootReward(killer, entity, lootContainer);
     }
 
     @Override
