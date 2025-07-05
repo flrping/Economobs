@@ -124,11 +124,13 @@ public final class Economobs extends JavaPlugin {
 
         hookManager.getStackerProvider().registerEvents();
         Locale.log("&aDone!");
+
+        databaseManager.refresh();
     }
 
     @Override
     public void onDisable() {
-        databaseManager.close();
+        databaseManager.getStorageProvider().close();
     }
 
     private void initiateFiles() {

@@ -15,6 +15,19 @@ reward-pvp: false
 # Current list: NONE (Default), WILD_STACKER, STACK_MOB, ULTIMATE_STACKER, ROSE_STACKER
 stacker: NONE
 
+# Database handling.
+database:
+    # Which data provider should be used?
+    # Current list: SQLITE, MYSQL, MARIADB, POSTGRESQL
+    provider: SQLITE
+
+    # Credentials for the data provider. Only required for MYSQL, MARIADB, POSTGRESQL
+    host: localhost
+    port: 3306
+    database: economobs
+    username: root
+    password: password
+
 # Reward handling.
 rewards:
   economy:

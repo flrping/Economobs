@@ -2,7 +2,7 @@ package dev.flrp.economobs.util;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.util.multiplier.MultiplierGroup;
+import dev.flrp.economobs.multiplier.MultiplierGroup;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.table.LootContainer;
 import dev.flrp.espresso.table.LootTable;

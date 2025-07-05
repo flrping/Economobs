@@ -2,8 +2,8 @@ package dev.flrp.economobs.manager;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.util.multiplier.MultiplierGroup;
-import dev.flrp.economobs.util.multiplier.MultiplierProfile;
+import dev.flrp.economobs.multiplier.MultiplierGroup;
+import dev.flrp.economobs.multiplier.MultiplierProfile;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 

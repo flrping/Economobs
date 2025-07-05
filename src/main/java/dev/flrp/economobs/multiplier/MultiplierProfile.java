@@ -1,4 +1,4 @@
-package dev.flrp.economobs.util.multiplier;
+package dev.flrp.economobs.multiplier;
 
 import dev.flrp.economobs.Economobs;
 import org.bukkit.Material;

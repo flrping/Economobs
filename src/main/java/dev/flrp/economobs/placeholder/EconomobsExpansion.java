@@ -1,8 +1,8 @@
 package dev.flrp.economobs.placeholder;
 
 import dev.flrp.economobs.Economobs;
-import dev.flrp.economobs.util.multiplier.MultiplierGroup;
-import dev.flrp.economobs.util.multiplier.MultiplierProfile;
+import dev.flrp.economobs.multiplier.MultiplierGroup;
+import dev.flrp.economobs.multiplier.MultiplierProfile;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

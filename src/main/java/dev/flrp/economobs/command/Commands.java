@@ -4,8 +4,8 @@ import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.hook.entity.ItemsAdderEntityHook;
 import dev.flrp.economobs.hook.entity.MythicMobsEntityHook;
-import dev.flrp.economobs.util.multiplier.MultiplierGroup;
-import dev.flrp.economobs.util.multiplier.MultiplierProfile;
+import dev.flrp.economobs.multiplier.MultiplierGroup;
+import dev.flrp.economobs.multiplier.MultiplierProfile;
 import dev.flrp.espresso.condition.BiomeCondition;
 import dev.flrp.espresso.condition.Condition;
 import dev.flrp.espresso.condition.WithConditionExtended;
@@ -58,6 +58,10 @@ public class Commands extends BaseCommand {
     @SubCommand("multiplier")
     @Permission("economobs.multiplier")
     public void multiplierCommand(final CommandSender sender, List<String> args) {
+        if(!plugin.getDatabaseManager().getStorageProvider().isConnected()) {
+            send(sender, "&cDatabase is not connected so specific multipliers cannot be modified. Please check your configuration and /reload once fixed.");
+            return;
+        }
 
         if(args.size() < 4) {
             send(sender, "&cUsage: /economobs multiplier <add/remove> <player> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier>");
