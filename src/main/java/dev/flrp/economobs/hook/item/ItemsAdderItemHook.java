@@ -6,7 +6,7 @@ import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.item.ItemsAdderItemProvider;
 
-public class ItemsAdderItemHook extends ItemsAdderItemProvider implements Builder {
+public final class ItemsAdderItemHook extends ItemsAdderItemProvider implements Builder {
 
     private final Economobs plugin;
 

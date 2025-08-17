@@ -11,11 +11,12 @@ import dev.flrp.espresso.table.LootContainer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Builder {
+public final class ItemsAdderEntityHook extends ItemsAdderEntityProvider implements Builder {
 
     private final Economobs plugin;
-    private final HashMap<String, LootContainer> itemsAdderRewards = new HashMap<>();
+    private final Map<String, LootContainer> itemsAdderRewards = new HashMap<>();
 
     private LootContainer defaultLootContainer = new LootContainer();
     private final List<String> excludedEntities = new ArrayList<>();

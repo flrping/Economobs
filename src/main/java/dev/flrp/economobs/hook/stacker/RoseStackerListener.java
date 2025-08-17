@@ -22,15 +22,25 @@ public class RoseStackerListener extends RoseStackerStackerProvider {
     public void onStackKill(EntityUnstackEvent event) {
         LivingEntity entity = event.getStack().getEntity();
 
-        if(!plugin.getHookManager().getEntityProviders().isEmpty()) {
-            for(EntityProvider provider : plugin.getHookManager().getEntityProviders()) if(provider.isCustomEntity(entity)) return;
+        if (!plugin.getHookManager().getEntityProviders().isEmpty()) {
+            for (EntityProvider provider : plugin.getHookManager().getEntityProviders()) {
+                if (provider.isCustomEntity(entity)) {
+                    return;
+                }
+            }
         }
 
         Player killer = entity.getKiller();
-        if (killer == null) return;
+        if (killer == null) {
+            return;
+        }
 
-        if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
-        if (!plugin.getRewardManager().hasLootContainer(entity.getType()) && plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) return;
+        if (plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) {
+            return;
+        }
+        if (!plugin.getRewardManager().hasLootContainer(entity.getType()) && plugin.getRewardManager().getExcludedEntities().contains(entity.getType())) {
+            return;
+        }
 
         int before = event.getStack().getStackSize();
         int after = event.getResult().getStackSize();

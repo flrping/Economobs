@@ -13,6 +13,7 @@ import dev.flrp.economobs.util.UpdateChecker;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.item.ItemProvider;
+import dev.flrp.espresso.storage.exception.ProviderException;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.message.MessageKey;
@@ -53,7 +54,7 @@ public final class Economobs extends JavaPlugin {
         Locale.log("&aStarting...");
 
         // bStats
-        Metrics metrics = new Metrics(this, 12086);
+        new Metrics(this, 12086);
 
         // Files
         initiateFiles();
@@ -69,19 +70,19 @@ public final class Economobs extends JavaPlugin {
 
         // Update Checker
         new UpdateChecker(this, 90004).checkForUpdate(version -> {
-            if(getConfig().getBoolean("check-for-updates")) {
-                if(!getDescription().getVersion().equalsIgnoreCase(version)) {
-                    Locale.log("&8--------------");
-                    Locale.log("A new version of Economobs is available!");
-                    Locale.log("Download it here:&a https://www.spigotmc.org/resources/economobs.90004/");
-                    Locale.log("&8--------------");
-                }
+            if (getConfig().getBoolean("check-for-updates") && !getDescription().getVersion().equalsIgnoreCase(version)) {
+                Locale.log("&8--------------");
+                Locale.log("A new version of Economobs is available!");
+                Locale.log("Download it here:&a https://www.spigotmc.org/resources/economobs.90004/");
+                Locale.log("&8--------------");
             }
         });
 
         // Hooks
         File dir = new File(getDataFolder(), "hooks");
-        if(!dir.exists()) dir.mkdir();
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
 
         // Player Listener
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
@@ -96,7 +97,7 @@ public final class Economobs extends JavaPlugin {
         commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage(Locale.parse(Locale.PREFIX + "&cInvalid usage. See /economobs.")));
 
         // Placeholders
-        if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new EconomobsExpansion(this).register();
         }
 
@@ -115,10 +116,10 @@ public final class Economobs extends JavaPlugin {
         Locale.load();
 
         // Modules
-        for(EntityProvider entityProvider : hookManager.getEntityProviders()) {
+        for (EntityProvider entityProvider : hookManager.getEntityProviders()) {
             ((Builder) entityProvider).reload();
         }
-        for(ItemProvider itemProvider : hookManager.getItemProviders()) {
+        for (ItemProvider itemProvider : hookManager.getItemProviders()) {
             ((Builder) itemProvider).reload();
         }
 
@@ -130,7 +131,13 @@ public final class Economobs extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        databaseManager.getStorageProvider().close();
+        if (databaseManager.getStorageProvider() != null) {
+            try {
+                databaseManager.getStorageProvider().close();
+            } catch (ProviderException e) {
+                Locale.log("Unable to close the database: " + e.getMessage());
+            }
+        }
     }
 
     private void initiateFiles() {

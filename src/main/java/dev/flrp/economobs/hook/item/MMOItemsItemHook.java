@@ -6,7 +6,7 @@ import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.item.MMOItemsItemProvider;
 
-public class MMOItemsItemHook extends MMOItemsItemProvider implements Builder {
+public final class MMOItemsItemHook extends MMOItemsItemProvider implements Builder {
 
     private final Economobs plugin;
 

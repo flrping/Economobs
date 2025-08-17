@@ -8,6 +8,7 @@ import dev.flrp.economobs.multiplier.MultiplierGroup;
 import dev.flrp.economobs.multiplier.MultiplierProfile;
 import dev.flrp.espresso.condition.BiomeCondition;
 import dev.flrp.espresso.condition.Condition;
+import dev.flrp.espresso.condition.PermissionCondition;
 import dev.flrp.espresso.condition.WithConditionExtended;
 import dev.flrp.espresso.condition.WorldCondition;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
@@ -36,18 +37,31 @@ public class Commands extends BaseCommand {
         this.plugin = plugin;
     }
 
+    private final String INVALID_USAGE = Locale.parse("&cInvalid usage. See /economobs.");
+
+    private final String MULTIPLIER_ADD_SUCCESS = Locale.parse("&7Successfully set a multiplier for &f{player} &7({context}, {multiplier}).");
+    private final String MULTIPLIER_REMOVE_SUCCESS = Locale.parse("&7Successfully removed a multiplier for &f{player} &7({context}).");
+
     @Default
     public void defaultCommand(final CommandSender sender) {
         sender.sendMessage(Locale.parse("\n&a&lECONOMOBS &7Version " + plugin.getDescription().getVersion() + " &8| &7By flrp"));
         sender.sendMessage(Locale.parse("&a/economobs &fhelp &8- &7Displays this menu."));
-        if(sender.hasPermission("economobs.toggle")) sender.sendMessage(Locale.parse("&a/economobs &ftoggle &8- &7Toggles income messages."));
-        if(sender.hasPermission("economobs.profile")) sender.sendMessage(Locale.parse("&a/economobs &fprofile <player> &8- &7Displays the multiplier profile of a player."));
-        if(sender.hasPermission("economobs.check")) sender.sendMessage(Locale.parse("&a/economobs &fcheck <mob/custom> <context> &8- &7Displays information about an entity."));
-        if(sender.hasPermission("economobs.multiplier")) {
+        if (sender.hasPermission("economobs.toggle")) {
+            sender.sendMessage(Locale.parse("&a/economobs &ftoggle &8- &7Toggles income messages."));
+        }
+        if (sender.hasPermission("economobs.profile")) {
+            sender.sendMessage(Locale.parse("&a/economobs &fprofile <player> &8- &7Displays the multiplier profile of a player."));
+        }
+        if (sender.hasPermission("economobs.check")) {
+            sender.sendMessage(Locale.parse("&a/economobs &fcheck <mob/custom> <context> &8- &7Displays information about an entity."));
+        }
+        if (sender.hasPermission("economobs.multiplier")) {
             sender.sendMessage(Locale.parse("&a/economobs &fmultiplier add <user> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier> &8- &7Adds a multiplier to a user."));
             sender.sendMessage(Locale.parse("&a/economobs &fmultiplier remove <user> <entity/tool/world/custom_entity/custom_tool> <context> &8- &7Removes a multiplier from a user."));
         }
-        if(sender.hasPermission("economobs.reload")) sender.sendMessage(Locale.parse("&a/economobs &freload &8- &7Reloads the plugin."));
+        if (sender.hasPermission("economobs.reload")) {
+            sender.sendMessage(Locale.parse("&a/economobs &freload &8- &7Reloads the plugin."));
+        }
     }
 
     @SubCommand("help")
@@ -58,12 +72,12 @@ public class Commands extends BaseCommand {
     @SubCommand("multiplier")
     @Permission("economobs.multiplier")
     public void multiplierCommand(final CommandSender sender, List<String> args) {
-        if(!plugin.getDatabaseManager().getStorageProvider().isConnected()) {
+        if (!plugin.getDatabaseManager().getStorageProvider().isConnected()) {
             send(sender, "&cDatabase is not connected so specific multipliers cannot be modified. Please check your configuration and /reload once fixed.");
             return;
         }
 
-        if(args.size() < 4) {
+        if (args.size() < 4) {
             send(sender, "&cUsage: /economobs multiplier <add/remove> <player> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier>");
             return;
         }
@@ -75,12 +89,12 @@ public class Commands extends BaseCommand {
         double multiplier = 1;
 
         Player recipient = Bukkit.getPlayer(player);
-        if(recipient == null) {
+        if (recipient == null) {
             send(sender, "&4" + player + " is not a valid player.");
             return;
         }
 
-        if(args.size() == 5) {
+        if (args.size() == 5) {
             try {
                 multiplier = Double.parseDouble(args.get(4));
             } catch (NumberFormatException e) {
@@ -90,7 +104,7 @@ public class Commands extends BaseCommand {
 
         }
 
-        if((multiplier == 1 && action.equals("add"))) {
+        if ((multiplier == 1 && action.equals("add"))) {
             send(sender, "&cInvalid multiplier. Please add a value that modifies the base amount.");
             return;
         }
@@ -114,39 +128,49 @@ public class Commands extends BaseCommand {
                 handleCustomToolMultiplier(sender, action, recipient, context, multiplier, multiplierProfile);
                 break;
             default:
-                send(sender, "&cInvalid usage. See /economobs.");
+                send(sender, INVALID_USAGE);
         }
     }
 
     private void handleCustomToolMultiplier(CommandSender sender, String action, Player recipient, String context, double multiplier, MultiplierProfile multiplierProfile) {
         if (action.equals("add")) {
             multiplierProfile.addCustomToolMultiplier(context, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + context + ", " + multiplier + ").");
+            send(sender, Locale.parse(MULTIPLIER_ADD_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context)
+                    .replace("{multiplier}", String.valueOf(multiplier)));
             return;
         }
         if (action.equals("remove")) {
-            if(!multiplierProfile.getCustomTools().containsKey(context)) {
+            if (!multiplierProfile.getCustomTools().containsKey(context)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeCustomToolMultiplier(context);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + context + ").");
+            send(sender, Locale.parse(MULTIPLIER_REMOVE_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context));
         }
     }
 
     private void handleCustomEntityMultiplier(CommandSender sender, String action, Player recipient, String context, double multiplier, MultiplierProfile multiplierProfile) {
         if (action.equals("add")) {
             multiplierProfile.addCustomEntityMultiplier(context, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + context + ", " + multiplier + ").");
+            send(sender, Locale.parse(MULTIPLIER_ADD_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context)
+                    .replace("{multiplier}", String.valueOf(multiplier)));
             return;
         }
         if (action.equals("remove")) {
-            if(!multiplierProfile.getCustomEntities().containsKey(context)) {
+            if (!multiplierProfile.getCustomEntities().containsKey(context)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeCustomEntityMultiplier(context);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + context + ").");
+            send(sender, Locale.parse(MULTIPLIER_REMOVE_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context));
         }
     }
 
@@ -158,16 +182,21 @@ public class Commands extends BaseCommand {
         }
         if (action.equals("add")) {
             multiplierProfile.addWorldMultiplier(world, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + context + ", " + multiplier + ").");
+            send(sender, Locale.parse(MULTIPLIER_ADD_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context)
+                    .replace("{multiplier}", String.valueOf(multiplier)));
             return;
         }
         if (action.equals("remove")) {
-            if(!multiplierProfile.getWorlds().containsKey(world)) {
+            if (!multiplierProfile.getWorlds().containsKey(world)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeWorldMultiplier(world);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + context + ").");
+            send(sender, Locale.parse(MULTIPLIER_REMOVE_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context));
         }
     }
 
@@ -179,16 +208,21 @@ public class Commands extends BaseCommand {
         }
         if (action.equals("add")) {
             multiplierProfile.addToolMultiplier(material, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + context + ", " + multiplier + ").");
+            send(sender, Locale.parse(MULTIPLIER_ADD_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context)
+                    .replace("{multiplier}", String.valueOf(multiplier)));
             return;
         }
         if (action.equals("remove")) {
-            if(!multiplierProfile.getTools().containsKey(material)) {
+            if (!multiplierProfile.getTools().containsKey(material)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeToolMultiplier(material);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + context + ").");
+            send(sender, Locale.parse(MULTIPLIER_REMOVE_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context));
             return;
         }
         send(sender, "&cInvalid usage. See /economobs.");
@@ -204,16 +238,21 @@ public class Commands extends BaseCommand {
         }
         if (action.equals("add")) {
             multiplierProfile.addEntityMultiplier(entity, multiplier);
-            send(sender,"&7Successfully set a multiplier for &f" + recipient.getName() + " &7(" + context + ", " + multiplier + ").");
+            send(sender, Locale.parse(MULTIPLIER_ADD_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context)
+                    .replace("{multiplier}", String.valueOf(multiplier)));
             return;
         }
         if (action.equals("remove")) {
-            if(!multiplierProfile.getEntities().containsKey(entity)) {
+            if (!multiplierProfile.getEntities().containsKey(entity)) {
                 send(sender, "&f" + recipient.getName() + " &7does not have this multiplier.");
                 return;
             }
             multiplierProfile.removeEntityMultiplier(entity);
-            send(sender, "&7Successfully removed a multiplier for &f" + recipient.getName() + " &7(" + context + ").");
+            send(sender, Locale.parse(MULTIPLIER_REMOVE_SUCCESS)
+                    .replace("{player}", recipient.getName())
+                    .replace("{context}", context));
             return;
         }
         send(sender, "&cInvalid usage. See /economobs.");
@@ -235,42 +274,62 @@ public class Commands extends BaseCommand {
         sender.sendMessage(Locale.parse("&7Group: &f" + (group != null ? group.getIdentifier() + " &a(Weight: " + group.getWeight() + ")" : "N/A")));
 
         sender.sendMessage(Locale.parse("&7Entity Multipliers:"));
-        if(!multiplierProfile.getEntities().isEmpty()) multiplierProfile.getEntities().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
-        if(group != null) {
+        if (!multiplierProfile.getEntities().isEmpty()) {
+            multiplierProfile.getEntities().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
+        }
+        if (group != null) {
             group.getEntities().forEach((key, value) -> {
-                if(!multiplierProfile.getEntities().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                if (!multiplierProfile.getEntities().containsKey(key)) {
+                    sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                }
             });
         }
 
         sender.sendMessage(Locale.parse("&7Tool Multipliers:"));
-        if(!multiplierProfile.getTools().isEmpty()) multiplierProfile.getTools().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 : &ax" + value + "&8 |&7 SPECIFIC")));
-        if(group != null) {
+        if (!multiplierProfile.getTools().isEmpty()) {
+            multiplierProfile.getTools().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 : &ax" + value + "&8 |&7 SPECIFIC")));
+        }
+        if (group != null) {
             group.getTools().forEach((key, value) -> {
-                if(!multiplierProfile.getTools().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                if (!multiplierProfile.getTools().containsKey(key)) {
+                    sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                }
             });
         }
 
         sender.sendMessage(Locale.parse("&7World Multipliers:"));
-        if(!multiplierProfile.getWorlds().isEmpty()) multiplierProfile.getWorlds().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
-        if(group != null) {
+        if (!multiplierProfile.getWorlds().isEmpty()) {
+            multiplierProfile.getWorlds().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
+        }
+        if (group != null) {
             group.getWorlds().forEach((key, value) -> {
-                if(!multiplierProfile.getWorlds().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                if (!multiplierProfile.getWorlds().containsKey(key)) {
+                    sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                }
             });
         }
 
         // Custom Multipliers
         sender.sendMessage(Locale.parse("&7Custom Entity Multipliers:"));
-        if(!multiplierProfile.getCustomEntities().isEmpty()) multiplierProfile.getCustomEntities().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
-        if(group != null) {
+        if (!multiplierProfile.getCustomEntities().isEmpty()) {
+            multiplierProfile.getCustomEntities().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
+        }
+        if (group != null) {
             group.getCustomEntities().forEach((key, value) -> {
-                if(!multiplierProfile.getCustomEntities().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                if (!multiplierProfile.getCustomEntities().containsKey(key)) {
+                    sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                }
             });
         }
         sender.sendMessage(Locale.parse("&7Custom Tool Multipliers:"));
-        if(!multiplierProfile.getCustomTools().isEmpty()) multiplierProfile.getCustomTools().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
-        if(group != null) {
+        if (!multiplierProfile.getCustomTools().isEmpty()) {
+            multiplierProfile.getCustomTools().forEach((key, value) -> sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 SPECIFIC")));
+        }
+        if (group != null) {
             group.getCustomTools().forEach((key, value) -> {
-                if(!multiplierProfile.getCustomTools().containsKey(key)) sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                if (!multiplierProfile.getCustomTools().containsKey(key)) {
+                    sender.sendMessage(Locale.parse("&8 - &f" + key + "&8 &ax" + value + "&8 |&7 GROUP"));
+                }
             });
         }
     }
@@ -278,7 +337,7 @@ public class Commands extends BaseCommand {
     @SubCommand("check")
     @Permission("economobs.check")
     public void checkCommand(final CommandSender sender, final String action, final String target) {
-        switch(action) {
+        switch (action) {
             case "mob":
             case "entity":
                 checkMob(sender, target);
@@ -301,11 +360,11 @@ public class Commands extends BaseCommand {
             return;
         }
         LootContainer container;
-        if(plugin.getRewardManager().hasLootContainer(entityType)) {
+        if (plugin.getRewardManager().hasLootContainer(entityType)) {
             container = plugin.getRewardManager().getLootContainer(entityType);
         } else {
             container = plugin.getRewardManager().getDefaultLootContainer();
-            if(container.getLootTables().isEmpty()) {
+            if (container.getLootTables().isEmpty()) {
                 sender.sendMessage(Locale.parse("&cNo loot tables found for this entity."));
                 return;
             }
@@ -322,11 +381,11 @@ public class Commands extends BaseCommand {
         LootContainer container;
         switch (provider.getType()) {
             case ITEMS_ADDER:
-                if(((ItemsAdderEntityHook) provider).hasLootContainer(target)) {
+                if (((ItemsAdderEntityHook) provider).hasLootContainer(target)) {
                     container = ((ItemsAdderEntityHook) provider).getLootContainer(target);
                 } else {
                     container = ((ItemsAdderEntityHook) provider).getDefaultLootContainer();
-                    if(container.getLootTables().isEmpty()) {
+                    if (container.getLootTables().isEmpty()) {
                         sender.sendMessage(Locale.parse("&cNo loot tables found for this entity."));
                         return;
                     }
@@ -334,11 +393,11 @@ public class Commands extends BaseCommand {
                 generateInfo(sender, target, container);
                 break;
             case MYTHIC_MOBS:
-                if(((MythicMobsEntityHook) provider).hasLootContainer(target)) {
+                if (((MythicMobsEntityHook) provider).hasLootContainer(target)) {
                     container = ((MythicMobsEntityHook) provider).getLootContainer(target);
                 } else {
                     container = ((MythicMobsEntityHook) provider).getDefaultLootContainer();
-                    if(container.getLootTables().isEmpty()) {
+                    if (container.getLootTables().isEmpty()) {
                         sender.sendMessage(Locale.parse("&cNo loot tables found for this entity."));
                         return;
                     }
@@ -355,7 +414,7 @@ public class Commands extends BaseCommand {
             double chance = Math.round(table.getWeight() / container.getTotalWeightOfTables() * 10000.0) / 100.0;
             sender.sendMessage(Locale.parse("&7Weight: &f" + table.getWeight() + " &7(&a" + chance + "%&7)"));
             sender.sendMessage(Locale.parse("&7Conditions:"));
-            for(Condition condition : table.getConditions()) {
+            for (Condition condition : table.getConditions()) {
                 switch (condition.getType()) {
                     case WITH:
                         generateWithInfo(sender, (WithConditionExtended) condition);
@@ -370,7 +429,9 @@ public class Commands extends BaseCommand {
                         break;
                     case PERMISSION:
                         sender.sendMessage(Locale.parse(" &7Permission:"));
-                        sender.sendMessage(Locale.parse(" &8 - &f" + ((dev.flrp.espresso.condition.PermissionCondition) condition).getPermission()));
+                        sender.sendMessage(Locale.parse(" &8 - &f" + ((PermissionCondition) condition).getPermission()));
+                        break;
+                    default:
                         break;
                 }
             }
@@ -390,7 +451,7 @@ public class Commands extends BaseCommand {
         sender.sendMessage(Locale.parse(" &7With:"));
         condition.getMaterials().forEach((key, value) -> {
             String item = value.toString().replace("[", "").replace("]", "");
-            if(key != ItemType.NONE) {
+            if (key != ItemType.NONE) {
                 sender.sendMessage(Locale.parse(" &8 - &f" + item + " &7&o(" + key.name() + ")"));
             } else {
                 sender.sendMessage(Locale.parse(" &8 - &f" + item));
@@ -402,7 +463,7 @@ public class Commands extends BaseCommand {
     public void toggleCommand(final CommandSender sender) {
         Player player = (Player) sender;
         sender.sendMessage(Locale.parse(Locale.PREFIX + Locale.REWARD_TOGGLE));
-        if(!plugin.getToggleList().contains(player.getUniqueId())) {
+        if (!plugin.getToggleList().contains(player.getUniqueId())) {
             plugin.getToggleList().add(player.getUniqueId());
             return;
         }

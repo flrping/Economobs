@@ -6,7 +6,7 @@ import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.item.OraxenItemProvider;
 
-public class OraxenItemHook extends OraxenItemProvider implements Builder {
+public final class OraxenItemHook extends OraxenItemProvider implements Builder {
 
     private final Economobs plugin;
 

@@ -8,15 +8,21 @@ import dev.flrp.espresso.storage.provider.SQLStorageProvider;
 import dev.flrp.espresso.storage.provider.SQLiteStorageProvider;
 import dev.flrp.espresso.storage.provider.StorageType;
 import dev.flrp.espresso.storage.query.*;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import dev.flrp.espresso.storage.exception.ProviderException;
 
 public class DatabaseManager {
 
@@ -44,13 +50,7 @@ public class DatabaseManager {
                     throw new UnsupportedOperationException("JSON storage is not supported for this plugin.");
                 case SQLITE:
                     File sqlite = new File(plugin.getDataFolder(), "database.db");
-                    if(!sqlite.exists()) {
-                        try {
-                            sqlite.createNewFile();
-                        } catch (Exception e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
+                    createDatabaseFile();
                     provider = new SQLiteStorageProvider(plugin.getLogger(), sqlite);
                     break;
                 default:
@@ -67,26 +67,33 @@ public class DatabaseManager {
 
             behavior = (SQLStorageBehavior) provider.getBehavior();
             behavior.open();
-        } catch (Exception e) {
+        } catch (ProviderException | IOException | SecurityException | UnsupportedOperationException e) {
             Locale.log("Unable to connect to the database: " + e.getMessage());
             Locale.log("Storage-related features are disabled until fixed. When storage isn't connected, you can use /reload to try again.");
         }
     }
 
+    private void createDatabaseFile() throws IOException, SecurityException {
+        File sqlite = new File(plugin.getDataFolder(), "database.db");
+        if (!sqlite.exists()) {
+            sqlite.createNewFile();
+        }
+    }
+
     private void init() {
         List<SQLColumn> multiplierColumns = Arrays.asList(
-                new SQLColumn("user", SQLType.STRING).notNull(),
-                new SQLColumn("context", SQLType.STRING).notNull(),
-                new SQLColumn("multiplier", SQLType.DOUBLE).notNull(),
-                new SQLColumn("type", SQLType.STRING).notNull()
+                new SQLColumn("user", ColumnType.STRING).notNull(),
+                new SQLColumn("context", ColumnType.STRING).notNull(),
+                new SQLColumn("multiplier", ColumnType.DOUBLE).notNull(),
+                new SQLColumn("type", ColumnType.STRING).notNull()
                         .check("type IN ('ENTITY', 'TOOL', 'WORLD')")
         );
 
         List<SQLColumn> customMultiplierColumns = Arrays.asList(
-                new SQLColumn("user", SQLType.STRING).notNull(),
-                new SQLColumn("context", SQLType.STRING).notNull(),
-                new SQLColumn("multiplier", SQLType.DOUBLE).notNull(),
-                new SQLColumn("type", SQLType.STRING).notNull()
+                new SQLColumn("user", ColumnType.STRING).notNull(),
+                new SQLColumn("context", ColumnType.STRING).notNull(),
+                new SQLColumn("multiplier", ColumnType.DOUBLE).notNull(),
+                new SQLColumn("type", ColumnType.STRING).notNull()
                         .check("type IN ('ENTITY', 'TOOL')")
         );
 
@@ -94,65 +101,83 @@ public class DatabaseManager {
         String createCustomMultiplierTable = provider.getDialect().createTable("custom_multipliers", customMultiplierColumns);
 
         // Multiplier table
-        behavior.query(createMultiplierTable);
-        SelectQueryBuilder selectMultipliers = new SelectQueryBuilder("multipliers", provider).columns("*");
+        try {
+            behavior.query(createMultiplierTable);
+        } catch (ProviderException e) {
+            Locale.log("Unable to create multiplier table: " + e.getMessage());
+        }
 
-        behavior.query(selectMultipliers.build(), rs -> {
-            try {
-                while (rs.next()) {
-                    UUID uuid = UUID.fromString(rs.getString("user"));
-                    MultiplierProfile mp = playerCache.computeIfAbsent(uuid, MultiplierProfile::new);
+        try {
+            SelectQueryBuilder selectMultipliers = SelectQueryBuilder.with("multipliers", provider).columns("*");
+            behavior.queryEach(selectMultipliers, rs -> {
+                try {
+                    while (rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("user"));
+                        MultiplierProfile mp = playerCache.computeIfAbsent(uuid, MultiplierProfile::new);
 
-                    String type = rs.getString("type");
-                    switch (type) {
-                        case "ENTITY":
-                            mp.getEntities().put(EntityType.valueOf(rs.getString("context")), rs.getDouble("multiplier"));
-                            break;
-                        case "TOOL":
-                            mp.getTools().put(Material.matchMaterial(rs.getString("context")), rs.getDouble("multiplier"));
-                            break;
-                        case "WORLD":
-                            mp.getWorlds().put(UUID.fromString(rs.getString("context")), rs.getDouble("multiplier"));
-                            break;
+                        String type = rs.getString("type");
+                        switch (type) {
+                            case "ENTITY":
+                                mp.getEntities().put(EntityType.valueOf(rs.getString("context")), rs.getDouble("multiplier"));
+                                break;
+                            case "TOOL":
+                                mp.getTools().put(Material.matchMaterial(rs.getString("context")), rs.getDouble("multiplier"));
+                                break;
+                            case "WORLD":
+                                mp.getWorlds().put(UUID.fromString(rs.getString("context")), rs.getDouble("multiplier"));
+                                break;
+                            default:
+                                break;
+                        }
                     }
+                } catch (SQLException e) {
+                    Locale.log("Unable to load multipliers from the database: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                Locale.log("Unable to load multipliers from the database: " + e.getMessage());
-            }
-            return null;
-        });
+            });
+        } catch (ProviderException e) {
+            Locale.log("Unable to load multipliers from the database: " + e.getMessage());
+        }
 
         // Custom multiplier table
-        behavior.query(createCustomMultiplierTable);
-        SelectQueryBuilder selectCustomMultipliers = new SelectQueryBuilder("custom_multipliers", provider).columns("*");
+        try {
+            behavior.query(createCustomMultiplierTable);
+        } catch (ProviderException e) {
+            Locale.log("Unable to create custom multiplier table: " + e.getMessage());
+        }
 
-        behavior.query(selectCustomMultipliers.build(), rs -> {
-            try {
-                while (rs.next()) {
-                    UUID uuid = UUID.fromString(rs.getString("user"));
-                    MultiplierProfile mp = playerCache.computeIfAbsent(uuid, MultiplierProfile::new);
+        try {
+            SelectQueryBuilder selectCustomMultipliers = SelectQueryBuilder.with("custom_multipliers", provider).columns("*");
+            behavior.queryEach(selectCustomMultipliers, rs -> {
+                try {
+                    while (rs.next()) {
+                        UUID uuid = UUID.fromString(rs.getString("user"));
+                        MultiplierProfile mp = playerCache.computeIfAbsent(uuid, MultiplierProfile::new);
 
-                    String customType = rs.getString("type");
-                    switch (customType) {
-                        case "ENTITY":
-                            mp.getCustomEntities().put(rs.getString("context"), rs.getDouble("multiplier"));
-                            break;
-                        case "TOOL":
-                            mp.getCustomTools().put(rs.getString("context"), rs.getDouble("multiplier"));
-                            break;
+                        String customType = rs.getString("type");
+                        switch (customType) {
+                            case "ENTITY":
+                                mp.getCustomEntities().put(rs.getString("context"), rs.getDouble("multiplier"));
+                                break;
+                            case "TOOL":
+                                mp.getCustomTools().put(rs.getString("context"), rs.getDouble("multiplier"));
+                                break;
+                            default:
+                                break;
+                        }
                     }
+                } catch (SQLException e) {
+                    Locale.log("Unable to load custom multipliers from the database: " + e.getMessage());
                 }
-            } catch (Exception e) {
-                Locale.log("Unable to load custom multipliers from the database: " + e.getMessage());
-            }
-            return null;
-        });
+            });
+        } catch (ProviderException e) {
+            Locale.log("Unable to load custom multipliers from the database: " + e.getMessage());
+        }
 
         Locale.log("Loaded &a" + playerCache.size() + " &rmultiplier profiles from the database.");
     }
 
     public void refresh() {
-        if(!provider.isConnected()) {
+        if (!provider.isConnected()) {
             connect();
             init();
         }
@@ -171,7 +196,7 @@ public class DatabaseManager {
         }
     }
 
-    public HashMap<UUID, MultiplierProfile> getPlayerCache() {
+    public Map<UUID, MultiplierProfile> getPlayerCache() {
         return playerCache;
     }
 
@@ -196,12 +221,18 @@ public class DatabaseManager {
     }
 
     private void addMultiplier(UUID uuid, String context, String type, double multiplier) {
-        runAsync(() -> new InsertQueryBuilder("multipliers", provider)
-                .column("user", uuid.toString())
-                .column("context", context)
-                .column("multiplier", multiplier)
-                .column("type", type)
-                .execute());
+        runAsync(() -> {
+            try {
+                InsertQueryBuilder.with("multipliers", provider)
+                        .column("user", uuid.toString())
+                        .column("context", context)
+                        .column("multiplier", multiplier)
+                        .column("type", type)
+                        .execute();
+            } catch (ProviderException e) {
+                Locale.log("Unable to add multiplier to the database: " + e.getMessage());
+            }
+        });
     }
 
     public void addEntityMultiplier(UUID uuid, EntityType entityType, double multiplier) {
@@ -217,10 +248,16 @@ public class DatabaseManager {
     }
 
     private void updateMultiplier(UUID uuid, String context, String type, double multiplier) {
-        new UpdateQueryBuilder("multipliers", provider)
-                .set("multiplier", multiplier)
-                .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
-                .execute();
+        runAsync(() -> {
+            try {
+                UpdateQueryBuilder.with("multipliers", provider)
+                        .set("multiplier", multiplier)
+                        .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
+                        .execute();
+            } catch (ProviderException e) {
+                Locale.log("Unable to update multiplier in the database: " + e.getMessage());
+            }
+        });
     }
 
     public void updateEntityMultiplier(UUID uuid, EntityType entity, double multiplier) {
@@ -236,9 +273,15 @@ public class DatabaseManager {
     }
 
     private void removeMultiplier(UUID uuid, String context, String type) {
-        new DeleteQueryBuilder("multipliers", provider)
-                .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
-                .execute();
+        runAsync(() -> {
+            try {
+                DeleteQueryBuilder.with("multipliers", provider)
+                        .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
+                        .execute();
+            } catch (ProviderException e) {
+                Locale.log("Unable to remove multiplier from the database: " + e.getMessage());
+            }
+        });
     }
 
     public void removeEntityMultiplier(UUID uuid, EntityType entity) {
@@ -254,12 +297,18 @@ public class DatabaseManager {
     }
 
     public void addCustomMultiplier(UUID uuid, String context, String type, double multiplier) {
-        runAsync(() -> new InsertQueryBuilder("custom_multipliers", provider)
-                .column("user", uuid.toString())
-                .column("context", context)
-                .column("multiplier", multiplier)
-                .column("type", type)
-                .execute());
+        runAsync(() -> {
+            try {
+                InsertQueryBuilder.with("custom_multipliers", provider)
+                        .column("user", uuid.toString())
+                        .column("context", context)
+                        .column("multiplier", multiplier)
+                        .column("type", type)
+                        .execute();
+            } catch (ProviderException e) {
+                Locale.log("Unable to add custom multiplier to the database: " + e.getMessage());
+            }
+        });
     }
 
     public void addCustomEntityMultiplier(UUID uuid, String entity, double multiplier) {
@@ -271,10 +320,16 @@ public class DatabaseManager {
     }
 
     public void updateCustomMultiplier(UUID uuid, String context, String type, double multiplier) {
-        new UpdateQueryBuilder("custom_multipliers", provider)
-                .set("multiplier", multiplier)
-                .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
-                .execute();
+        runAsync(() -> {
+            try {
+                UpdateQueryBuilder.with("custom_multipliers", provider)
+                        .set("multiplier", multiplier)
+                        .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
+                        .execute();
+            } catch (ProviderException e) {
+                Locale.log("Unable to update custom multiplier in the database: " + e.getMessage());
+            }
+        });
     }
 
     public void updateCustomEntityMultiplier(UUID uuid, String entity, double multiplier) {
@@ -286,9 +341,15 @@ public class DatabaseManager {
     }
 
     public void removeCustomMultiplier(UUID uuid, String context, String type) {
-        new DeleteQueryBuilder("custom_multipliers", provider)
-                .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
-                .execute();
+        runAsync(() -> {
+            try {
+                DeleteQueryBuilder.with("custom_multipliers", provider)
+                        .where("user = ? AND context = ? AND type = ?", uuid.toString(), context, type)
+                        .execute();
+            } catch (ProviderException e) {
+                Locale.log("Unable to remove custom multiplier from the database: " + e.getMessage());
+            }
+        });
     }
 
     public void removeCustomEntityMultiplier(UUID uuid, String entity) {
