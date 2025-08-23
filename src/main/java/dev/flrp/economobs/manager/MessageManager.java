@@ -45,6 +45,11 @@ public class MessageManager {
                 break;
             case TITLE:
                 titleSetting = new TitleSetting();
+                titleSetting.setIsSubTitle(true);
+                titleSetting.setStay(plugin.getConfig().getInt("message.title.stay", 3) * 20);
+                titleSetting.setFadeIn(plugin.getConfig().getInt("message.title.fade-in", 1) * 20);
+                titleSetting.setFadeOut(plugin.getConfig().getInt("message.title.fade-out", 1) * 20);
+                titleSetting.setTitle(Locale.parse(plugin.getConfig().getString("message.title.title", "&a&lREWARD")));
                 break;
             default:
                 break;
