@@ -1,11 +1,13 @@
 package dev.flrp.economobs.manager;
 
+import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.espresso.message.Message;
 import dev.flrp.espresso.message.MessageType;
 import dev.flrp.espresso.message.settings.HologramSetting;
@@ -22,18 +24,24 @@ public class MessageManager {
 
     private final Economobs plugin;
 
-    private final MessageType messageType;
+    private MessageType messageType;
     private HologramSetting hologramSetting = null;
     private TitleSetting titleSetting = null;
 
     public MessageManager(Economobs plugin) {
         this.plugin = plugin;
-        messageType = plugin.getConfig().contains("message.message-type")
-                ? MessageType.valueOf(plugin.getConfig().getString("message.message-type"))
-                : MessageType.CHAT;
+        messageType = resolveMessageType();
         switch (messageType) {
             case HOLOGRAM:
                 hologramSetting = new HologramSetting(plugin);
+                if (plugin.getHookManager().getHologramProvider() != null) {
+                    hologramSetting.setHologramProvider(plugin.getHookManager().getHologramProvider());
+                    hologramSetting.setDuration(plugin.getConfig().getInt("message.holograms.duration", 1) * 20);
+                } else {
+                    Locale.log("Hologram provider is not set or cannot be found. Defaulting to CHAT messages.");
+                    messageType = MessageType.CHAT;
+                    hologramSetting = null;
+                }
                 break;
             case TITLE:
                 titleSetting = new TitleSetting();
@@ -73,8 +81,8 @@ public class MessageManager {
             switch (loot.getType()) {
                 case ITEM:
                     ItemStack item = ((LootableItem) loot).getItemStack();
-                    if(item.hasItemMeta()) {
-                        ItemMeta meta = item.getItemMeta();
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta != null) {
                         String name = meta.hasDisplayName() ? meta.getDisplayName() : capitalizeAndRemoveUnderscores(item.getType().name());
                         message.register("{item}", name);
                     } else {
@@ -107,9 +115,20 @@ public class MessageManager {
         message.register("{loot_table}", result.getLootTable().getIdentifier());
 
         if (messageType == MessageType.HOLOGRAM) {
-            message.at(entity);
+            Location loc = entity.getLocation();
+            loc.setY(loc.getY() + entity.getHeight());
+            message.at(loc);
         } else {
             message.to(player);
+        }
+    }
+
+    private MessageType resolveMessageType() {
+        try {
+            return MessageType.valueOf(plugin.getConfig().getString("message.message-type", "CHAT"));
+        } catch (IllegalArgumentException e) {
+            Locale.log("Invalid message type found in configuration. Using CHAT.");
+            return MessageType.CHAT;
         }
     }
 

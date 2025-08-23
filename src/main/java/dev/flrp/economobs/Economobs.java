@@ -1,13 +1,31 @@
 package dev.flrp.economobs;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.bstats.bukkit.Metrics;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import dev.flrp.economobs.command.Commands;
 import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.listener.PlayerListener;
-import dev.flrp.economobs.manager.*;
-import dev.flrp.economobs.module.*;
+import dev.flrp.economobs.manager.DatabaseManager;
+import dev.flrp.economobs.manager.HookManager;
+import dev.flrp.economobs.manager.MessageManager;
+import dev.flrp.economobs.manager.MultiplierManager;
+import dev.flrp.economobs.manager.RewardManager;
+import dev.flrp.economobs.module.EconomyModule;
+import dev.flrp.economobs.module.EntityModule;
+import dev.flrp.economobs.module.HologramModule;
+import dev.flrp.economobs.module.ItemModule;
+import dev.flrp.economobs.module.StackerModule;
 import dev.flrp.economobs.placeholder.EconomobsExpansion;
 import dev.flrp.economobs.util.UpdateChecker;
 import dev.flrp.espresso.configuration.Configuration;
@@ -17,14 +35,6 @@ import dev.flrp.espresso.storage.exception.ProviderException;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import org.bstats.bukkit.Metrics;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public final class Economobs extends JavaPlugin {
 
@@ -60,9 +70,6 @@ public final class Economobs extends JavaPlugin {
         initiateFiles();
         Locale.load();
 
-        // Initiation
-        initiateClasses();
-
         // Modules
         Injector hookInjector = Guice.createInjector(new EconomyModule(this), new StackerModule(this), new EntityModule(this), new ItemModule(this), new HologramModule(this));
         hookManager = hookInjector.getInstance(HookManager.class);
@@ -77,6 +84,9 @@ public final class Economobs extends JavaPlugin {
                 Locale.log("&8--------------");
             }
         });
+
+        // Initiation
+        initiateClasses();
 
         // Hooks
         File dir = new File(getDataFolder(), "hooks");
@@ -110,9 +120,6 @@ public final class Economobs extends JavaPlugin {
 
         //Files
         initiateFiles();
-
-        // Initiation
-        initiateClasses();
         Locale.load();
 
         // Modules
@@ -124,6 +131,10 @@ public final class Economobs extends JavaPlugin {
         }
 
         hookManager.getStackerProvider().registerEvents();
+
+        // Initiation
+        initiateClasses();
+
         Locale.log("&aDone!");
 
         databaseManager.refresh();

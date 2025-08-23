@@ -4,7 +4,7 @@ main: dev.flrp.economobs.Economobs
 api-version: 1.13
 author: flrp
 depend: [Vault]
-softdepend: [WildStacker, StackMob, MythicMobs, LevelledMobs, InfernalMobs, Multiverse-Core, ItemsAdder, TokenManager, PlayerPoints, RoseStacker, UltimateStacker, Sentinel, PlaceholderAPI]
+softdepend: [WildStacker, StackMob, MythicMobs, LevelledMobs, InfernalMobs, Multiverse-Core, ItemsAdder, TokenManager, PlayerPoints, RoseStacker, UltimateStacker, Sentinel, PlaceholderAPI, DecentHolograms, Nexo, Oraxen, MMOItems]
 permissions:
   economobs.toggle:
     description: Gives permission for toggling messages.
