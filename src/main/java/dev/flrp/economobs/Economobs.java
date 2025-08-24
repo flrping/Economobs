@@ -124,10 +124,14 @@ public final class Economobs extends JavaPlugin {
 
         // Modules
         for (EntityProvider entityProvider : hookManager.getEntityProviders()) {
-            ((Builder) entityProvider).reload();
+            if (entityProvider instanceof Builder builder) {
+                builder.reload();
+            }
         }
         for (ItemProvider itemProvider : hookManager.getItemProviders()) {
-            ((Builder) itemProvider).reload();
+            if (itemProvider instanceof Builder builder) {
+                builder.reload();
+            }
         }
 
         hookManager.getStackerProvider().registerEvents();
