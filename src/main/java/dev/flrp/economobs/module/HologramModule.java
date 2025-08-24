@@ -29,12 +29,12 @@ public class HologramModule extends AbstractModule {
 
     private HologramProvider getHologramProvider(HologramType hologramType) {
         PluginManager pluginManager = plugin.getServer().getPluginManager();
-        switch(hologramType) {
+        switch (hologramType) {
             case DECENT_HOLOGRAMS:
                 return createHologramProvider(pluginManager, "DecentHolograms", new DecentHologramsHologramProvider());
             default:
                 Locale.log("No hologram plugin found.");
-                return null;
+                return new NoopHologramProvider();
         }
     }
 
@@ -49,9 +49,9 @@ public class HologramModule extends AbstractModule {
 
     private HologramProvider createHologramProvider(PluginManager pluginManager, String pluginName, HologramProvider provider) {
         Locale.log("Hologram set to " + pluginName + ". Finding...");
-        if(!pluginManager.isPluginEnabled(pluginName)) {
+        if (!pluginManager.isPluginEnabled(pluginName)) {
             Locale.log(pluginName + " not found. Using NONE.");
-            return null;
+            return new NoopHologramProvider();
         }
         Locale.log("Using " + pluginName + ".");
         return provider;

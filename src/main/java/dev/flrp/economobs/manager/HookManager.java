@@ -2,8 +2,6 @@ package dev.flrp.economobs.manager;
 
 import java.util.Set;
 
-import javax.annotation.Nullable;
-
 import org.bukkit.Bukkit;
 
 import com.google.inject.Inject;
@@ -43,7 +41,7 @@ public class HookManager {
             StackerProvider stackerProvider,
             Set<EntityProvider> entityProviders,
             Set<ItemProvider> itemProviders,
-            @Nullable HologramProvider hologramProvider
+            HologramProvider hologramProvider
     ) {
         this.economyProvider = economyProvider;
         this.stackerProvider = stackerProvider;
@@ -117,7 +115,6 @@ public class HookManager {
         return null;
     }
 
-    @Nullable
     public HologramProvider getHologramProvider() {
         return hologramProvider;
     }
