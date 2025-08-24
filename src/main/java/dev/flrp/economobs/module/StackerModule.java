@@ -1,13 +1,20 @@
 package dev.flrp.economobs.module;
 
+import java.util.function.Supplier;
+
+import org.bukkit.plugin.PluginManager;
+
 import com.google.inject.AbstractModule;
+
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hook.stacker.*;
+import dev.flrp.economobs.hook.stacker.RoseStackerListener;
+import dev.flrp.economobs.hook.stacker.StackMobListener;
+import dev.flrp.economobs.hook.stacker.UltimateStackerListener;
+import dev.flrp.economobs.hook.stacker.WildStackerListener;
 import dev.flrp.economobs.listener.EntityDeathListener;
 import dev.flrp.espresso.hook.stacker.StackerProvider;
 import dev.flrp.espresso.hook.stacker.StackerType;
-import org.bukkit.plugin.PluginManager;
 
 public class StackerModule extends AbstractModule {
 
@@ -43,26 +50,26 @@ public class StackerModule extends AbstractModule {
 
         switch (stackerType) {
             case ROSE_STACKER:
-                return createStackerProvider(pluginManager, "RoseStacker", new RoseStackerListener(plugin));
+                return createStackerProvider(pluginManager, "RoseStacker", () -> new RoseStackerListener(plugin));
             case STACK_MOB:
-                return createStackerProvider(pluginManager, "StackMob", new StackMobListener(plugin));
+                return createStackerProvider(pluginManager, "StackMob", () -> new StackMobListener(plugin));
             case ULTIMATE_STACKER:
-                return createStackerProvider(pluginManager, "UltimateStacker", new UltimateStackerListener(plugin));
+                return createStackerProvider(pluginManager, "UltimateStacker", () -> new UltimateStackerListener(plugin));
             case WILD_STACKER:
-                return createStackerProvider(pluginManager, "WildStacker", new WildStackerListener(plugin));
+                return createStackerProvider(pluginManager, "WildStacker", () -> new WildStackerListener(plugin));
             default:
                 Locale.log("Using default entity listener.");
                 return new EntityDeathListener(plugin);
         }
     }
 
-    private StackerProvider createStackerProvider(PluginManager pluginManager, String pluginName, StackerProvider provider) {
+    private StackerProvider createStackerProvider(PluginManager pluginManager, String pluginName, Supplier<StackerProvider> providerSupplier) {
         Locale.log("Stacker set to " + pluginName + ". Finding...");
         if (!pluginManager.isPluginEnabled(pluginName)) {
             Locale.log(pluginName + " not found. Using default entity listener.");
             return new EntityDeathListener(plugin);
         }
         Locale.log("Using " + pluginName + ".");
-        return provider;
+        return providerSupplier.get();
     }
 }

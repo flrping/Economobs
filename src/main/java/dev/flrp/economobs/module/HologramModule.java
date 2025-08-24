@@ -1,5 +1,7 @@
 package dev.flrp.economobs.module;
 
+import java.util.function.Supplier;
+
 import org.bukkit.plugin.PluginManager;
 
 import com.google.inject.AbstractModule;
@@ -31,7 +33,7 @@ public class HologramModule extends AbstractModule {
         PluginManager pluginManager = plugin.getServer().getPluginManager();
         switch (hologramType) {
             case DECENT_HOLOGRAMS:
-                return createHologramProvider(pluginManager, "DecentHolograms", new DecentHologramsHologramProvider());
+                return createHologramProvider(pluginManager, "DecentHolograms", DecentHologramsHologramProvider::new);
             default:
                 Locale.log("No hologram plugin found.");
                 return new NoopHologramProvider();
@@ -47,14 +49,14 @@ public class HologramModule extends AbstractModule {
         }
     }
 
-    private HologramProvider createHologramProvider(PluginManager pluginManager, String pluginName, HologramProvider provider) {
+    private HologramProvider createHologramProvider(PluginManager pluginManager, String pluginName, Supplier<HologramProvider> providerSupplier) {
         Locale.log("Hologram set to " + pluginName + ". Finding...");
         if (!pluginManager.isPluginEnabled(pluginName)) {
             Locale.log(pluginName + " not found. Using NONE.");
             return new NoopHologramProvider();
         }
         Locale.log("Using " + pluginName + ".");
-        return provider;
+        return providerSupplier.get();
     }
 
 }
