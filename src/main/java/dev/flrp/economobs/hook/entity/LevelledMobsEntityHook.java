@@ -2,6 +2,7 @@ package dev.flrp.economobs.hook.entity;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Builder;
+import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.util.MinMax;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.LevelledMobsHook;
@@ -43,10 +44,18 @@ public final class LevelledMobsEntityHook extends LevelledMobsHook implements Bu
         ConfigurationSection mobSection = levelledMobsConfig.getConfiguration().getConfigurationSection("mobs");
         if (mobSection != null) {
             for (String key : mobSection.getKeys(false)) {
-                EntityType type = EntityType.valueOf(key);
-                int min = levelledMobsConfig.getConfiguration().getInt("mobs." + key + ".min");
-                int max = levelledMobsConfig.getConfiguration().getInt("mobs." + key + ".max");
-                additions.put(type, new MinMax(min, max));
+                try {
+                    EntityType type = EntityType.valueOf(key);
+                    int min = levelledMobsConfig.getConfiguration().getInt("mobs." + key + ".min");
+                    int max = levelledMobsConfig.getConfiguration().getInt("mobs." + key + ".max");
+                    if (min > max) {
+                        Locale.log("&cMin value is greater than max value for entity type: " + key + ". Skipping...");
+                        continue;
+                    }
+                    additions.put(type, new MinMax(min, max));
+                } catch (IllegalArgumentException e) {
+                    Locale.log("&cInvalid entity type: " + key + ". Skipping...");
+                }
             }
         }
 

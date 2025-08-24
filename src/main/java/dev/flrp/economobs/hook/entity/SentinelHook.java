@@ -28,7 +28,12 @@ public final class SentinelHook {
         if (!isNPC(entity)) {
             return null;
         }
-        return CitizensAPI.getNPCRegistry().getNPC(entity).getTraitNullable(Owner.class).getOwnerId();
+        var npc = CitizensAPI.getNPCRegistry().getNPC(entity);
+        if (npc == null) {
+            return null;
+        }
+        Owner owner = npc.getTraitNullable(Owner.class);
+        return owner != null ? owner.getOwnerId() : null;
     }
 
     @Nullable
@@ -36,7 +41,12 @@ public final class SentinelHook {
         if (!isNPC(uuid)) {
             return null;
         }
-        return CitizensAPI.getNPCRegistry().getNPC(Bukkit.getEntity(uuid)).getTraitNullable(Owner.class).getOwnerId();
+        var npc = CitizensAPI.getNPCRegistry().getNPC(Bukkit.getEntity(uuid));
+        if (npc == null) {
+            return null;
+        }
+        Owner owner = npc.getTraitNullable(Owner.class);
+        return owner != null ? owner.getOwnerId() : null;
     }
 
 }
