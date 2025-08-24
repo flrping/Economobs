@@ -36,7 +36,9 @@ public class DatabaseManager {
     public DatabaseManager(Economobs plugin) {
         this.plugin = plugin;
         connect();
-        init();
+        if (provider != null && provider.isConnected()) {
+            init();
+        }
     }
 
     private void connect() {
@@ -189,9 +191,11 @@ public class DatabaseManager {
     }
 
     public void refresh() {
-        if (!provider.isConnected()) {
+        if (provider == null || !provider.isConnected()) {
             connect();
-            init();
+            if (provider != null && provider.isConnected()) {
+                init();
+            }
         }
     }
 
