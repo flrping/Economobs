@@ -26,7 +26,8 @@ public class Methods {
     }
 
     public static ItemStack itemInHand(Player player) {
-        if (instance.getServer().getVersion().contains("1.8")) {
+        String version = instance.getServer().getVersion();
+        if (version.startsWith("1.8")) {
             return player.getItemInHand();
         } else {
             return player.getInventory().getItemInMainHand();
@@ -160,7 +161,11 @@ public class Methods {
             LootContainer lootContainer = new LootContainer();
 
             // Get the tables for the mob
-            Set<String> tableSet = configuration.getConfiguration().getConfigurationSection("mobs." + mob + ".tables").getKeys(false);
+            ConfigurationSection tablesSection = configuration.getConfiguration().getConfigurationSection("mobs." + mob + ".tables");
+            if (tablesSection == null) {
+                continue;
+            }
+            Set<String> tableSet = tablesSection.getKeys(false);
             for (String tableNumber : tableSet) {
 
                 // Boolean checks
@@ -231,7 +236,7 @@ public class Methods {
         }
 
         if (configuration.getConfiguration().contains("default.excludes")) {
-            excludedEntities.addAll(configuration.getConfiguration().getStringList("default.excluded"));
+            excludedEntities.addAll(configuration.getConfiguration().getStringList("default.excludes"));
         }
 
         Locale.log("Default loot created with &a" + lootContainer.getLootTables().size() + " &rtables.");

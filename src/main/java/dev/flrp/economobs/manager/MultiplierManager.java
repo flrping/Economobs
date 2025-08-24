@@ -50,16 +50,17 @@ public class MultiplierManager {
         for (PermissionAttachmentInfo info : infoSet) {
             if (info.getPermission().startsWith("economobs.group.")) {
                 String g = info.getPermission().substring(16);
-                if (groups.containsKey(g)) {
-                    int w = groups.get(g).getWeight();
-                    if (w >= weight) {
+                MultiplierGroup mg = getMultiplierGroupByName(g);
+                if (mg != null) {
+                    int w = mg.getWeight();
+                    if (w > weight || (w == weight && (group == null || g.compareTo(group) > 0))) {
                         group = g;
                         weight = w;
                     }
                 }
             }
         }
-        return plugin.getMultiplierManager().getMultiplierGroupByName(group);
+        return group != null ? groups.get(group) : null;
     }
 
     public boolean hasMultiplierGroup(UUID uuid) {

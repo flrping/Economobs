@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -79,6 +81,7 @@ public class RewardManager {
      * @param entityType - The entity type to get the loot container for
      * @return The loot container
      */
+    @Nullable
     public LootContainer getLootContainer(EntityType entityType) {
         return lootList.get(entityType);
     }
@@ -89,8 +92,13 @@ public class RewardManager {
      * @param entityType - The entity type to get the loot container for
      * @return The loot container
      */
+    @Nullable
     public LootContainer getLootContainer(String entityType) {
-        return lootList.get(EntityType.valueOf(entityType));
+        try {
+            return lootList.get(EntityType.valueOf(entityType.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 
     /**
@@ -110,7 +118,11 @@ public class RewardManager {
      * @return True if the loot container exists, false otherwise
      */
     public boolean hasLootContainer(String entityType) {
-        return lootList.containsKey(EntityType.valueOf(entityType));
+        try {
+            return lootList.containsKey(EntityType.valueOf(entityType.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
     /**
@@ -119,6 +131,7 @@ public class RewardManager {
      * @param name - The name to get the loot table for
      * @return The loot table
      */
+    @Nullable
     public LootTable getLootTable(String name) {
         return availableTables.get(name);
     }

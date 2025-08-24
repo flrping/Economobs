@@ -118,13 +118,25 @@ public class DatabaseManager {
                         String type = rs.getString("type");
                         switch (type) {
                             case "ENTITY":
-                                mp.getEntities().put(EntityType.valueOf(rs.getString("context")), rs.getDouble("multiplier"));
+                                try {
+                                    mp.getEntities().put(EntityType.valueOf(rs.getString("context")), rs.getDouble("multiplier"));
+                                } catch (IllegalArgumentException e) {
+                                    Locale.log("Invalid entity type: " + rs.getString("context"));
+                                }
                                 break;
                             case "TOOL":
-                                mp.getTools().put(Material.matchMaterial(rs.getString("context")), rs.getDouble("multiplier"));
+                                try {
+                                    mp.getTools().put(Material.valueOf(rs.getString("context")), rs.getDouble("multiplier"));
+                                } catch (IllegalArgumentException e) {
+                                    Locale.log("Invalid tool: " + rs.getString("context"));
+                                }
                                 break;
                             case "WORLD":
-                                mp.getWorlds().put(UUID.fromString(rs.getString("context")), rs.getDouble("multiplier"));
+                                try {
+                                    mp.getWorlds().put(UUID.fromString(rs.getString("context")), rs.getDouble("multiplier"));
+                                } catch (IllegalArgumentException e) {
+                                    Locale.log("Invalid world: " + rs.getString("context"));
+                                }
                                 break;
                             default:
                                 break;
