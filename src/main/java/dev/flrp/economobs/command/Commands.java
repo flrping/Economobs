@@ -469,7 +469,10 @@ public class Commands extends BaseCommand {
 
     @SubCommand(value = "toggle", alias = {"togglemessage"})
     public void toggleCommand(final CommandSender sender) {
-        Player player = (Player) sender;
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(Locale.parse("&cThis command can only be used by a player."));
+            return;
+        }
         sender.sendMessage(Locale.parse(Locale.PREFIX + Locale.REWARD_TOGGLE));
         if (!plugin.getToggleList().contains(player.getUniqueId())) {
             plugin.getToggleList().add(player.getUniqueId());
