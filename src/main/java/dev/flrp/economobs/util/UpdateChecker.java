@@ -23,8 +23,12 @@ public class UpdateChecker {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             try {
                 InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + resourceID).openStream();
-                Scanner scanner = new Scanner(inputStream);
-                if (scanner.hasNext()) consumer.accept(scanner.next());
+                try (Scanner scanner = new Scanner(inputStream)) {
+                    if (scanner.hasNext()) {
+                        consumer.accept(scanner.next());
+                    }
+                }
+                inputStream.close();
             } catch (IOException e) {
                 Locale.log("Unable to check for updates: " + e.getMessage());
             }

@@ -1,29 +1,34 @@
 package dev.flrp.economobs.manager;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.multiplier.MultiplierGroup;
 import dev.flrp.economobs.multiplier.MultiplierProfile;
-import org.bukkit.Bukkit;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-
-import java.util.HashMap;
-import java.util.Set;
-import java.util.UUID;
 
 public class MultiplierManager {
 
-    Economobs plugin;
-    private final HashMap<String, MultiplierGroup> groups = new HashMap<>();
+    private final Economobs plugin;
+    private final Map<String, MultiplierGroup> groups = new HashMap<>();
 
     public MultiplierManager(Economobs plugin) {
         this.plugin = plugin;
-        if(plugin.getConfig().getConfigurationSection("multipliers") != null) {
-            for(String identifier : plugin.getConfig().getConfigurationSection("multipliers").getKeys(false)) {
+        ConfigurationSection section = plugin.getConfig().getConfigurationSection("multipliers");
+        if (section != null) {
+            for (String identifier : section.getKeys(false)) {
                 groups.put(identifier, new MultiplierGroup(identifier));
             }
-            Locale.log("Loaded &a" + groups.size() + " &rmultiplier groups.");
         }
+        Locale.log("Loaded &a" + groups.size() + " &rmultiplier groups.");
     }
 
     public MultiplierProfile getMultiplierProfile(UUID uuid) {
@@ -35,24 +40,35 @@ public class MultiplierManager {
     }
 
     public MultiplierGroup getMultiplierGroup(UUID uuid) {
-        Set<PermissionAttachmentInfo> infoSet = Bukkit.getPlayer(uuid).getEffectivePermissions();
+        Player player = Bukkit.getPlayer(uuid);
+        if (player == null) {
+            return null;
+        }
+        Set<PermissionAttachmentInfo> infoSet = player.getEffectivePermissions();
         String group = null;
         int weight = 0;
-        for(PermissionAttachmentInfo info : infoSet) {
-            if(!info.getPermission().startsWith("economobs.group.")) continue;
-            String g = info.getPermission().substring(16);
-            if(!groups.containsKey(g)) continue;
-            int w = groups.get(g).getWeight();
-            if(w < weight) continue;
-            group = g;
-            weight = w;
+        for (PermissionAttachmentInfo info : infoSet) {
+            if (info.getPermission().startsWith("economobs.group.")) {
+                String g = info.getPermission().substring(16);
+                MultiplierGroup mg = getMultiplierGroupByName(g);
+                if (mg != null) {
+                    int w = mg.getWeight();
+                    if (w > weight || (w == weight && (group == null || g.compareTo(group) > 0))) {
+                        group = g;
+                        weight = w;
+                    }
+                }
+            }
         }
-        return plugin.getMultiplierManager().getMultiplierGroupByName(group);
+        return group != null ? groups.get(group) : null;
     }
 
     public boolean hasMultiplierGroup(UUID uuid) {
-        for(String groupName : groups.keySet()) {
-            if(Bukkit.getPlayer(uuid).hasPermission("economobs.group." + groupName)) return true;
+        for (String groupName : groups.keySet()) {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null && player.hasPermission("economobs.group." + groupName)) {
+                return true;
+            }
         }
         return false;
     }
@@ -73,7 +89,7 @@ public class MultiplierManager {
         groups.remove(identifier);
     }
 
-    public HashMap<String, MultiplierGroup> getGroups() {
+    public Map<String, MultiplierGroup> getGroups() {
         return groups;
     }
 

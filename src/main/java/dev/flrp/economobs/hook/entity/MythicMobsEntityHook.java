@@ -12,11 +12,12 @@ import org.bukkit.event.Listener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class MythicMobsEntityHook extends MythicMobsEntityProvider implements Listener, Builder {
+public final class MythicMobsEntityHook extends MythicMobsEntityProvider implements Listener, Builder {
 
     private final Economobs plugin;
-    private final HashMap<String, LootContainer> mythicMobsRewards = new HashMap<>();
+    private final Map<String, LootContainer> mythicMobsRewards = new HashMap<>();
 
     private LootContainer defaultLootContainer = new LootContainer();
     private final List<String> excludedEntities = new ArrayList<>();

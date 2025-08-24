@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class Locale {
 
-    private static final Pattern hexPattern = Pattern.compile("<#([A-Fa-f0-9]){6}>");
+    private static final Pattern PATTERN = Pattern.compile("<#([A-Fa-f0-9]){6}>");
     private static final Economobs instance = Economobs.getInstance();
 
     public static String PREFIX;
@@ -21,6 +21,10 @@ public class Locale {
     public static String POTION_GIVEN;
     public static String COMMAND_GIVEN;
     public static String REWARD_TOGGLE;
+
+    private Locale() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static void load() {
         PREFIX = addMessage("prefix");
@@ -39,13 +43,13 @@ public class Locale {
     }
 
     public static String parse(String context) {
-        Matcher matcher = hexPattern.matcher(context);
+        Matcher matcher = PATTERN.matcher(context);
         while (matcher.find()) {
             final ChatColor hexColor = ChatColor.of(matcher.group().substring(1, matcher.group().length() - 1));
             final String before = context.substring(0, matcher.start());
             final String after = context.substring(matcher.end());
             context = before + hexColor + after;
-            matcher = hexPattern.matcher(context);
+            matcher = PATTERN.matcher(context);
         }
         return ChatColor.translateAlternateColorCodes('&', context);
     }

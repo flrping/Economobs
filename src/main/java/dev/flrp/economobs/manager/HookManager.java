@@ -1,12 +1,17 @@
 package dev.flrp.economobs.manager;
 
+import java.util.Set;
+
+import org.bukkit.Bukkit;
+
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
+import dev.flrp.economobs.hook.entity.InfernalMobsEntityHook;
+import dev.flrp.economobs.hook.entity.LevelledMobsEntityHook;
 import dev.flrp.economobs.hook.entity.SentinelHook;
-import dev.flrp.economobs.hook.entity.InfernalMobsHook;
-import dev.flrp.economobs.hook.entity.LevelledMobsHook;
 import dev.flrp.espresso.hook.economy.EconomyProvider;
 import dev.flrp.espresso.hook.economy.EconomyType;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
@@ -15,10 +20,6 @@ import dev.flrp.espresso.hook.hologram.HologramProvider;
 import dev.flrp.espresso.hook.item.ItemProvider;
 import dev.flrp.espresso.hook.item.ItemType;
 import dev.flrp.espresso.hook.stacker.StackerProvider;
-import org.bukkit.Bukkit;
-
-import javax.annotation.Nullable;
-import java.util.Set;
 
 @Singleton
 public class HookManager {
@@ -29,28 +30,35 @@ public class HookManager {
     private final Set<ItemProvider> itemProviders;
     private final HologramProvider hologramProvider;
 
-    private LevelledMobsHook levelledMobsHook;
-    private InfernalMobsHook infernalMobsHook;
+    private LevelledMobsEntityHook levelledMobsEntityHook;
+    private InfernalMobsEntityHook infernalMobsEntityHook;
     private SentinelHook sentinelHook;
 
     @Inject
-    public HookManager(Economobs plugin, Set<EconomyProvider> economyProvider, StackerProvider stackerProvider, Set<EntityProvider> entityProviders, Set<ItemProvider> itemProviders, @Nullable HologramProvider hologramProvider) {
+    public HookManager(
+            Economobs plugin,
+            Set<EconomyProvider> economyProvider,
+            StackerProvider stackerProvider,
+            Set<EntityProvider> entityProviders,
+            Set<ItemProvider> itemProviders,
+            HologramProvider hologramProvider
+    ) {
         this.economyProvider = economyProvider;
         this.stackerProvider = stackerProvider;
         this.entityProviders = entityProviders;
         this.itemProviders = itemProviders;
         this.hologramProvider = hologramProvider;
 
-        if(Bukkit.getServer().getPluginManager().isPluginEnabled("InfernalMobs") && plugin.getConfig().getBoolean("hooks.entity.InfernalMobs")) {
-            infernalMobsHook = new InfernalMobsHook(plugin);
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("InfernalMobs") && plugin.getConfig().getBoolean("hooks.entity.InfernalMobs")) {
+            this.infernalMobsEntityHook = new InfernalMobsEntityHook(plugin);
             Locale.log("Hooking into InfernalMobs.");
         }
-        if(Bukkit.getServer().getPluginManager().isPluginEnabled("LevelledMobs") && plugin.getConfig().getBoolean("hooks.entity.LevelledMobs")) {
-            levelledMobsHook = new LevelledMobsHook(plugin);
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("LevelledMobs") && plugin.getConfig().getBoolean("hooks.entity.LevelledMobs")) {
+            this.levelledMobsEntityHook = new LevelledMobsEntityHook(plugin);
             Locale.log("Hooking into LevelledMobs.");
         }
-        if(Bukkit.getServer().getPluginManager().isPluginEnabled("Sentinel")) {
-            sentinelHook = new SentinelHook(plugin);
+        if (Bukkit.getServer().getPluginManager().isPluginEnabled("Sentinel")) {
+            this.sentinelHook = new SentinelHook();
             Locale.log("Hooking into Sentinel. NPC support enabled.");
         }
     }
@@ -60,9 +68,9 @@ public class HookManager {
     }
 
     public EconomyProvider getEconomyProvider(EconomyType economyType) {
-        for (EconomyProvider economyProvider : economyProvider) {
-            if (economyProvider.getType() == economyType) {
-                return economyProvider;
+        for (EconomyProvider provider : economyProvider) {
+            if (provider.getType() == economyType) {
+                return provider;
             }
         }
         return null;
@@ -107,17 +115,16 @@ public class HookManager {
         return null;
     }
 
-    @Nullable
     public HologramProvider getHologramProvider() {
         return hologramProvider;
     }
 
-    public LevelledMobsHook getLevelledMobs() {
-        return levelledMobsHook;
+    public LevelledMobsEntityHook getLevelledMobs() {
+        return levelledMobsEntityHook;
     }
 
-    public InfernalMobsHook getInfernalMobs() {
-        return infernalMobsHook;
+    public InfernalMobsEntityHook getInfernalMobs() {
+        return infernalMobsEntityHook;
     }
 
     public SentinelHook getSentinel() {

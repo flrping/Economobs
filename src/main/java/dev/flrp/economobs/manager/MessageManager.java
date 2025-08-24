@@ -1,32 +1,58 @@
 package dev.flrp.economobs.manager;
 
+import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
 import dev.flrp.economobs.Economobs;
+import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.espresso.message.Message;
 import dev.flrp.espresso.message.MessageType;
 import dev.flrp.espresso.message.settings.HologramSetting;
 import dev.flrp.espresso.message.settings.TitleSetting;
-import dev.flrp.espresso.table.*;
+import dev.flrp.espresso.table.LootResult;
+import dev.flrp.espresso.table.Lootable;
+import dev.flrp.espresso.table.LootableCommand;
+import dev.flrp.espresso.table.LootableCustomItem;
+import dev.flrp.espresso.table.LootableItem;
+import dev.flrp.espresso.table.LootablePotionEffect;
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
+import dev.flrp.economobs.module.NoopHologramProvider;
 
 public class MessageManager {
 
     private final Economobs plugin;
 
-    private final MessageType messageType;
+    private MessageType messageType;
     private HologramSetting hologramSetting = null;
     private TitleSetting titleSetting = null;
 
     public MessageManager(Economobs plugin) {
         this.plugin = plugin;
-        messageType = plugin.getConfig().contains("message.message-type") ? MessageType.valueOf(plugin.getConfig().getString("message.message-type")) : MessageType.CHAT;
+        messageType = resolveMessageType();
         switch (messageType) {
             case HOLOGRAM:
                 hologramSetting = new HologramSetting(plugin);
+                if (!(plugin.getHookManager().getHologramProvider() instanceof NoopHologramProvider)) {
+                    hologramSetting.setHologramProvider(plugin.getHookManager().getHologramProvider());
+                    hologramSetting.setDuration(plugin.getConfig().getInt("message.holograms.duration", 1) * 20);
+                } else {
+                    Locale.log("No valid hologram provider found. Defaulting to CHAT messages.");
+                    messageType = MessageType.CHAT;
+                    hologramSetting = null;
+                }
                 break;
             case TITLE:
                 titleSetting = new TitleSetting();
+                titleSetting.setIsSubTitle(true);
+                titleSetting.setStay(plugin.getConfig().getInt("message.title.stay", 3) * 20);
+                titleSetting.setFadeIn(plugin.getConfig().getInt("message.title.fade-in", 1) * 20);
+                titleSetting.setFadeOut(plugin.getConfig().getInt("message.title.fade-out", 1) * 20);
+                titleSetting.setTitle(Locale.parse(plugin.getConfig().getString("message.title.title", "&a&lREWARD")));
+                break;
+            default:
                 break;
         }
     }
@@ -50,26 +76,39 @@ public class MessageManager {
     public void sendMessage(Player player, LivingEntity entity, LootResult result, double multiplier, double amount, String entityName) {
         Lootable loot = result.getLootable();
         Message message;
-        if(plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (plugin.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             message = Message.of(PlaceholderAPI.setPlaceholders(player, loot.getMessage()));
         } else {
             message = Message.of(loot.getMessage());
         }
         configureMessageType(message);
 
-        if (loot.getType() == LootType.ITEM) {
-            String name = ((LootableItem) loot).getItemStack().getItemMeta().hasDisplayName() ?
-                    ((LootableItem) loot).getItemStack().getItemMeta().getDisplayName() :
-                    capitalizeAndRemoveUnderscores(((LootableItem) loot).getItemStack().getType().name());
-            message.register("{item}", name);
-        } else if (loot.getType() == LootType.CUSTOM_ITEM) {
-            message.register("{item}", capitalizeAndRemoveUnderscores(((LootableCustomItem) loot).getCustomItemName()));
-        } else if (loot.getType() == LootType.POTION) {
-            message.register("{effect}", capitalizeAndRemoveUnderscores(((LootablePotionEffect) loot).getEffectType().getName()));
-            message.register("{amplifier}", String.valueOf(((LootablePotionEffect) loot).getAmplifier() + 1));
-            message.register("{duration}", String.valueOf(result.getAmount()));
-        } else if (loot.getType() == LootType.COMMAND) {
-            message.register("{command}", ((LootableCommand) loot).getCommand());
+        if (null != loot.getType()) {
+            switch (loot.getType()) {
+                case ITEM:
+                    ItemStack item = ((LootableItem) loot).getItemStack();
+                    ItemMeta meta = item.getItemMeta();
+                    if (meta != null) {
+                        String name = meta.hasDisplayName() ? meta.getDisplayName() : capitalizeAndRemoveUnderscores(item.getType().name());
+                        message.register("{item}", name);
+                    } else {
+                        message.register("{item}", capitalizeAndRemoveUnderscores(item.getType().name()));
+                    }
+                    break;
+                case CUSTOM_ITEM:
+                    message.register("{item}", capitalizeAndRemoveUnderscores(((LootableCustomItem) loot).getCustomItemName()));
+                    break;
+                case POTION:
+                    message.register("{effect}", capitalizeAndRemoveUnderscores(((LootablePotionEffect) loot).getEffectType().getName()));
+                    message.register("{amplifier}", String.valueOf(((LootablePotionEffect) loot).getAmplifier() + 1));
+                    message.register("{duration}", String.valueOf(result.getAmount()));
+                    break;
+                case COMMAND:
+                    message.register("{command}", ((LootableCommand) loot).getCommand());
+                    break;
+                default:
+                    break;
+            }
         }
 
         message.register("{base}", handleNumber(result.getAmount()));
@@ -82,9 +121,20 @@ public class MessageManager {
         message.register("{loot_table}", result.getLootTable().getIdentifier());
 
         if (messageType == MessageType.HOLOGRAM) {
-            message.at(entity);
+            Location loc = entity.getLocation();
+            loc.setY(loc.getY() + entity.getHeight());
+            message.at(loc);
         } else {
             message.to(player);
+        }
+    }
+
+    private MessageType resolveMessageType() {
+        try {
+            return MessageType.valueOf(plugin.getConfig().getString("message.message-type", "CHAT"));
+        } catch (IllegalArgumentException e) {
+            Locale.log("Invalid message type found in configuration. Using CHAT.");
+            return MessageType.CHAT;
         }
     }
 
@@ -116,8 +166,6 @@ public class MessageManager {
     }
 
     private String handleNumber(double number) {
-        // Needs decimal removed if it is a whole number
-        // If it isn't a whole number, it needs to be rounded to the nearest hundredth
         return number % 1 == 0 ? String.valueOf((int) number) : String.valueOf(Math.round(number * 100.0) / 100.0);
     }
 

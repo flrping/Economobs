@@ -24,13 +24,21 @@ public class MythicMobsListener implements Listener {
         LivingEntity entity = (LivingEntity) event.getEntity();
         Entity killer = event.getKiller();
 
-        if (killer == null) return;
-        if(!(killer instanceof Player)) return;
-        if(plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) return;
+        if (killer == null) {
+            return;
+        }
+        if (!(killer instanceof Player)) {
+            return;
+        }
+        if (plugin.getConfig().getStringList("world-blacklist").contains(entity.getWorld().getName())) {
+            return;
+        }
 
         MythicMobsEntityHook mythicMobsHook = (MythicMobsEntityHook) plugin.getHookManager().getEntityProvider(EntityType.MYTHIC_MOBS);
         String entityName = mythicMobsHook.getCustomEntityName(entity);
-        if(!mythicMobsHook.hasLootContainer(entityName) && mythicMobsHook.getExcludedEntities().contains(entityName)) return;
+        if (!mythicMobsHook.hasLootContainer(entityName) && mythicMobsHook.getExcludedEntities().contains(entityName)) {
+            return;
+        }
 
         LootContainer lootContainer = mythicMobsHook.hasLootContainer(entityName)
                 ? mythicMobsHook.getLootContainer(entityName)

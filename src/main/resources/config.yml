@@ -57,6 +57,9 @@ message:
   # HOLOGRAMS
   # This will only work if you have holograms set as your type.
   holograms:
+    # This option will affect the hologram provider.
+    # Current list: NONE, DECENT_HOLOGRAMS
+    provider: NONE
     # This option will affect animations.
     # How long should the hologram stay? This is in seconds.
     duration: 1

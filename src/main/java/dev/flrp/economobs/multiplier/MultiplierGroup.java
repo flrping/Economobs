@@ -6,22 +6,25 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;
 
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class MultiplierGroup {
 
     private final String identifier;
     private int weight;
-    private final HashMap<EntityType, Double> entities = new HashMap<>();
-    private final HashMap<Material, Double> tools = new HashMap<>();
-    private final HashMap<UUID, Double> worlds = new HashMap<>();
-    private final HashMap<String, Double> customEntities = new HashMap<>(), customTools = new HashMap<>();
+    private final Map<EntityType, Double> entities = new EnumMap<>(EntityType.class);
+    private final Map<Material, Double> tools = new EnumMap<>(Material.class);
+    private final Map<UUID, Double> worlds = new HashMap<>();
+    private final Map<String, Double> customEntities = new HashMap<>();
+    private final Map<String, Double> customTools = new HashMap<>();
 
     public MultiplierGroup(String identifier) {
         this.identifier = identifier;
         weight = Economobs.getInstance().getConfig().contains("multipliers." + identifier + ".weight") ? Economobs.getInstance().getConfig().getInt("multipliers." + identifier + ".weight") : 0;
-        for(String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".mobs")) {
+        for (String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".mobs")) {
             try {
                 EntityType entity = EntityType.valueOf(entry.substring(0, entry.indexOf(' ')));
                 double multiplier = Double.parseDouble(entry.substring(entry.indexOf(' ')));
@@ -32,7 +35,7 @@ public class MultiplierGroup {
                 Locale.log("&cEntity cannot be found (" + entry + "), skipping.");
             }
         }
-        for(String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".weapons")) {
+        for (String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".weapons")) {
             try {
                 Material material = Material.getMaterial(entry.substring(0, entry.indexOf(' ')));
                 double multiplier = Double.parseDouble(entry.substring(entry.indexOf(' ')));
@@ -41,7 +44,7 @@ public class MultiplierGroup {
                 Locale.log("&cInvalid entry (" + entry + "), skipping.");
             }
         }
-        for(String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".worlds")) {
+        for (String entry : Economobs.getInstance().getConfig().getStringList("multipliers." + identifier + ".worlds")) {
             try {
                 UUID uuid = Bukkit.getWorld(entry.substring(0, entry.indexOf(' '))).getUID();
                 double multiplier = Double.parseDouble(entry.substring(entry.indexOf(' ')));
@@ -62,23 +65,23 @@ public class MultiplierGroup {
         return weight;
     }
 
-    public HashMap<UUID, Double> getWorlds() {
+    public Map<UUID, Double> getWorlds() {
         return worlds;
     }
 
-    public HashMap<EntityType, Double> getEntities() {
+    public Map<EntityType, Double> getEntities() {
         return entities;
     }
 
-    public HashMap<Material, Double> getTools() {
+    public Map<Material, Double> getTools() {
         return tools;
     }
 
-    public HashMap<String, Double> getCustomEntities() {
+    public Map<String, Double> getCustomEntities() {
         return customEntities;
     }
 
-    public HashMap<String, Double> getCustomTools() {
+    public Map<String, Double> getCustomTools() {
         return customTools;
     }
 
@@ -86,11 +89,11 @@ public class MultiplierGroup {
         this.weight = weight;
     }
 
-    public void setCustomEntities(HashMap<String, Double> customEntities) {
+    public void setCustomEntities(Map<String, Double> customEntities) {
         this.customEntities.putAll(customEntities);
     }
 
-    public void setCustomTools(HashMap<String, Double> customTools) {
+    public void setCustomTools(Map<String, Double> customTools) {
         this.customTools.putAll(customTools);
     }
 

@@ -18,14 +18,22 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        if(!plugin.getConfig().getBoolean("reward-pvp", false)) return;
+        if (!plugin.getConfig().getBoolean("reward-pvp", false)) {
+            return;
+        }
 
         LivingEntity killed = event.getEntity();
         Player killer = event.getEntity().getKiller();
 
-        if(killer == null) return;
-        if(plugin.getConfig().getStringList("world-blacklist").contains(killed.getWorld().getName())) return;
-        if(!plugin.getRewardManager().hasLootContainer(killed.getType()) && plugin.getRewardManager().getExcludedEntities().contains(killed.getType())) return;
+        if (killer == null) {
+            return;
+        }
+        if (plugin.getConfig().getStringList("world-blacklist").contains(killed.getWorld().getName())) {
+            return;
+        }
+        if (!plugin.getRewardManager().hasLootContainer(killed.getType()) && plugin.getRewardManager().getExcludedEntities().contains(killed.getType())) {
+            return;
+        }
 
         LootContainer lootContainer = plugin.getRewardManager().hasLootContainer(killed.getType())
                 ? plugin.getRewardManager().getLootContainer(killed.getType())

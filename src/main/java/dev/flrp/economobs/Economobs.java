@@ -1,29 +1,40 @@
 package dev.flrp.economobs;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.bstats.bukkit.Metrics;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.java.JavaPlugin;
+
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+
 import dev.flrp.economobs.command.Commands;
 import dev.flrp.economobs.configuration.Builder;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.listener.PlayerListener;
-import dev.flrp.economobs.manager.*;
-import dev.flrp.economobs.module.*;
+import dev.flrp.economobs.manager.DatabaseManager;
+import dev.flrp.economobs.manager.HookManager;
+import dev.flrp.economobs.manager.MessageManager;
+import dev.flrp.economobs.manager.MultiplierManager;
+import dev.flrp.economobs.manager.RewardManager;
+import dev.flrp.economobs.module.EconomyModule;
+import dev.flrp.economobs.module.EntityModule;
+import dev.flrp.economobs.module.HologramModule;
+import dev.flrp.economobs.module.ItemModule;
+import dev.flrp.economobs.module.StackerModule;
 import dev.flrp.economobs.placeholder.EconomobsExpansion;
 import dev.flrp.economobs.util.UpdateChecker;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.entity.custom.EntityProvider;
 import dev.flrp.espresso.hook.item.ItemProvider;
+import dev.flrp.espresso.storage.exception.ProviderException;
 import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
 import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.message.MessageKey;
-import org.bstats.bukkit.Metrics;
-import org.bukkit.command.CommandSender;
-import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public final class Economobs extends JavaPlugin {
 
@@ -53,14 +64,11 @@ public final class Economobs extends JavaPlugin {
         Locale.log("&aStarting...");
 
         // bStats
-        Metrics metrics = new Metrics(this, 12086);
+        new Metrics(this, 12086);
 
         // Files
         initiateFiles();
         Locale.load();
-
-        // Initiation
-        initiateClasses();
 
         // Modules
         Injector hookInjector = Guice.createInjector(new EconomyModule(this), new StackerModule(this), new EntityModule(this), new ItemModule(this), new HologramModule(this));
@@ -69,19 +77,22 @@ public final class Economobs extends JavaPlugin {
 
         // Update Checker
         new UpdateChecker(this, 90004).checkForUpdate(version -> {
-            if(getConfig().getBoolean("check-for-updates")) {
-                if(!getDescription().getVersion().equalsIgnoreCase(version)) {
-                    Locale.log("&8--------------");
-                    Locale.log("A new version of Economobs is available!");
-                    Locale.log("Download it here:&a https://www.spigotmc.org/resources/economobs.90004/");
-                    Locale.log("&8--------------");
-                }
+            if (getConfig().getBoolean("check-for-updates") && !getDescription().getVersion().equalsIgnoreCase(version)) {
+                Locale.log("&8--------------");
+                Locale.log("A new version of Economobs is available!");
+                Locale.log("Download it here:&a https://www.spigotmc.org/resources/economobs.90004/");
+                Locale.log("&8--------------");
             }
         });
 
+        // Initiation
+        initiateClasses();
+
         // Hooks
         File dir = new File(getDataFolder(), "hooks");
-        if(!dir.exists()) dir.mkdir();
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
 
         // Player Listener
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
@@ -96,7 +107,7 @@ public final class Economobs extends JavaPlugin {
         commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> sender.sendMessage(Locale.parse(Locale.PREFIX + "&cInvalid usage. See /economobs.")));
 
         // Placeholders
-        if(getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
+        if (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI")) {
             new EconomobsExpansion(this).register();
         }
 
@@ -109,20 +120,25 @@ public final class Economobs extends JavaPlugin {
 
         //Files
         initiateFiles();
-
-        // Initiation
-        initiateClasses();
         Locale.load();
 
         // Modules
-        for(EntityProvider entityProvider : hookManager.getEntityProviders()) {
-            ((Builder) entityProvider).reload();
+        for (EntityProvider entityProvider : hookManager.getEntityProviders()) {
+            if (entityProvider instanceof Builder builder) {
+                builder.reload();
+            }
         }
-        for(ItemProvider itemProvider : hookManager.getItemProviders()) {
-            ((Builder) itemProvider).reload();
+        for (ItemProvider itemProvider : hookManager.getItemProviders()) {
+            if (itemProvider instanceof Builder builder) {
+                builder.reload();
+            }
         }
 
         hookManager.getStackerProvider().registerEvents();
+
+        // Initiation
+        initiateClasses();
+
         Locale.log("&aDone!");
 
         databaseManager.refresh();
@@ -130,7 +146,13 @@ public final class Economobs extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        databaseManager.getStorageProvider().close();
+        if (databaseManager.getStorageProvider() != null) {
+            try {
+                databaseManager.getStorageProvider().close();
+            } catch (ProviderException e) {
+                Locale.log("Unable to close the database: " + e.getMessage());
+            }
+        }
     }
 
     private void initiateFiles() {

@@ -6,7 +6,7 @@ import dev.flrp.economobs.util.Methods;
 import dev.flrp.espresso.configuration.Configuration;
 import dev.flrp.espresso.hook.item.NexoItemProvider;
 
-public class NexoItemHook extends NexoItemProvider implements Builder {
+public final class NexoItemHook extends NexoItemProvider implements Builder {
 
     private final Economobs plugin;
 

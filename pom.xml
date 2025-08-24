@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>dev.flrp</groupId>
-    <artifactId>Economobs</artifactId>
-    <version>2.4.0</version>
+    <artifactId>economobs</artifactId>
+    <version>2.4.1</version>
     <packaging>jar</packaging>
 
     <name>Economobs</name>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -30,7 +30,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.4</version>
+                <version>3.5.0</version>
                 <configuration>
                     <relocations>
                         <relocation>
@@ -123,8 +123,8 @@
             <url>https://central.sonatype.com/</url>
         </repository>
         <repository>
-            <id>craftaro-minecraft-plugins</id>
-            <url>https://repo.craftaro.com/repository/minecraft-plugins/</url>
+            <id>songoda-minecraft-plugins</id>
+            <url>https://repo.songoda.com/repository/minecraft-plugins/</url>
         </repository>
         <repository>
             <id>nexo</id>
@@ -150,7 +150,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <version>1.21.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -160,8 +160,8 @@
         </dependency>
         <dependency>
             <groupId>dev.flrp</groupId>
-            <artifactId>Espresso</artifactId>
-            <version>1.3.0</version>
+            <artifactId>espresso</artifactId>
+            <version>1.4.0</version>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -242,7 +242,7 @@
         <dependency>
             <groupId>com.github.Realizedd</groupId>
             <artifactId>TokenManager</artifactId>
-            <version>3.2.8</version>
+            <version>3.2.7</version>
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
