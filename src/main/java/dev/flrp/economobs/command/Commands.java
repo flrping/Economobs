@@ -1,5 +1,14 @@
 package dev.flrp.economobs.command;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.economobs.hook.entity.ItemsAdderEntityHook;
@@ -19,14 +28,6 @@ import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-
-import java.util.List;
-import java.util.UUID;
 
 @Command(value = "economobs", alias = {"em"})
 public class Commands extends BaseCommand {
@@ -78,13 +79,21 @@ public class Commands extends BaseCommand {
         }
 
         if (args.size() < 4) {
-            send(sender, "&cUsage: /economobs multiplier <add/remove> <player> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier>");
+            send(sender, "&cUsage: /economobs multiplier <add/remove> <player> <entity/tool/world/custom_entity/custom_tool> <context> [multiplier]");
+            return;
+        }
+        String action = args.get(0).toLowerCase();
+        if (action.equals("add") && args.size() != 5) {
+            send(sender, "&cUsage: /economobs multiplier add <player> <entity/tool/world/custom_entity/custom_tool> <context> <multiplier>");
+            return;
+        }
+        if (action.equals("remove") && args.size() != 4) {
+            send(sender, "&cUsage: /economobs multiplier remove <player> <entity/tool/world/custom_entity/custom_tool> <context>");
             return;
         }
 
-        String action = args.get(0);
         String player = args.get(1);
-        String type = args.get(2);
+        String type = args.get(2).toLowerCase();
         String context = args.get(3);
         double multiplier = 1;
 
@@ -94,18 +103,17 @@ public class Commands extends BaseCommand {
             return;
         }
 
-        if (args.size() == 5) {
+        if (action.equals("add")) {
             try {
                 multiplier = Double.parseDouble(args.get(4));
             } catch (NumberFormatException e) {
                 send(sender, "&4" + args.get(4) + " &cis not a valid number.");
                 return;
             }
-
         }
 
-        if ((multiplier == 1 && action.equals("add"))) {
-            send(sender, "&cInvalid multiplier. Please add a value that modifies the base amount.");
+        if (action.equals("add") && (multiplier <= 0)) {
+            send(sender, "&cInvalid multiplier. Use a value greater than 0.");
             return;
         }
 
