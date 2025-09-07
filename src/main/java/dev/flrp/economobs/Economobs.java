@@ -39,6 +39,7 @@ import dev.triumphteam.cmd.core.message.MessageKey;
 public final class Economobs extends JavaPlugin {
 
     private static Economobs instance;
+    private Metrics metrics;
 
     private Configuration config;
     private Configuration mobs;
@@ -64,16 +65,20 @@ public final class Economobs extends JavaPlugin {
         Locale.log("&aStarting...");
 
         // bStats
-        new Metrics(this, 12086);
+        metrics = new Metrics(this, 12086);
 
         // Files
         initiateFiles();
         Locale.load();
 
+        initiateClasses();
+
         // Modules
         Injector hookInjector = Guice.createInjector(new EconomyModule(this), new StackerModule(this), new EntityModule(this), new ItemModule(this), new HologramModule(this));
         hookManager = hookInjector.getInstance(HookManager.class);
         hookManager.getStackerProvider().registerEvents();
+
+        messageManager.resolveHologramProvider();
 
         // Update Checker
         new UpdateChecker(this, 90004).checkForUpdate(version -> {
@@ -84,9 +89,6 @@ public final class Economobs extends JavaPlugin {
                 Locale.log("&8--------------");
             }
         });
-
-        // Initiation
-        initiateClasses();
 
         // Hooks
         File dir = new File(getDataFolder(), "hooks");
@@ -122,6 +124,9 @@ public final class Economobs extends JavaPlugin {
         initiateFiles();
         Locale.load();
 
+        // Classes
+        initiateClasses();
+
         // Modules
         for (EntityProvider entityProvider : hookManager.getEntityProviders()) {
             if (entityProvider instanceof Builder builder) {
@@ -134,10 +139,9 @@ public final class Economobs extends JavaPlugin {
             }
         }
 
-        hookManager.getStackerProvider().registerEvents();
+        messageManager.resolveHologramProvider();
 
-        // Initiation
-        initiateClasses();
+        hookManager.getStackerProvider().registerEvents();
 
         Locale.log("&aDone!");
 
