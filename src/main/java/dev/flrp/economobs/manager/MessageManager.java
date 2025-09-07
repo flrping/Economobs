@@ -35,14 +35,6 @@ public class MessageManager {
         switch (messageType) {
             case HOLOGRAM:
                 hologramSetting = new HologramSetting(plugin);
-                if (!(plugin.getHookManager().getHologramProvider() instanceof NoopHologramProvider)) {
-                    hologramSetting.setHologramProvider(plugin.getHookManager().getHologramProvider());
-                    hologramSetting.setDuration(plugin.getConfig().getInt("message.holograms.duration", 1) * 20);
-                } else {
-                    Locale.log("No valid hologram provider found. Defaulting to CHAT messages.");
-                    messageType = MessageType.CHAT;
-                    hologramSetting = null;
-                }
                 break;
             case TITLE:
                 titleSetting = new TitleSetting();
@@ -54,6 +46,18 @@ public class MessageManager {
                 break;
             default:
                 break;
+        }
+    }
+
+    public void resolveHologramProvider() {
+        if (messageType != MessageType.HOLOGRAM) return;
+        if (!(plugin.getHookManager().getHologramProvider() instanceof NoopHologramProvider)) {
+            hologramSetting.setHologramProvider(plugin.getHookManager().getHologramProvider());
+            hologramSetting.setDuration(plugin.getConfig().getInt("message.holograms.duration", 1) * 20);
+        } else {
+            Locale.log("No valid hologram provider found. Defaulting to CHAT messages.");
+            messageType = MessageType.CHAT;
+            hologramSetting = null;
         }
     }
 
