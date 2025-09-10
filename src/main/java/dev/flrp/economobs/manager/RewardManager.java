@@ -784,7 +784,6 @@ public class RewardManager {
         }
 
         result.setAmount(base);
-        double roundedFinal = roundWithSettings(base * multiplier);
 
         MobRewardEvent event = new MobRewardEvent(player, result);
         Bukkit.getPluginManager().callEvent(event);
@@ -792,6 +791,7 @@ public class RewardManager {
             return;
         }
 
+        double roundedFinal = roundWithSettings(result.getAmount() * multiplier);
         plugin.getHookManager().getEconomyProvider(loot.getEconomyType()).deposit(player, roundedFinal);
         if (!plugin.getToggleList().contains(player.getUniqueId())) {
             plugin.getMessageManager().sendMessage(player, entity, result, multiplier, roundedFinal, entityName);
