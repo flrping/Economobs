@@ -783,29 +783,7 @@ public class RewardManager {
             }
         }
 
-        boolean allowDecimals = plugin.getConfig().getBoolean("rewards.economy.allow-decimals", true);
-        String roundMode = plugin.getConfig().getString("rewards.economy.round-mode", "NEAREST");
-        if (roundMode == null) {
-            roundMode = "NEAREST";
-        }
-        roundMode = roundMode.toUpperCase();
-        if (!allowDecimals) {
-            switch (roundMode) {
-                case "CEIL":
-                    base = Math.ceil(base);
-                    break;
-                case "FLOOR":
-                    base = Math.floor(base);
-                    break;
-                case "NEAREST":
-                default:
-                    base = Math.round(base);
-                    break;
-            }
-        }
         result.setAmount(base);
-
-        double amount = base * multiplier;
 
         MobRewardEvent event = new MobRewardEvent(player, result);
         Bukkit.getPluginManager().callEvent(event);
@@ -813,9 +791,10 @@ public class RewardManager {
             return;
         }
 
-        plugin.getHookManager().getEconomyProvider(loot.getEconomyType()).deposit(player, amount);
+        double roundedFinal = roundWithSettings(result.getAmount() * multiplier);
+        plugin.getHookManager().getEconomyProvider(loot.getEconomyType()).deposit(player, roundedFinal);
         if (!plugin.getToggleList().contains(player.getUniqueId())) {
-            plugin.getMessageManager().sendMessage(player, entity, result, multiplier, amount, entityName);
+            plugin.getMessageManager().sendMessage(player, entity, result, multiplier, roundedFinal, entityName);
         }
     }
 
@@ -959,6 +938,41 @@ public class RewardManager {
         }
 
         return amount;
+    }
+
+    private double roundWithSettings(double value) {
+        boolean allowDecimals = plugin.getConfig().getBoolean("rewards.economy.allow-decimals", true);
+        int decimalPrecision = plugin.getConfig().getInt("rewards.economy.decimal-precision", 2);
+        String roundMode = plugin.getConfig().getString("rewards.economy.round-mode", "NEAREST").toUpperCase();
+
+        switch (roundMode) {
+            case "CEIL":
+                if (!allowDecimals) {
+                    value = Math.ceil(value);
+                } else {
+                    double scale = Math.pow(10, decimalPrecision);
+                    value = Math.ceil(value * scale) / scale;
+                }
+                break;
+            case "FLOOR":
+                if (!allowDecimals) {
+                    value = Math.floor(value);
+                } else {
+                    double scale = Math.pow(10, decimalPrecision);
+                    value = Math.floor(value * scale) / scale;
+                }
+                break;
+            case "NEAREST":
+            default:
+                if (!allowDecimals) {
+                    value = Math.round(value);
+                } else {
+                    double scale = Math.pow(10, decimalPrecision);
+                    value = Math.round(value * scale) / scale;
+                }
+                break;
+        }
+        return value;
     }
 
 }

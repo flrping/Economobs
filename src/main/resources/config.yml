@@ -33,6 +33,8 @@ rewards:
   economy:
     # If enabled, economy loot with ranges will allow decimals. If disabled, they will be rounded.
     allow-decimals: true
+    # How many decimal places should be considered if allow-decimals is true?
+    decimal-precision: 2
     # Modes: CEIL, FLOOR, NEAREST
     # CEIL - Rounds up to the nearest whole number.
     # FLOOR - Rounds down to the nearest whole number.
@@ -58,7 +60,7 @@ message:
   # This will only work if you have holograms set as your type.
   holograms:
     # This option will affect the hologram provider.
-    # Current list: NONE, DECENT_HOLOGRAMS
+    # Current list: NONE, DECENT_HOLOGRAMS, CMI
     provider: NONE
     # This option will affect animations.
     # How long should the hologram stay? This is in seconds.
