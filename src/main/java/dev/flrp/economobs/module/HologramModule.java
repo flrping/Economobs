@@ -9,6 +9,7 @@ import com.google.inject.AbstractModule;
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
 import dev.flrp.espresso.hook.hologram.DecentHologramsHologramProvider;
+import dev.flrp.espresso.hook.hologram.CMIHologramProvider;
 import dev.flrp.espresso.hook.hologram.HologramProvider;
 import dev.flrp.espresso.hook.hologram.HologramType;
 
@@ -34,6 +35,8 @@ public class HologramModule extends AbstractModule {
         switch (hologramType) {
             case DECENT_HOLOGRAMS:
                 return createHologramProvider(pluginManager, "DecentHolograms", DecentHologramsHologramProvider::new);
+            case CMI:
+                return createHologramProvider(pluginManager, "CMI", CMIHologramProvider::new);
             default:
                 Locale.log("No hologram plugin found.");
                 return new NoopHologramProvider();
