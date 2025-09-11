@@ -486,7 +486,7 @@ public class Commands extends BaseCommand {
     public void reloadCommand(final CommandSender sender) {
         plugin.reloadConfig();
         plugin.onReload();
-        sender.sendMessage(Locale.parse(Locale.PREFIX + "&aEconomobs successfully reloaded."));
+        sender.sendMessage(Locale.parse(Locale.PREFIX + "&aEconomobs successfully reloaded. Some options may need a server restart to take effect."));
     }
 
     private void send(CommandSender sender, String message) {

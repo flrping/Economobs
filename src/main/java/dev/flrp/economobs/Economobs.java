@@ -139,6 +139,8 @@ public final class Economobs extends JavaPlugin {
             }
         }
 
+        messageManager.resolveHologramProvider();
+
         hookManager.getStackerProvider().registerEvents();
 
         Locale.log("&aDone!");
