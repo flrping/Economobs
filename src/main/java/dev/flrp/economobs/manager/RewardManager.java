@@ -17,10 +17,10 @@ import org.bukkit.block.Biome;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffect;
 
 import dev.flrp.economobs.Economobs;
@@ -774,13 +774,6 @@ public class RewardManager {
         if (plugin.getHookManager().getLevelledMobs() != null && plugin.getHookManager().getLevelledMobs().hasLevel(entity)) {
             base += ((plugin.getHookManager().getLevelledMobs().getLevel(entity) - 1)
                     * plugin.getHookManager().getLevelledMobs().getAdditions().get(entity.getType()).calculateNumber(true));
-        }
-        if (plugin.getHookManager().getInfernalMobs() != null && plugin.getHookManager().getInfernalMobs().hasModifiers(entity)) {
-            for (MetadataValue value : entity.getMetadata("infernalMetadata")) {
-                for (String modifier : value.asString().split(",")) {
-                    base += plugin.getHookManager().getInfernalMobs().getAdditions().get(modifier).calculateNumber(true);
-                }
-            }
         }
 
         result.setAmount(base);

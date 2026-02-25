@@ -86,8 +86,6 @@ hooks:
     # Enable LevelledMobs support? Adds the ability to add money per level to the base amount (before applying multipliers).
     LevelledMobs: true
     # Enable InfernalMobs support? Adds the ability to add money per modifier to the base amount (before applying multipliers).
-    InfernalMobs: true
-    # Enable ItemsAdder support? Allows players to earn rewards from custom mobs, and enables multipliers for custom entities.
     ItemsAdder: true
     # Enable Sentinels support? Adds the ability for Sentinels to reward their owners.
     Sentinel: true

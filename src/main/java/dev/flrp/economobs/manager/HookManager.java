@@ -9,7 +9,6 @@ import com.google.inject.Singleton;
 
 import dev.flrp.economobs.Economobs;
 import dev.flrp.economobs.configuration.Locale;
-import dev.flrp.economobs.hook.entity.InfernalMobsEntityHook;
 import dev.flrp.economobs.hook.entity.LevelledMobsEntityHook;
 import dev.flrp.economobs.hook.entity.SentinelHook;
 import dev.flrp.espresso.hook.economy.EconomyProvider;
@@ -31,7 +30,6 @@ public class HookManager {
     private final HologramProvider hologramProvider;
 
     private LevelledMobsEntityHook levelledMobsEntityHook;
-    private InfernalMobsEntityHook infernalMobsEntityHook;
     private SentinelHook sentinelHook;
 
     @Inject
@@ -49,10 +47,6 @@ public class HookManager {
         this.itemProviders = itemProviders;
         this.hologramProvider = hologramProvider;
 
-        if (Bukkit.getServer().getPluginManager().isPluginEnabled("InfernalMobs") && plugin.getConfig().getBoolean("hooks.entity.InfernalMobs")) {
-            this.infernalMobsEntityHook = new InfernalMobsEntityHook(plugin);
-            Locale.log("Hooking into InfernalMobs.");
-        }
         if (Bukkit.getServer().getPluginManager().isPluginEnabled("LevelledMobs") && plugin.getConfig().getBoolean("hooks.entity.LevelledMobs")) {
             this.levelledMobsEntityHook = new LevelledMobsEntityHook(plugin);
             Locale.log("Hooking into LevelledMobs.");
@@ -121,10 +115,6 @@ public class HookManager {
 
     public LevelledMobsEntityHook getLevelledMobs() {
         return levelledMobsEntityHook;
-    }
-
-    public InfernalMobsEntityHook getInfernalMobs() {
-        return infernalMobsEntityHook;
     }
 
     public SentinelHook getSentinel() {
