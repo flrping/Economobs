@@ -859,7 +859,10 @@ public class RewardManager {
         if (plugin.getConfig().contains("drop-on-ground") && plugin.getConfig().getBoolean("drop-on-ground")) {
             ItemStack item = plugin.getHookManager().getItemProvider(loot.getItemType()).getItemStack(loot.getCustomItemName());
             item.setAmount((int) result.getAmount());
-            entity.getWorld().dropItemNaturally(entity.getLocation(), item);
+            Item itemDrop = entity.getWorld().dropItemNaturally(entity.getLocation(), item);
+            if (plugin.getConfig().getBoolean("rewards.glow.enabled", false)) {
+                itemDrop.setGlowing(true);
+            }
         } else {
             plugin.getHookManager().getItemProvider(loot.getItemType()).giveItem(player, loot.getCustomItemName(), (int) result.getAmount());
         }

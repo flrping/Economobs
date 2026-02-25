@@ -45,6 +45,9 @@ rewards:
     enabled: true
     # The max amount of rewards that are rolled.
     amount: 10
+  glow:
+    # Should dropped items glow? Only works on supported versions.
+    enabled: true
 
 # Message handling.
 message:
