@@ -890,7 +890,10 @@ public class RewardManager {
         ItemStack item = loot.getItemStack();
         item.setAmount((int) result.getAmount());
         if (plugin.getConfig().contains("drop-on-ground") && plugin.getConfig().getBoolean("drop-on-ground")) {
-            entity.getWorld().dropItemNaturally(entity.getLocation(), item);
+            Item itemDrop = entity.getWorld().dropItemNaturally(entity.getLocation(), item);
+            if (plugin.getConfig().getBoolean("rewards.glow.enabled", false)) {
+                itemDrop.setGlowing(true);
+            }
         } else {
             player.getInventory().addItem(item);
         }
